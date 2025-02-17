@@ -1,0 +1,39 @@
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+
+
+<html>
+
+
+
+<body>
+    <div class="d-flex flex-column vh-100 justify-content-spaced    ">
+        <nav class="navbar navbar-expand navbar-dark bg-dark">
+            <a class="navbar-brand px-3" href="{%url 'polls:index'%}">
+                <h2>Polls</h2>
+            </a>
+            <ul class="nav nav-pills nav-fill">
+                <li>
+                    <a class="nav-link text-light" href="{%url 'polls:index'%}">Home</a>
+                </li>
+                <li>
+                    <a class="nav-link text-light" href="{%url 'polls:add'%}">Add a Poll</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="d-flex flex-column justify-content-center align-items-center ">
+            {% block content %}{% endblock %}
+        </div>
+
+
+        <div class="mx-5 mt-auto d-flex p-3 border-top">
+            © 2025, Shahryar Kiani
+          </div>
+    </div>
+
+</body>
+
+</html>
