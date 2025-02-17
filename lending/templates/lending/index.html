@@ -4,6 +4,11 @@
 
 {% block content %}
 
+{% if user.is_staff == True%}
+
+<h2> ur a librarian
+{% else %}
+<br/>
 <h2>Our content goes here</h2>
 
 

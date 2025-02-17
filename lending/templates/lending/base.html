@@ -20,7 +20,12 @@
             </ul>
         </nav>
         <div class="d-flex flex-column justify-content-center align-items-center ">
-            {% block content %}{% endblock %}
+            {% block content %}
+            {% comment%}
+                Content for inheriting pages goes here
+            {% endcomment %}
+            
+            {% endblock %}
         </div>
 
 
