@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
+from .forms import BookForm
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -8,3 +9,14 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+def add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('lending:index')
+    else:
+        form = BookForm()
+    
+    return render(request, 'lending/add_book.html', {'form': form})

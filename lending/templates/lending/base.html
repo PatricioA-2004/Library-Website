@@ -7,6 +7,12 @@
 
 <html>
 
+<head>
+    <title>{% block title %}Library System{% endblock %}</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+
 <body>
     <div class="d-flex flex-column vh-100 justify-content-spaced    ">
         <nav class="navbar navbar-expand navbar-dark bg-dark">
@@ -16,6 +22,9 @@
             <ul class="nav nav-pills nav-fill">
                 <li>
                     <a class="nav-link text-light" href="{%url 'lending:index'%}">Home</a>
+                </li>
+                <li>
+                    <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
                 </li>
             </ul>
         </nav>
