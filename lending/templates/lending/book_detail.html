@@ -3,36 +3,67 @@
 {% load static %}
 
 {% block content %}
-<h1 class="fw-bold mt-2" style="font-size: 90px;"> {{ book.book_title }} </h1>
-
-<div class="container">
-    <div class="row">
-        <!--Left Column-->
-        <div class="col" style="font-size: 30px;">
-            <div class="fw-bold text-decoration-underline"> Author </div>
-            <div class="mb-4"> {{ book.book_author }} </div>
-
-            <div class="fw-bold text-decoration-underline"> Publication year </div>
-            <div class="mb-4"> {{ book.pub_year }} </div>
-
-            <div class="fw-bold text-decoration-underline"> Genre </div>
-            <div class="mb-4"> {{ book.genre }} </div>
-        </div>
-    
+<div class="container-fluid">
+    <div class="row mt-5">
         <!--Book Cover-->
-        <div class="col mt-2">
-            <img src="{{ book.book_cover.url }}" class="img-fluid">
-        </div>
-    
-        <!--Right Column-->
-        <div class="col col-lg-4">
-            <div class="fw-bold text-decoration-underline" style="font-size: 30px;"> Summary </div>
-            <div> {{ book.summary }} </div>
+        <div class="col-md-3 mt-3">
+            <img src="{{ book.book_cover.url }}" class="rounded mx-auto d-block img-fluid"
+                style="min-width: 100px; min-height: 200px; max-height: 500px;">
 
-            <div class=""></div>
+            <!--Status-->
+            <div class="d-flex justify-content-center align-items-center mt-4" style="font-size: clamp(1rem, 2vw, 1.5rem);">
+                <Strong>Status:</Strong>
+                {% if book.in_stock %}
+                    <span class="text-success mx-2">In Stock</span>
+                {% else %}
+                    <span class="text-danger mx-2">Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <!--Rent Button-->
+            {% if book.in_stock %}
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary w-50">Rent</button>
+                </div>
+            {% else %}
+                <div class="text-center mt-3">
+                    <button class="btn btn-secondary w-50" disabled>Rent</button>
+                </div>
+            {% endif %}
+        </div>
+
+        <!--Info Column-->
+        <div class="col-md-8">
+            <!--Title-->
+            <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} </h1>
+            <hr>
+            <!--Author, Pub Year, Genre-->
+            <div class="row mb-4" style="font-size: clamp(1rem, 2vw, 2rem);">
+                <div class="col">
+                    <div class="fw-bold text-decoration-underline"> Author </div>
+                    <div class="mb-4"> {{ book.book_author }} </div>
+                </div>
+
+                <div class="col">
+                    <div class="fw-bold text-decoration-underline"> Publication year </div>
+                    <div class="mb-4"> {{ book.pub_year }} </div>
+                </div>
+
+                <div class="col">
+                    <div class="fw-bold text-decoration-underline"> Genre </div>
+                    <div class="mb-4"> {{ book.genre }} </div>
+                </div>
+
+            </div>
+            <hr>
+            <!--Summary-->
+            <div style="font-size: clamp(1rem, 2vw, 2rem)">
+                <div class="fw-bold text-decoration-underline"> Summary </div>
+                <div> {{ book.summary }} </div>
+            </div>
         </div>
     </div>
-   
+
 </div>
 
 
