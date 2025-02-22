@@ -7,8 +7,15 @@
     <div class="row mt-5">
         <!--Book Cover-->
         <div class="col-md-3 mt-3">
-            <img src="{{ book.book_cover.url }}" class="rounded mx-auto d-block img-fluid"
+            {% if book.book_cover %}
+                <img src="{{ book.book_cover.url }}" class="rounded mx-auto d-block img-fluid"
                 style="min-width: 100px; min-height: 200px; max-height: 500px;">
+            {% else %}
+                <div class="rounded mx-auto d-block d-flex justify-content-center align-items-center"
+                style="width: 200px; height: 300px; background-color: #ccc; color: #555; font-size: 1.2rem; font-weight: bold; text-align: center;">
+                    No Cover Available
+                </div>
+            {% endif %}
 
             <!--Status-->
             <div class="d-flex justify-content-center align-items-center mt-4" style="font-size: clamp(1rem, 2vw, 1.5rem);">
