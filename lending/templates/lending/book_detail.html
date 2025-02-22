@@ -3,8 +3,38 @@
 {% load static %}
 
 {% block content %}
+<h1 class="fw-bold mt-2" style="font-size: 90px;"> {{ book.book_title }} </h1>
 
-<h1>{{ book.book_title }}</h1>
+<div class="container">
+    <div class="row">
+        <!--Left Column-->
+        <div class="col" style="font-size: 30px;">
+            <div class="fw-bold text-decoration-underline"> Author </div>
+            <div class="mb-4"> {{ book.book_author }} </div>
+
+            <div class="fw-bold text-decoration-underline"> Publication year </div>
+            <div class="mb-4"> {{ book.pub_year }} </div>
+
+            <div class="fw-bold text-decoration-underline"> Genre </div>
+            <div class="mb-4"> {{ book.genre }} </div>
+        </div>
+    
+        <!--Book Cover-->
+        <div class="col" style="font-size: 30px;">
+            
+        </div>
+    
+        <!--Right Column-->
+        <div class="col col-lg-4">
+            <div class="fw-bold text-decoration-underline" style="font-size: 30px;"> Summary </div>
+            <div> {{ book.summary }} </div>
+
+            <div class=""></div>
+        </div>
+    </div>
+   
+</div>
+
 
 
 {% endblock content %}
