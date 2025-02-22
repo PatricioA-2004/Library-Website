@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-)gjqxzku-9l*&k2)uiz&i76@v8@%8aknc_kr-5p^uox3(!k1+d
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'cs3240-b-11-ae930d732989.herokuapp.com',
+    '.herokuapp.com',
     'localhost',
     '127.0.0.1'
 ]
@@ -125,7 +125,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'REDACTED_OAUTH_SECRET'
 
 LOGIN_REDIRECT_URL = '/lending/'
 LOGOUT_REDIRECT_URL = '/'
-SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/auth/complete/google-oauth2/'
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://cs3240-b-11-ae930d732989.herokuapp.com/auth/complete/google-oauth2/'
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 
