@@ -2,9 +2,9 @@ from django.db import models
 
 # Create your models here.
 class Book(models.Model):
-    book_title = models.CharField(max_length=50)
+    book_title = models.CharField(max_length=100)
     book_author = models.CharField(max_length=50)
-    genre = models.CharField(max_length=50)
+    book_genre = models.CharField(max_length=50)
     pub_year = models.PositiveIntegerField("Year Published")
     summary = models.CharField(max_length=500)
     in_stock = models.BooleanField(default=False) 

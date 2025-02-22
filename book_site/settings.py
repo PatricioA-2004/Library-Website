@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-)gjqxzku-9l*&k2)uiz&i76@v8@%8aknc_kr-5p^uox3(!k1+d
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'cs3240-b-11-ae930d732989.herokuapp.com',
+    '.herokuapp.com',
     'localhost',
     '127.0.0.1'
 ]
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'lending.apps.LendingConfig',
     'bootstrap5',
+    'social_django'
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'book_site.urls'
@@ -107,6 +109,25 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'prompt': 'select_account'
+}
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'REDACTED_OAUTH_KEYm'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'REDACTED_OAUTH_SECRET'
+
+LOGIN_REDIRECT_URL = '/lending/'
+LOGOUT_REDIRECT_URL = '/'
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://cs3240-b-11-ae930d732989.herokuapp.com/auth/complete/google-oauth2/'
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 
 # Internationalization
