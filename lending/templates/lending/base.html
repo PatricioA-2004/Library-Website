@@ -4,15 +4,24 @@
 {% bootstrap_javascript %}
 
 <html>
+
+<head>
+    <title>{% block title %}Library System{% endblock %}</title>
+</head>
+
 <body>
     <div class="d-flex flex-column vh-100 justify-content-spaced">
         <nav class="navbar navbar-expand navbar-dark bg-dark">
             <a class="navbar-brand px-3" href="{% url 'lending:index' %}">
                 <h2>Lending</h2>
             </a>
-            <ul class="nav nav-pills nav-fill ms-auto">
+
+            <ul class="nav nav-pills nav-fill">
                 <li class="nav-item">
                     <a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
                 </li>
             </ul>
 
@@ -45,4 +54,5 @@
         </div>
     </div>
 </body>
+
 </html>

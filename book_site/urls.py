@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import logout
 
@@ -29,7 +30,9 @@ def custom_logout(request):
     if request.user.is_authenticated:
         logout(request)
     return redirect('/lending/login/')
+
 urlpatterns = [
+    path('', lambda request: redirect('lending:index')),
     path('admin/', admin.site.urls),
     path('lending/', include("lending.urls")),
     path('auth/', include('social_django.urls', namespace='social')),
@@ -37,4 +40,3 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='/lending/login/'), name='logout'),
 
 ]
-
