@@ -20,9 +20,11 @@
                 <li class="nav-item">
                     <a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a>
                 </li>
+                {% if user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
                 </li>
+                {% endif %}
             </ul>
 
             <ul class="navbar-nav ms-auto">

@@ -3,12 +3,24 @@
 {% load static %}
 
 {% block content %}
-
 {% if user.is_staff %}
     <h2>You're a librarian</h2>
-{% else %}
-    <br/>
-    <h2>Our content goes here</h2>
-{% endif %} 
+{% endif %}
+<div class="container">
+    <h2 class="text-center mt-4">Books:</h2>
+    <div class="row">
+        {% for book in book_list %}
+
+        <div class="card m-3" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"> {{ book.book_title }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted"><strong>Author:</strong> {{ book.book_author }}</h6>
+              <h6 class="card-subtitle mb-2 text-muted"><strong>Genre:</strong> {{ book.book_genre }}</h6>
+              <a href="{% url 'lending:book_detail' book.id %}" class="btn btn-primary">View</a>
+            </div>
+          </div>
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock content %}
