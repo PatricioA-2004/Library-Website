@@ -9,6 +9,8 @@ media
 # IntelliJ
 .idea
 
+lending/migrations
+
 # Backup files # 
 *.bak 
 
