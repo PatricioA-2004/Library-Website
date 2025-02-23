@@ -6,7 +6,7 @@ class Book(models.Model):
     book_author = models.CharField(max_length=50)
     book_genre = models.CharField(max_length=50)
     pub_year = models.PositiveIntegerField("Year Published")
-    summary = models.CharField(max_length=500, default="")
+    summary = models.TextField(max_length=500, default="")
     in_stock = models.BooleanField(default=False) 
     book_cover = models.ImageField(upload_to='media/book_covers')
 
