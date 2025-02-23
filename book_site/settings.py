@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'lending.apps.LendingConfig',
     'bootstrap5',
-    'social_django'
+    'social_django',
+    'lending'
 ]
 
 MIDDLEWARE = [
