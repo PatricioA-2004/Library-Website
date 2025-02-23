@@ -155,7 +155,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-if os.getenv('DATABASE_URL') == 'true':
+if os.getenv('DATABASE_URL'):
     DEBUG = False
 
     DATABASES['default'] = dj_database_url.config(
