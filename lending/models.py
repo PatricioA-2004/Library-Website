@@ -14,4 +14,4 @@ class Book(models.Model):
         return self.book_title + ". By " + self.book_author + " (" + str(self.pub_year) + ")"
     
 class User(models.Model):
-    email = models.EmailField(max_length=254)
+    email = models.EmailField(max_length=240)
