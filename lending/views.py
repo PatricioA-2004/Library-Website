@@ -25,7 +25,7 @@ def logout_view(request):
 
 def add_book(request):
     if request.method == 'POST':
-        form = BookForm(request.POST)
+        form = BookForm(request.POST, request.FILES)
         if not request.user or not request.user.is_staff:
             return HttpResponseForbidden('Permission Denied')
         if form.is_valid():
