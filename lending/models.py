@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Book(models.Model):
@@ -12,6 +13,11 @@ class Book(models.Model):
 
     def __str__(self):
         return self.book_title + ". By " + self.book_author + " (" + str(self.pub_year) + ")"
-    
-class User(models.Model):
-    email = models.EmailField(max_length=240)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(upload_to='media/profile_pictures', blank=True, null=True)
+
+    def __str__(self):
+        return str(self.user)

@@ -1,7 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
+from .models import Profile
+from .forms import ProfileForm
+from django.contrib.auth.models import User
 
 
 from .forms import BookForm
@@ -35,7 +39,13 @@ def add_book(request):
         form = BookForm()
 
     return render(request, 'lending/add_book.html', {'form': form})
-    
+
+@login_required
+def profile_view(request):
+    user_instance = User.objects.get(username=request.user.username)
+    profile, created = Profile.objects.get_or_create(user=user_instance)
+    return render(request, 'lending/profile.html', {'profile': profile})
+
 class BookDetailView(DetailView):
     model = Book
     template_name = "lending/book_detail.html"
@@ -43,3 +53,15 @@ class BookDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+@login_required
+def profile_update(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            return redirect('lending:profile')
+    else:
+        form = ProfileForm(instance=request.user.profile)
+
+    return render(request, 'lending/profile_update.html', {'form': form})

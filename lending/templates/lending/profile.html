@@ -1,0 +1,19 @@
+{% extends 'lending/base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2 class="text-center">User Profile</h2>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+
+        {% if profile.profile_picture %}
+            <h3>Profile Picture:</h3>
+            <img src="{{ profile.profile_picture.url }}" class="img-thumbnail" width="150px">
+        {% else %}
+            <p>No profile picture uploaded.</p>
+        {% endif %}
+
+        <a href="{% url 'lending:profile_update' %}" class="btn btn-primary">Update Profile</a>
+    </div>
+{% endblock %}

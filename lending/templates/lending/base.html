@@ -29,11 +29,17 @@
 
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
-                    <li class="nav-item navbar-text text-light me-3">
+                    <li class="nav-item navbar-text text-light me-3 d-flex align-items-center">
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
+                        {% endif %}
                         Welcome, {{ user.get_full_name|default:user.username }}
                         {% if user.email %}
                             ({{ user.email }})
                         {% endif %}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-light" href="{% url 'logout' %}">Logout</a>
