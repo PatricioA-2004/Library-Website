@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'lending.apps.LendingConfig',
     'bootstrap5',
     'social_django',
-    'stoarges',
+    'storages',
 ]
 
 MIDDLEWARE = [
