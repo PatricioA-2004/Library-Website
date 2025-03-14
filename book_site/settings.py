@@ -176,4 +176,4 @@ if os.getenv('DATABASE_URL'):
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
-    DEFAULT_FILE_STORAGE = 'hello_django.storage_backends.PublicMediaStorage'
+    DEFAULT_FILE_STORAGE = 'lending.storage_backends.PublicMediaStorage'
