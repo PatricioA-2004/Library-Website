@@ -75,6 +75,9 @@ class BookModelTest(LendingTestSetUp):
     def test_book_in_stock_default(self):
         self.assertFalse(self.book2.in_stock)
 
+    #def test_book_no_picture(self):
+        #self.assertIsNone(self.book2.book_cover)
+
 class ProfileModelTest(LendingTestSetUp):
     def test_create_profile_user(self):
         self.assertEqual(self.profile.user, self.user)
@@ -122,7 +125,8 @@ class AddBookViewTest(LendingTestSetUp):
     def test_add_book_nonlibrarian(self):
         self.client.login(username="testuser", password="password")
         response = self.client.get(reverse("lending:add_book"))
-    #    self.assertEqual(response.status_code, 403)
+        # Can non-librarians add books?
+        #self.assertEqual(response.status_code, 403)
 
     def test_add_book_post_valid(self):
         self.client.login(username="librarian", password="1234")
