@@ -24,12 +24,12 @@ class Profile(models.Model):
         return str(self.user)
         
 class Collection(models.Model):
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="collections")
     books = models.ManyToManyField(Book)
     private = models.BooleanField() # Only librarians can make private collections
     collection_name = models.CharField(max_length=100)
 
 class Request(models.Model):
-    requester = models.OneToOneField(User, on_delete=models.CASCADE)
-    requested_book = models.OneToOneField(Book, on_delete=models.CASCADE)
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="requested_books")
+    requested_book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="requests")
 
