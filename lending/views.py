@@ -1,5 +1,5 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
@@ -65,3 +65,19 @@ def profile_update(request):
         form = ProfileForm(instance=request.user.profile)
 
     return render(request, 'lending/profile_update.html', {'form': form})
+
+def is_staff(user):
+    return user.is_staff
+
+@user_passes_test(is_staff)
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect('lending:book_detail', pk=pk)
+    else:
+        form = BookForm(instance=book)
+    
+    return render(request, 'lending/edit_book.html', {'form': form, 'book': book})

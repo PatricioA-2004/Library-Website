@@ -37,6 +37,13 @@
                     <button class="btn btn-secondary w-50" disabled>Rent</button>
                 </div>
             {% endif %}
+
+            <!--Edit Button (Staff Only)-->
+            {% if user.is_staff %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'lending:edit_book' book.id %}" class="btn btn-warning w-50">Edit Book</a>
+                </div>
+            {% endif %}
         </div>
 
         <!--Info Column-->

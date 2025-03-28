@@ -12,6 +12,6 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path("book/<int:pk>/", views.BookDetailView.as_view(), name="book_detail"),
     path('profile/', profile_view, name='profile'),
-    path('profile/update/', profile_update, name='profile_update')
-
+    path('profile/update/', profile_update, name='profile_update'),
+    path('book/<int:pk>/edit/', views.edit_book, name='edit_book'),
 ]
