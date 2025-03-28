@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
-from .forms import ProfileForm
+from .forms import ProfileForm, CollectionForm
 from django.contrib.auth.models import User
 
 
@@ -81,3 +81,19 @@ def edit_book(request, pk):
         form = BookForm(instance=book)
     
     return render(request, 'lending/edit_book.html', {'form': form, 'book': book})
+
+@login_required
+def create_collection(request):
+    if request.method == 'POST':
+        form = CollectionForm(request.POST, user_is_staff=request.user.is_staff)
+        if form.is_valid():
+            collection = form.save(commit=False)
+            collection.owner = request.user
+            collection.save()
+            # Save the many-to-many relationships
+            form.save_m2m()
+            return redirect('lending:index')
+    else:
+        form = CollectionForm(user_is_staff=request.user.is_staff)
+    
+    return render(request, 'lending/create_collection.html', {'form': form})

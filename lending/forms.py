@@ -1,6 +1,7 @@
 from django import forms
 from .models import Book
 from .models import Profile
+from .models import Collection
 
 class BookForm(forms.ModelForm):
     class Meta:
@@ -24,3 +25,21 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['profile_picture']
+
+class CollectionForm(forms.ModelForm):
+    books = forms.ModelMultipleChoiceField(
+        queryset=Book.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    
+    class Meta:
+        model = Collection
+        fields = ['collection_name', 'private', 'books']
+        
+    def __init__(self, *args, user_is_staff=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not user_is_staff:
+            # Hide private field for non-staff users
+            self.fields['private'].widget = forms.HiddenInput()
+            self.fields['private'].initial = False
