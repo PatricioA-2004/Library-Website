@@ -10,8 +10,8 @@ class Book(models.Model):
     summary = models.TextField(max_length=500, default="")
     in_stock = models.BooleanField(default=False) 
     book_cover = models.ImageField(upload_to='media/book_covers')
-    total_copies = models.PositiveIntegerField("Total Copies")
-    total_available = models.PositiveIntegerField("Total Available")
+    total_copies = models.PositiveIntegerField("Total Copies", default=1)
+    total_available = models.PositiveIntegerField("Total Available", default=1)
     def __str__(self):
         return self.book_title + ". By " + self.book_author + " (" + str(self.pub_year) + ")"
 
