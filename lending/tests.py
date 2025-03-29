@@ -180,3 +180,75 @@ class ProfileUpdateViewTest(LendingTestSetUp):
         }
         response = self.client.post(reverse("lending:profile_update"), data=form_data, follow=True)
     #    self.assertRedirects(response, reverse("lending:profile"))
+
+class CollectionAddViewTest(LendingTestSetUp):
+    def test_collection_add_requires_login(self):
+        response = self.client.get(reverse("lending:create_collection"))
+        self.assertNotEqual(response.status_code, 200)
+
+    def test_collection_add_valid_post(self):
+        self.client.login(username="testuser", password="password")
+        form_data = {
+            "collection_name": "Favorites",
+            "books": [self.book1.id],
+        }
+        response = self.client.post(reverse("lending:create_collection"), data=form_data, follow=True)
+        from .models import Collection
+        self.assertEqual(Collection.objects.count(), 1)
+        collection = Collection.objects.first()
+        self.assertEqual(collection.collection_name, "Favorites")
+        self.assertIn(self.book1, collection.books.all())
+        self.assertEqual(collection.owner, self.user)
+
+class AddBookViewTest(LendingTestSetUp):
+    def test_add_book_view_requires_staff(self):
+        self.client.login(username="testuser", password="password")
+        response = self.client.get(reverse("lending:add_book"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_book_view_staff_access(self):
+        self.client.login(username="librarian", password="1234")
+        response = self.client.get(reverse("lending:add_book"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_book_post_creates_book(self):
+        self.client.login(username="librarian", password="1234")
+        form_data = {
+            "book_title": "The Hobbit",
+            "book_author": "J.R.R. Tolkien",
+            "book_genre": "Fantasy",
+            "pub_year": 1937,
+            "summary": "A hobbit adventure",
+            "in_stock": True,
+            "total_copies": 2,
+            "total_available": 2,
+            "book_cover": self.sample_image,
+        }
+        response = self.client.post(reverse("lending:add_book"), data=form_data, follow=True)
+        self.assertContains(response, "The Hobbit")
+
+class CollectionModelTest(LendingTestSetUp):
+    def test_collection_creation_and_str(self):
+        from .models import Collection
+        collection = Collection.objects.create(
+            owner=self.user,
+            collection_name="Sci-Fi Reads",
+            private=False
+        )
+        collection.books.set([self.book1, self.book2])
+        self.assertEqual(str(collection.collection_name), "Sci-Fi Reads")
+        self.assertIn(self.book1, collection.books.all())
+        self.assertEqual(collection.owner, self.user)
+
+class RequestBookViewTest(LendingTestSetUp):
+    def test_view_loads_and_post_creates_request(self):
+        self.client.login(username="testuser", password="password")
+        response = self.client.post(
+            reverse("lending:request_book"),
+            data={"requested_book": self.book1.id},
+            follow=True
+        )
+        from .models import Request
+        self.assertEqual(Request.objects.count(), 1)
+
+
