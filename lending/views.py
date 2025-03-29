@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
-from .forms import ProfileForm, CollectionForm
+from .forms import ProfileForm, CollectionForm, RequestForm
 from django.contrib.auth.models import User
 
 
@@ -97,3 +97,16 @@ def create_collection(request):
         form = CollectionForm(user_is_staff=request.user.is_staff)
     
     return render(request, 'lending/create_collection.html', {'form': form})
+
+@login_required
+def request_book(request):
+    if request.method == 'POST':
+        form = RequestForm(request.POST, user=request.user)
+        if form.is_valid():
+            book_request = form.save(commit=False)
+            book_request.requester = request.user
+            book_request.save()
+            return redirect('lending:index')
+    else:
+        form = RequestForm(user=request.user)
+    return render(request, 'lending/request_book.html', {'form': form})

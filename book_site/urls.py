@@ -22,6 +22,8 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth import logout
 from django.conf.urls.static import static
 from django.conf import settings
+
+from lending import views
 from lending.views import profile_view, profile_update
 
 def force_google_redirect(request):
@@ -40,7 +42,9 @@ urlpatterns = [
     path('force-login/', force_google_redirect, name='force-google-login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/lending/login/'), name='logout'),
     path('profile/', profile_view, name='profile'),
-    path('profile/update/', profile_update, name='profile_update')
+    path('profile/update/', profile_update, name='profile_update'),
+    path('request/', views.request_book, name='request_book'),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

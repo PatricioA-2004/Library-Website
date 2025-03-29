@@ -32,4 +32,5 @@ class Collection(models.Model):
 class Request(models.Model):
     requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="requested_books")
     requested_book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="requests")
+    requested_at = models.DateTimeField(auto_now_add=True)
 

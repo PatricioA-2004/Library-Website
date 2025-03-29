@@ -1,5 +1,5 @@
 from django import forms
-from .models import Book
+from .models import Book, Request
 from .models import Profile
 from .models import Collection
 
@@ -43,3 +43,13 @@ class CollectionForm(forms.ModelForm):
             # Hide private field for non-staff users
             self.fields['private'].widget = forms.HiddenInput()
             self.fields['private'].initial = False
+
+class RequestForm(forms.ModelForm):
+    class Meta:
+        model = Request
+        fields = ['requested_book']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        self.fields['requested_book'].queryset = Book.objects.filter(in_stock=True)
