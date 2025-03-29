@@ -7,17 +7,6 @@
     <h2>You're a librarian</h2>
 {% endif %}
 <div class="container">
-    <!-- Add Create Collection button at the top -->
-    {% if user.is_authenticated %}
-    <div class="row mb-4">
-        <div class="col">
-            <a href="{% url 'lending:create_collection' %}" class="btn btn-primary">
-                Create New Collection
-            </a>
-        </div>
-    </div>
-    {% endif %}
-
     <h2 class="text-center mt-4">Books:</h2>
     <div class="row">
         {% for book in book_list %}
