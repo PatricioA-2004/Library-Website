@@ -1,0 +1,63 @@
+{% extends 'lending/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mt-4">Collections</h2>
+    {% if not request.user.is_anonymous %}
+    <a href="{% url 'lending:create_collection' %}" class="btn btn-success">
+        Create New Collection
+    </a>
+    {% endif %}
+
+    <div class="row">
+        {% for collection in collections %}
+        <div class="card m-3" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">{{ collection.collection_name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    <strong>Owner:</strong> {{ collection.owner.username }}
+                </h6>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    <strong>Status:</strong> 
+                    {% if collection.private %}
+                        <span class="text-danger">Private</span>
+                    {% else %}
+                        <span class="text-success">Public</span>
+                    {% endif %}
+                </h6>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    <strong>Books:</strong> {{ collection.books.count }}
+                </h6>
+                <a href="#" class="btn btn-primary">View Collection</a>
+                {% if request.user == collection.owner or request.user.is_staff %}
+                <a href="#" class="btn btn-secondary">Edit</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning">No collections available.</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if private_collections %}
+    <div class="mt-5">
+        <div class="card">
+            <div class="card-header bg-info text-dark">
+                <h5 class="mb-0">Private Collections</h5>
+            </div>
+                <ul class="list-group">
+                    {% for collection in private_collections %}
+                    <li class="list-group-item">
+                        {{ collection.collection_name }}
+                    </li>
+                    {% endfor %}
+                </ul>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

@@ -6,11 +6,12 @@ from django.http import HttpResponseForbidden
 from .models import Profile
 from .forms import ProfileForm, CollectionForm, RequestForm
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 
 from .forms import BookForm
 from django.views.generic import DetailView, ListView
-from .models import Book
+from .models import Book, Collection
 
 # Create your views here.
 class IndexView(ListView):
@@ -18,6 +19,23 @@ class IndexView(ListView):
     context_object_name = "book_list"
     def get_queryset(self):
         return Book.objects.all()
+    
+
+
+def collection_list_view(request):
+    context = {}
+    if request.user.is_staff:
+        collection_list = Collection.objects.all()
+        context = {'collections' : collection_list}
+    elif request.user.is_authenticated:
+        collection_list = Collection.objects.filter(Q(private = False) | Q(owner = request.user))
+        private_titles = Collection.objects.filter(Q(private = True) & ~Q(owner = request.user)).values('collection_name')
+        context = {'collections' : collection_list, 'private_collections' : private_titles}
+    elif request.user.is_anonymous:
+        collection_list = Collection.objects.filter(private = False)
+        context = {'collections' : collection_list}
+    
+    return render(request, 'lending/collection_list.html', context)
 
 def login(request):
     return render(request, 'lending/login.html')
@@ -87,6 +105,8 @@ def create_collection(request):
     if request.method == 'POST':
         form = CollectionForm(request.POST, user_is_staff=request.user.is_staff)
         if form.is_valid():
+            if form.cleaned_data['private'] and not request.user.is_staff:
+                return HttpResponseForbidden('Can\'t make private collection as non-staff')
             collection = form.save(commit=False)
             collection.owner = request.user
             collection.save()

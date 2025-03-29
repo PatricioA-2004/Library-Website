@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mt-5">
+    <div class="row mt-2">
         <!--Book Cover-->
         <div class="col-md-3 mt-3">
             {% if book.book_cover %}
@@ -30,11 +30,13 @@
             <!--Rent Button-->
             {% if book.in_stock %}
                 <div class="text-center mt-3">
-                    <button class="btn btn-primary w-50">Rent</button>
+                    <button class="btn btn-primary w-50">Request</button>
                 </div>
             {% else %}
                 <div class="text-center mt-3">
-                    <button class="btn btn-secondary w-50" disabled>Rent</button>
+                    <a href="{% url '' %}">
+                        <button class="btn btn-secondary w-50" disabled>Request</button>
+                    </a>
                 </div>
             {% endif %}
 

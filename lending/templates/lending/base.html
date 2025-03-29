@@ -20,14 +20,14 @@
                 <li class="nav-item">
                     <a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a>
                 </li>
+                {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link text-light" href="{% url 'lending:request_book' %}">Request Book</a>
                 </li>
-                {% if user.is_authenticated %}
-                <li>
-                    <a class="nav-link text-light" href="{% url 'lending:create_collection' %}">Create Collection</a>
-                </li>
                 {% endif %}
+                <li>
+                    <a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a>
+                </li>
                 {% if user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
