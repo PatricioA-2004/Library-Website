@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 
 from .forms import BookForm
 from django.views.generic import DetailView, ListView
-from .models import Book
+from .models import Book, Collection
 
 # Create your views here.
 class IndexView(ListView):
@@ -81,6 +81,15 @@ def edit_book(request, pk):
         form = BookForm(instance=book)
     
     return render(request, 'lending/edit_book.html', {'form': form, 'book': book})
+
+class CollectionDetailView(DetailView):
+    model = Collection
+    template_name = "lending/collection_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['books'] = self.object.books.all()
+        return context
 
 @login_required
 def create_collection(request):

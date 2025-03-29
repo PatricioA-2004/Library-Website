@@ -15,6 +15,6 @@ urlpatterns = [
     path('profile/update/', profile_update, name='profile_update'),
     path('book/<int:pk>/edit/', views.edit_book, name='edit_book'),
     path('collection/create/', views.create_collection, name='create_collection'),
+    path('collection/<int:pk>/', views.CollectionDetailView.as_view(), name="collection_detail"),
     path('request/', views.request_book, name='request_book'),
-
 ]

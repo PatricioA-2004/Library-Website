@@ -1,0 +1,31 @@
+{% extends 'lending/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!--Collection Name-->
+    <div class="text-center mt-3">
+        <h1 style="font-size: clamp(2rem, 5vw, 5rem)"> Collection: {{ collection.collection_name }} </h1>
+    </div>
+
+    <div class="row">
+        {% for book in books %}
+
+        <div class="card m-3" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title"> {{ book.book_title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted"><strong>Author:</strong> {{ book.book_author }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted"><strong>Genre:</strong> {{ book.book_genre }}</h6>
+                <a href="{% url 'lending:book_detail' book.id %}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock content %}
