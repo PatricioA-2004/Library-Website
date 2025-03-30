@@ -6,6 +6,7 @@ from django.http import HttpResponseForbidden
 from .models import Profile
 from .forms import ProfileForm, CollectionForm, RequestForm
 from django.contrib.auth.models import User
+from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
 
 
@@ -130,3 +131,9 @@ def request_book(request):
     else:
         form = RequestForm(user=request.user)
     return render(request, 'lending/request_book.html', {'form': form})
+
+def search_view(request):
+    query = request.GET.get('q')
+    books = Book.objects.annotate(search=SearchVector("book_title", "book_author"),).filter(search=query)
+    print(query)
+    return render(request, 'lending/search_view.html', {'books' : books, 'query' : query})

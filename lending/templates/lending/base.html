@@ -35,6 +35,14 @@
                 {% endif %}
             </ul>
 
+            <form class="d-flex mx-3" action="{% url 'lending:search' %}" method="get">
+                <div class="input-group">
+                    <input class="form-control" type="search" name="q" placeholder="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </div>
+            </form>
+
+
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item navbar-text text-light me-3 d-flex align-items-center">

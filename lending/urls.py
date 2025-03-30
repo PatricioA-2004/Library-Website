@@ -16,5 +16,6 @@ urlpatterns = [
     path('book/<int:pk>/edit/', views.edit_book, name='edit_book'),
     path('collection/create/', views.create_collection, name='create_collection'),
     path('request/', views.request_book, name='request_book'),
-    path('collection/', views.collection_list_view, name="collections_list")
+    path('collection/', views.collection_list_view, name="collections_list"),
+    path('search/', views.search_view, name='search'),
 ]
