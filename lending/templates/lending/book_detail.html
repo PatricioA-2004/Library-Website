@@ -30,7 +30,9 @@
             <!--Rent Button-->
             {% if book.in_stock %}
                 <div class="text-center mt-3">
-                    <button class="btn btn-primary w-50">Request</button>
+                    <a href="{% url 'lending:request_book' %}?book={{ book.id }}" class="btn btn-primary w-50">
+                        Request
+                    </a>
                 </div>
             {% else %}
                 <div class="text-center mt-3">

@@ -158,6 +158,11 @@ def create_collection(request):
 
 @login_required
 def request_book(request):
+    initial_data = {}
+    book_id = request.GET.get("book")
+    if book_id:
+        initial_data["requested_book"] = book_id
+
     if request.method == 'POST':
         form = RequestForm(request.POST, user=request.user)
         if form.is_valid():
@@ -166,7 +171,8 @@ def request_book(request):
             book_request.save()
             return redirect('lending:index')
     else:
-        form = RequestForm(user=request.user)
+        form = RequestForm(user=request.user, initial=initial_data)
+
     return render(request, 'lending/request_book.html', {'form': form})
 
 def search_view(request):
