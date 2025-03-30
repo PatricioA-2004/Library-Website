@@ -132,7 +132,7 @@ def edit_collection(request, pk):
 class CollectionDeleteView(UserPassesTestMixin, DeleteView):
     model = Collection
     template_name = "lending/collection_confirm_delete.html"
-    success_url = reverse_lazy('lending:index')
+    success_url = reverse_lazy('lending:collections_list')
 
     def test_func(self):
         collection = self.get_object()
