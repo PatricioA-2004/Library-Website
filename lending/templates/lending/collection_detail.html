@@ -13,9 +13,18 @@
         <!--Edit and Delete Buttons-->
         {% if user.is_staff or collection.owner == user %}
         <div class="position-absolute top-0 end-0">
-            <a href="{% url 'lending:'}" class="btn btn-primary me-2">Edit Collection</a>
-            <a href="{% url 'lending:'}" class="btn btn-danger">Delete Collection</a>
+            <a href="{% url 'lending:edit_collection' collection.id %}" class="btn btn-primary me-2">Edit Collection</a>
+            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Collection</a>
         </div>
+        {% endif %}
+    </div>
+
+    <!--Private/Public Tag-->
+    <div class="d-flex justify-content-center">
+        {% if collection.private %}
+        <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Private </h2>
+        {% else %}
+        <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Public </h2>
         {% endif %}
     </div>
 
@@ -36,5 +45,28 @@
     </div>
 
 </div>
+
+<!-- Delete Confirmation Popup -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete "{{ collection.collection_name }}"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'lending:collection_delete' collection.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock content %}

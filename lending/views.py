@@ -1,11 +1,14 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import TemplateView
+from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
 from .forms import ProfileForm, CollectionForm, RequestForm
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.urls import reverse_lazy
 
 
 from .forms import BookForm
@@ -90,6 +93,34 @@ class CollectionDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = self.object.books.all()
         return context
+    
+class CollectionEditView(DetailView):
+    model = Collection
+    form_class = CollectionForm
+    template_name = "lending/edit_collection.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['books'] = self.object.books.all() 
+        return context
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user_is_staff'] = self.request.user.is_staff
+        return kwargs
+    
+    def form_valid(self, form):
+        form.save()
+        return redirect('lending:edit_collection', pk=self.object.pk)
+    
+class CollectionDeleteView(UserPassesTestMixin, DeleteView):
+    model = Collection
+    template_name = "lending/collection_confirm_delete.html"
+    success_url = reverse_lazy('lending:index')
+
+    def test_func(self):
+        collection = self.get_object()
+        return self.request.user.is_staff or collection.owner == self.request.user
 
 @login_required
 def create_collection(request):

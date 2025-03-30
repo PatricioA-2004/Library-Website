@@ -32,6 +32,18 @@ class CollectionForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
+
+    books_to_add = forms.ModelMultipleChoiceField(
+        queryset=Book.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    books_to_remove = forms.ModelMultipleChoiceField(
+        queryset=Book.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
     
     class Meta:
         model = Collection
@@ -43,6 +55,17 @@ class CollectionForm(forms.ModelForm):
             # Hide private field for non-staff users
             self.fields['private'].widget = forms.HiddenInput()
             self.fields['private'].initial = False
+        if self.instance:
+            self.fields['books_to_add'].queryset = Book.objects.exclude(id__in=self.instance.books.values_list('id', flat=True))
+            self.fields['books_to_remove'].queryset= self.instance.books.all()
+
+    def save_edits(self, commit=True):
+        collection = super().save(commit=False)
+        if commit:
+            self.instance.books.add(*self.cleaned_data['books_to_add'])
+            self.instance.books.remove(*self.cleaned_data['books_to_remove'])
+            collection.save()
+        return collection
 
 class RequestForm(forms.ModelForm):
     class Meta:

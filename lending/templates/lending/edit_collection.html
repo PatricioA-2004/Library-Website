@@ -1,0 +1,40 @@
+{% extends 'lending/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <div class="d-flex justify-content-center position-relative mt-5">
+        <!--Collection Name-->
+        <h1 style="font-size: clamp(1rem, 5vw, 2.5rem)"> Edit Collection: {{ collection.collection_name }} </h1>
+
+        <!--Edit and Delete Buttons-->
+        {% if user.is_staff or collection.owner == user %}
+        <div class="position-absolute top-0 end-0">
+            <a href="{% url 'lending:collection_detail' collection.id %}" class="btn btn-primary me-2">Discard Changes</a>
+            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Collection</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!--Private/Public Tag-->
+    <div class="d-flex justify-content-center">
+        {% if collection.private %}
+        <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Private </h2>
+        {% else %}
+        <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Public </h2>
+        {% endif %}
+    </div>
+
+    <!--Change Form-->
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-succes">Save Changes</button>
+    </form>
+
+</div>
+
+{% endblock content %}
