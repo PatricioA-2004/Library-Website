@@ -13,8 +13,6 @@
         <!--Edit and Delete Buttons-->
         {% if user.is_staff or collection.owner == user %}
         <div class="position-absolute top-0 end-0">
-            <a href="{% url 'lending:collection_detail' collection.id %}" class="btn btn-primary me-2">Discard
-                Changes</a>
             <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete
                 Collection</a>
         </div>
