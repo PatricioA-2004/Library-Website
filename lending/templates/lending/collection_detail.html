@@ -4,13 +4,22 @@
 
 {% block content %}
 
-<div class="container-fluid">
+<div class="container">
 
-    <!--Collection Name-->
-    <div class="text-center mt-3">
-        <h1 style="font-size: clamp(2rem, 5vw, 5rem)"> Collection: {{ collection.collection_name }} </h1>
+    <div class="d-flex justify-content-center position-relative mt-5">
+        <!--Collection Name-->
+        <h1 style="font-size: clamp(1rem, 5vw, 2.5rem)"> Collection: {{ collection.collection_name }} </h1>
+
+        <!--Edit and Delete Buttons-->
+        {% if user.is_staff or collection.owner == user %}
+        <div class="position-absolute top-0 end-0">
+            <a href="{% url 'lending:'}" class="btn btn-primary me-2">Edit Collection</a>
+            <a href="{% url 'lending:'}" class="btn btn-danger">Delete Collection</a>
+        </div>
+        {% endif %}
     </div>
 
+    <!--Book List-->
     <div class="row">
         {% for book in books %}
 
