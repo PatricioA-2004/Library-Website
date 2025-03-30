@@ -113,7 +113,7 @@ def create_collection(request):
             collection.save()
             # Save the many-to-many relationships
             form.save_m2m()
-            return redirect('lending:index')
+            return redirect('lending:collections_list')
     else:
         form = CollectionForm(user_is_staff=request.user.is_staff)
     
