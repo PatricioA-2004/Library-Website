@@ -1,4 +1,5 @@
 {% extends 'lending/base.html' %}
+{% load bootstrap5 %}
 
 {% load static %}
 
@@ -29,40 +30,23 @@
         {% endif %}
     </div>
 
-    <!--Change Form-->
-    <form method="POST" class="mt-4">
-        {% csrf_token %}
-
-        <!--Collection Name-->
-        <div class="d-flex justify-content-center mb-4">
-            <label for="{{ form.collection_name.id_for_label }}" class="form-label">Collection Name:</label>
-            {{ form.collection_name }}
-        </div>
-
-        <div class="row">
-            <!--Remove Books Column-->
-            <div class="col-md-5 border p-3 rounded">
-                <h5 class="text-center">Remove Books</h5>
-                {{ form.books_to_remove }}
-            </div>
-
-            <div class="col-md-2 d-flex align-items-center justify-content-center">
-                <h5 class="text-center">⇄</h5>
-            </div>
-
-            <!--Add Books Column-->
-            <div class="col-md-5 border p-3 rounded">
-                <h5 class="text-center">Add Books</h5>
-                {{ form.books_to_add }}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'lending:collection_detail' collection.pk %}"
+                                class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
-        <div class="text-center mt-4">
-            <button type="submit" class="btn btn-success">Save Changes</button>
-        </div>
-
-    </form>
-
+    </div>
 </div>
 
 <!-- Delete Confirmation Popup -->

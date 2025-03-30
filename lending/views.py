@@ -1,15 +1,13 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView
 from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
-from .forms import ProfileForm, CollectionForm, CollectionChangeForm, RequestForm
+from .forms import ProfileForm, CollectionForm, RequestForm
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
@@ -118,19 +116,18 @@ class CollectionDetailView(DetailView):
 @user_passes_test(is_staff)
 def edit_collection(request, pk):
     collection = get_object_or_404(Collection, pk=pk)
+    if not request.user.is_staff and request.user != collection.owner:
+        return HttpResponseForbidden("You do not have permission to edit this collection.")
     if request.method == 'POST':
-        form = CollectionChangeForm(request.POST, instance=collection, user_is_staff=request.user.is_staff)
+        form = CollectionForm(request.POST, instance=collection, user_is_staff=request.user.is_staff)
         if form.is_valid():
-            if form.cleaned_data['private'] and not request.user.is_staff:
-                return HttpResponseForbidden('Can\'t make private collection as non-staff')
-            collection = form.save(commit=False)
-            collection.save()
-            form.save_m2m()
+            form.save()
             return redirect('lending:collection_detail', pk=pk)
     else:
-        form = CollectionChangeForm(instance=collection, user_is_staff=request.user.is_staff)
+        form = CollectionForm(instance=collection, user_is_staff=request.user.is_staff)
     
     return render(request, 'lending/edit_collection.html', {'form': form, 'collection': collection})
+
     
 class CollectionDeleteView(UserPassesTestMixin, DeleteView):
     model = Collection
