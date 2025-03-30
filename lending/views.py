@@ -5,7 +5,7 @@ from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
-from .forms import ProfileForm, CollectionForm, RequestForm
+from .forms import ProfileForm, CollectionForm, CollectionChangeForm, RequestForm
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
@@ -96,7 +96,7 @@ class CollectionDetailView(DetailView):
     
 class CollectionEditView(DetailView):
     model = Collection
-    form_class = CollectionForm
+    form_class = CollectionChangeForm
     template_name = "lending/edit_collection.html"
 
     def get_context_data(self, **kwargs):
