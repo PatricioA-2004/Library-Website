@@ -43,6 +43,44 @@ class CollectionForm(forms.ModelForm):
             # Hide private field for non-staff users
             self.fields['private'].widget = forms.HiddenInput()
             self.fields['private'].initial = False
+    
+class CollectionChangeForm(forms.ModelForm):
+    books_to_add = forms.ModelMultipleChoiceField(
+        queryset=Book.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    books_to_remove = forms.ModelMultipleChoiceField(
+        queryset=Book.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = Collection
+        fields = ['collection_name', 'private', 'books']
+
+    def __init__(self, *args, user_is_staff=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not user_is_staff:
+            # Hide private field for non-staff users
+            self.fields['private'].widget = forms.HiddenInput()
+            self.fields['private'].initial = False
+        if self.instance:
+            self.fields['books_to_add'].queryset = Book.objects.exclude(id__in=self.instance.books.values_list('id', flat=True))
+            self.fields['books_to_remove'].queryset= self.instance.books.all()
+
+    def save_edits(self, commit=True):
+        collection = super().save(commit=False)
+
+        if commit:
+            if self.cleaned_data['books_to_add']:
+                collection.books.add(*self.cleaned_data['books_to_add'])
+            if self.cleaned_data['books_to_remove']:
+                collection.books.remove(*self.cleaned_data['books_to_remove'])
+            collection.save()
+        return collection
 
 class RequestForm(forms.ModelForm):
     class Meta:

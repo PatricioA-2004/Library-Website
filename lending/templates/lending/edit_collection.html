@@ -1,0 +1,93 @@
+{% extends 'lending/base.html' %}
+
+{% load static %}
+
+{% block content %}
+{% if user.is_staff or collection.owner == user %}
+<div class="container">
+    <div class="d-flex justify-content-center position-relative mt-5">
+        <!--Collection Name-->
+        <h1 style="font-size: clamp(1rem, 5vw, 2.5rem)"> Edit Collection </h1>
+
+        <!--Edit and Delete Buttons-->
+        {% if user.is_staff or collection.owner == user %}
+        <div class="position-absolute top-0 end-0">
+            <a href="{% url 'lending:collection_detail' collection.id %}" class="btn btn-primary me-2">Discard
+                Changes</a>
+            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete
+                Collection</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!--Private/Public Tag-->
+    <div class="d-flex justify-content-center">
+        {% if collection.private %}
+        <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Private </h2>
+        {% else %}
+        <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Public </h2>
+        {% endif %}
+    </div>
+
+    <!--Change Form-->
+    <form method="POST" class="mt-4">
+        {% csrf_token %}
+
+        <!--Collection Name-->
+        <div class="d-flex justify-content-center mb-4">
+            <label for="{{ form.collection_name.id_for_label }}" class="form-label">Collection Name:</label>
+            {{ form.collection_name }}
+        </div>
+
+        <div class="row">
+            <!--Remove Books Column-->
+            <div class="col-md-5 border p-3 rounded">
+                <h5 class="text-center">Remove Books</h5>
+                {{ form.books_to_remove }}
+            </div>
+
+            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                <h5 class="text-center">⇄</h5>
+            </div>
+
+            <!--Add Books Column-->
+            <div class="col-md-5 border p-3 rounded">
+                <h5 class="text-center">Add Books</h5>
+                {{ form.books_to_add }}
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success">Save Changes</button>
+        </div>
+
+    </form>
+
+</div>
+
+<!-- Delete Confirmation Popup -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete "{{ collection.collection_name }}"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'lending:collection_delete' collection.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<h2>You do not have permmission to access this page</h2>
+{% endif %}
+
+{% endblock content %}
