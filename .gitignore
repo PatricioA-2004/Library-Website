@@ -9,7 +9,8 @@ media
 # IntelliJ
 .idea
 
-lending/migrations
+# We want migrations to show up in django
+# lending/migrations
 
 # Backup files # 
 *.bak 
