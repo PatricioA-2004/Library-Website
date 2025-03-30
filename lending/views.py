@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import UpdateView
 from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
@@ -94,7 +95,7 @@ class CollectionDetailView(DetailView):
         context['books'] = self.object.books.all()
         return context
     
-class CollectionEditView(DetailView):
+class CollectionEditView(UpdateView):
     model = Collection
     form_class = CollectionChangeForm
     template_name = "lending/edit_collection.html"
