@@ -1,11 +1,14 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import TemplateView
+from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
 from .forms import ProfileForm, CollectionForm, RequestForm
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
 
@@ -100,6 +103,40 @@ def edit_book(request, pk):
         form = BookForm(instance=book)
     
     return render(request, 'lending/edit_book.html', {'form': form, 'book': book})
+
+class CollectionDetailView(DetailView):
+    model = Collection
+    template_name = "lending/collection_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['books'] = self.object.books.all()
+        return context
+    
+@user_passes_test(is_staff)
+def edit_collection(request, pk):
+    collection = get_object_or_404(Collection, pk=pk)
+    if not request.user.is_staff and request.user != collection.owner:
+        return HttpResponseForbidden("You do not have permission to edit this collection.")
+    if request.method == 'POST':
+        form = CollectionForm(request.POST, instance=collection, user_is_staff=request.user.is_staff)
+        if form.is_valid():
+            form.save()
+            return redirect('lending:collection_detail', pk=pk)
+    else:
+        form = CollectionForm(instance=collection, user_is_staff=request.user.is_staff)
+    
+    return render(request, 'lending/edit_collection.html', {'form': form, 'collection': collection})
+
+    
+class CollectionDeleteView(UserPassesTestMixin, DeleteView):
+    model = Collection
+    template_name = "lending/collection_confirm_delete.html"
+    success_url = reverse_lazy('lending:collections_list')
+
+    def test_func(self):
+        collection = self.get_object()
+        return self.request.user.is_staff or collection.owner == self.request.user
 
 @login_required
 def create_collection(request):
