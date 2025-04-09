@@ -7,18 +7,41 @@
     <h2>You're a librarian</h2>
 {% endif %}
 <div class="container">
-    <h2 class="text-center mt-4">Books:</h2>
+    <div class="row align-items-center mt-4 mb-4">
+        <div class="col-8">
+            <h1 class="display-4 mb-0 fw-bold">Books</h1>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="col-4 text-end">
+            <a href="{% url 'lending:create_collection' %}" class="btn btn-primary">
+                Create New Collection
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
     <div class="row">
         {% for book in book_list %}
-
-        <div class="card m-3" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"> {{ book.book_title }}</h5>
-              <h6 class="card-subtitle mb-2 text-muted"><strong>Author:</strong> {{ book.book_author }}</h6>
-              <h6 class="card-subtitle mb-2 text-muted"><strong>Genre:</strong> {{ book.book_genre }}</h6>
-              <a href="{% url 'lending:book_detail' book.id %}" class="btn btn-primary">View</a>
-            </div>
-          </div>
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'lending:book_detail' book.id %}" class="text-decoration-none">
+                <div class="card h-100" style="width: 18rem;">
+                    {% if book.book_cover %}
+                        <img src="{{ book.book_cover.url }}" class="card-img-top" alt="{{ book.book_title }}"
+                             style="height: 400px; object-fit: contain; padding: 10px;">
+                    {% else %}
+                        <div class="card-img-top d-flex justify-content-center align-items-center bg-light"
+                             style="height: 400px;">
+                            <span class="text-muted">No Cover Available</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title text-dark">{{ book.book_title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"><strong>Author:</strong> {{ book.book_author }}</h6>
+                        <h6 class="card-subtitle mb-2 text-muted"><strong>Genre:</strong> {{ book.book_genre }}</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
 </div>
