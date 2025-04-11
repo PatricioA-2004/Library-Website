@@ -33,4 +33,10 @@ class Request(models.Model):
     requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="requested_books")
     requested_book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="requests")
     requested_at = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 

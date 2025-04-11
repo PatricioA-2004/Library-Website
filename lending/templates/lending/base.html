@@ -12,61 +12,68 @@
 <body>
     <div class="d-flex flex-column vh-100 justify-content-spaced">
         <nav class="navbar navbar-expand navbar-dark bg-dark">
-            <a class="navbar-brand px-3" href="{% url 'lending:index' %}">
-                <h2>Lending</h2>
-            </a>
+    <a class="navbar-brand px-3" href="{% url 'lending:index' %}">
+        <h2>Lending</h2>
+    </a>
 
-            <ul class="nav nav-pills nav-fill">
-                <li class="nav-item">
-                    <a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a>
-                </li>
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link text-light" href="{% url 'lending:request_book' %}">Request Book</a>
-                </li>
-                {% endif %}
-                <li>
-                    <a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a>
-                </li>
-                {% if user.is_staff %}
-                <li class="nav-item">
-                    <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
-                </li>
-                {% endif %}
-            </ul>
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:request_book' %}">Request Book</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My Requests</a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a>
+        </li>
+    </ul>
 
-            <form class="d-flex mx-3" action="{% url 'lending:search' %}" method="get">
-                <div class="input-group">
-                    <input class="form-control" type="search" name="q" placeholder="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </div>
-            </form>
+    <form class="d-flex mx-3" action="{% url 'lending:search' %}" method="get">
+        <div class="input-group">
+            <input class="form-control" type="search" name="q" placeholder="Search">
+            <button class="btn btn-outline-light" type="submit">Search</button>
+        </div>
+    </form>
 
+    {% if user.is_staff %}
+    <ul class="nav">
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:manage_requests' %}">Manage Requests</a>
+        </li>
+    </ul>
+    {% endif %}
 
-            <ul class="navbar-nav ms-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item navbar-text text-light me-3 d-flex align-items-center">
-                        {% if user.profile.profile_picture %}
-                            <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
-                        {% endif %}
-                        Welcome, {{ user.get_full_name|default:user.username }}
-                        {% if user.email %}
-                            ({{ user.email }})
-                        {% endif %}
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light" href="{% url 'logout' %}">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link text-light" href="{% url 'social:begin' 'google-oauth2' %}">Login</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
+    <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+        <li class="nav-item navbar-text text-light me-3 d-flex align-items-center">
+            {% if user.profile.profile_picture %}
+            <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
+            {% endif %}
+            Welcome, {{ user.get_full_name|default:user.username }}
+            {% if user.email %} ({{ user.email }}) {% endif %}
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'logout' %}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'social:begin' 'google-oauth2' %}">Login</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
 
         <div class="d-flex flex-column justify-content-center align-items-center">
             {% block content %}

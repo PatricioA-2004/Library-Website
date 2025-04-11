@@ -1,0 +1,39 @@
+{% extends 'lending/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>All Book Requests</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Book</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for r in requests %}
+            <tr>
+                <td>{{ r.requester.username }}</td>
+                <td>{{ r.requested_book.book_title }}</td>
+                <td>{{ r.requested_at|date:"M d, Y" }}</td>
+                <td>{{ r.status }}</td>
+                <td>
+                    {% if r.status == "PENDING" %}
+                    <form method="post" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="request_id" value="{{ r.id }}">
+                        <button name="action" value="approve" class="btn btn-success btn-sm">✔</button>
+                        <button name="action" value="reject" class="btn btn-danger btn-sm">✖</button>
+                    </form>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

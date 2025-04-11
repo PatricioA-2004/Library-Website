@@ -1,0 +1,36 @@
+{% extends 'lending/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>My Book Requests</h2>
+    {% if requests %}
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Date Requested</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r.requested_book.book_title }}</td>
+                <td>{{ r.requested_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if r.status == "PENDING" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif r.status == "APPROVED" %}
+                        <span class="badge bg-success">Approved</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>You have no book requests yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

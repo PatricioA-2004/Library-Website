@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
+from .models import Request
 
 
 from .forms import BookForm
@@ -169,7 +170,7 @@ def request_book(request):
             book_request = form.save(commit=False)
             book_request.requester = request.user
             book_request.save()
-            return redirect('lending:index')
+            return redirect('lending:my_book_requests')
     else:
         form = RequestForm(user=request.user, initial=initial_data)
 
@@ -180,3 +181,24 @@ def search_view(request):
     books = Book.objects.annotate(search=SearchVector("book_title", "book_author"),).filter(search=query)
     print(query)
     return render(request, 'lending/search_view.html', {'books' : books, 'query' : query})
+
+@login_required
+def my_book_requests(request):
+    requests = Request.objects.filter(requester=request.user).select_related('requested_book').order_by('-requested_at')
+    return render(request, 'lending/my_requests.html', {'requests': requests})
+
+@user_passes_test(is_staff)
+def manage_requests(request):
+    if request.method == "POST":
+        req_id = request.POST.get("request_id")
+        action = request.POST.get("action")
+        book_request = get_object_or_404(Request, id=req_id)
+        if action == "approve":
+            book_request.status = "APPROVED"
+        elif action == "reject":
+            book_request.status = "REJECTED"
+        book_request.save()
+        return redirect('lending:manage_requests')
+
+    requests = Request.objects.select_related('requested_book', 'requester').order_by('-requested_at')
+    return render(request, 'lending/manage_requests.html', {'requests': requests})
