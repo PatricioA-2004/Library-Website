@@ -4,37 +4,77 @@
 
 {% block content %}
 <div class="container">
-    <h2 class="text-center mt-4">Collections</h2>
-    {% if not request.user.is_anonymous %}
-    <a href="{% url 'lending:create_collection' %}" class="btn btn-success">
-        Create New Collection
-    </a>
-    {% endif %}
+    <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 80px;">
+        <div class="flex-grow-1 text-center">
+            <h2 class="mb-0" style="font-weight: bold; font-size: 60px;">Collections</h2>
+        </div>
+        <div class="ms-auto">
+            {% if not request.user.is_anonymous %}
+            <a href="{% url 'lending:create_collection' %}" class="btn btn-success mt-4">
+                Create New Collection
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+        .card:hover .card-overlay {
+            opacity: 1 !important;
+        }
+    </style>
 
     <div class="row">
         {% for collection in collections %}
-        <div class="card m-3" style="width: 18rem;">
-            <div class="card-body">
-                <h5 class="card-title">{{ collection.collection_name }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                    <strong>Owner:</strong> {{ collection.owner.username }}
-                </h6>
-                <h6 class="card-subtitle mb-2 text-muted">
-                    <strong>Status:</strong> 
-                    {% if collection.private %}
-                        <span class="text-danger">Private</span>
-                    {% else %}
-                        <span class="text-success">Public</span>
-                    {% endif %}
-                </h6>
-                <h6 class="card-subtitle mb-2 text-muted">
-                    <strong>Books:</strong> {{ collection.books.count }}
-                </h6>
-                <a href="{% url 'lending:collection_detail' collection.id %}" class="btn btn-primary">View Collection</a>
-                {% if request.user == collection.owner or request.user.is_staff %}
-                <a href="{% url 'lending:edit_collection' collection.id %}" class="btn btn-secondary">Edit</a>
-                {% endif %}
-            </div>
+        <div class="col mb-4">
+            <a href="{% url 'lending:collection_detail' collection.id %}" class="text-decoration-none">
+                <div class="card m-3 h-100 position-relative overflow-hidden"
+                    style="width: 18rem; transition: all 0.3s ease; min-height: 400px;">
+                    <div class="card-body">
+                        <!--Collection Info-->
+                        <h5 class="card-title text-center">{{ collection.collection_name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <strong>Owner:</strong> {{ collection.owner.username }}
+                        </h6>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <strong>Status:</strong>
+                            {% if collection.private %}
+                            <span class="text-danger">Private</span>
+                            {% else %}
+                            <span class="text-success">Public</span>
+                            {% endif %}
+                        </h6>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <strong>Books:</strong> {{ collection.books.count }}
+                        </h6>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <strong>Description:</strong>
+                        </h6>
+                        <!--Book Covers-->
+                        <div class="d-flex p-2" style="min-height: 120px; background-color: #f8f9fa;">
+                            {% for book in collection.books.all|slice:":3" %}
+                            {% if book.book_cover %}
+                            <img src="{{ book.book_cover.url }}" class="img-fluid border m-1"
+                                style="height: 100px; width: auto; object-fit: contain;" alt="{{ book.title }} cover">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center border m-1"
+                                style="height: 100px; width: 70px; background-color: #e9ecef;">
+                                <small>No cover</small>
+                            </div>
+                            {% endif %}
+                            {% empty %}
+                            <div class="w-100 d-flex align-items-center justify-content-center">
+                                <small class="text-muted">No Books in Collection</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!--Hover Overlay-->
+                    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-0 card-overlay" style="background-color: rgba(29, 27, 27, 0.7);
+                        transition: opacity 0.3s ease;
+                        pointer-events: none;">
+                    </div>
+                </div>
+            </a>
         </div>
         {% empty %}
         <div class="col-12">
@@ -49,13 +89,13 @@
             <div class="card-header bg-info text-dark">
                 <h5 class="mb-0">Private Collections</h5>
             </div>
-                <ul class="list-group">
-                    {% for collection in private_collections %}
-                    <li class="list-group-item">
-                        {{ collection.collection_name }}
-                    </li>
-                    {% endfor %}
-                </ul>
+            <ul class="list-group">
+                {% for collection in private_collections %}
+                <li class="list-group-item">
+                    {{ collection.collection_name }}
+                </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
     {% endif %}
