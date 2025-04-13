@@ -26,8 +26,11 @@ class IndexView(ListView):
         user = self.request.user
         if user.is_staff:
             return Book.objects.all()
-        else:
+        elif user.is_authenticated:
             return Book.objects.filter(Q(collection__private=False) | Q(collection__allowed_users=user)).distinct()
+        else:
+            return Book.objects.exclude(collection__private=True)
+
 
     
 
