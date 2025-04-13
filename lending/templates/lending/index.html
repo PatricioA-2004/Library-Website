@@ -3,9 +3,6 @@
 {% load static %}
 
 {% block content %}
-{% if user.is_staff %}
-    <h2>You're a librarian</h2>
-{% endif %}
 <div class="container">
     <div class="row align-items-center mt-4 mb-4">
         <div class="col-8">
@@ -20,28 +17,26 @@
         {% endif %}
     </div>
     
-    <div class="row">
+    <div class="d-flex flex-wrap gap-4 justify-content-start">
         {% for book in book_list %}
-        <div class="col-md-4 mb-4">
-            <a href="{% url 'lending:book_detail' book.id %}" class="text-decoration-none">
-                <div class="card h-100" style="width: 18rem;">
-                    {% if book.book_cover %}
-                        <img src="{{ book.book_cover.url }}" class="card-img-top" alt="{{ book.book_title }}"
-                             style="height: 400px; object-fit: contain; padding: 10px;">
-                    {% else %}
-                        <div class="card-img-top d-flex justify-content-center align-items-center bg-light"
-                             style="height: 400px;">
-                            <span class="text-muted">No Cover Available</span>
-                        </div>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title text-dark">{{ book.book_title }}</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"><strong>Author:</strong> {{ book.book_author }}</h6>
-                        <h6 class="card-subtitle mb-2 text-muted"><strong>Genre:</strong> {{ book.book_genre }}</h6>
+        <a href="{% url 'lending:book_detail' book.id %}" class="text-decoration-none text-dark">
+            <div class="card" style="width: 11rem;">
+                {% if book.book_cover %}
+                    <img src="{{ book.book_cover.url }}" class="card-img-top" alt="{{ book.book_title }}"
+                         style="aspect-ratio: 3 / 4; object-fit: cover;" class="p-2">
+                {% else %}
+                    <div class="card-img-top d-flex justify-content-center align-items-center bg-light"
+                         style="aspect-ratio: 3 / 4;" class="p-2">
+                        <span class="text-muted">No Cover</span>
                     </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title mb-1">{{ book.book_title }}</h6>
+                    <p class="card-subtitle text-muted mb-1"><strong>Author:</strong> {{ book.book_author }}</p>
+                    <p class="card-subtitle text-muted mb-0"><strong>Genre:</strong> {{ book.book_genre }}</p>
                 </div>
-            </a>
-        </div>
+            </div>
+        </a>
         {% endfor %}
     </div>
 </div>

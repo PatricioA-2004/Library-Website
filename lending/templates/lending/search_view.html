@@ -5,19 +5,28 @@
 {% block content %}
 <div class="container">
     <h2 class="text-center mt-4">Books:</h2>
-    <div class="row">
-        {% for book in books %}
-
-        <div class="card m-3" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"> {{ book.book_title }}</h5>
-              <h6 class="card-subtitle mb-2 text-muted"><strong>Author:</strong> {{ book.book_author }}</h6>
-              <h6 class="card-subtitle mb-2 text-muted"><strong>Genre:</strong> {{ book.book_genre }}</h6>
-              <a href="{% url 'lending:book_detail' book.id %}" class="btn btn-primary">View</a>
-            </div>
+    <div class="d-flex flex-wrap gap-4 justify-content-start">
+      {% for book in book_list %}
+      <a href="{% url 'lending:book_detail' book.id %}" class="text-decoration-none text-dark">
+          <div class="card" style="width: 11rem;">
+              {% if book.book_cover %}
+                  <img src="{{ book.book_cover.url }}" class="card-img-top" alt="{{ book.book_title }}"
+                       style="aspect-ratio: 3 / 4; object-fit: cover;" class="p-2">
+              {% else %}
+                  <div class="card-img-top d-flex justify-content-center align-items-center bg-light"
+                       style="aspect-ratio: 3 / 4;" class="p-2">
+                      <span class="text-muted">No Cover</span>
+                  </div>
+              {% endif %}
+              <div class="card-body">
+                  <h6 class="card-title mb-1">{{ book.book_title }}</h6>
+                  <p class="card-subtitle text-muted mb-1"><strong>Author:</strong> {{ book.book_author }}</p>
+                  <p class="card-subtitle text-muted mb-0"><strong>Genre:</strong> {{ book.book_genre }}</p>
+              </div>
           </div>
-        {% endfor %}
-    </div>
+      </a>
+      {% endfor %}
+  </div>
 </div>
 
 {% endblock content %}
