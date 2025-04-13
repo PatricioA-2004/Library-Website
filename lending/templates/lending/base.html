@@ -46,8 +46,11 @@
             <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:manage_requests' %}">Manage Requests</a>
+            <a class="nav-link text-light" href="{% url 'lending:add_librarian' %}">Add Librarian</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'lending:manage_requests' %}">Manage Requests</a>
+        </li>    
     </ul>
     {% endif %}
 
@@ -57,8 +60,7 @@
             {% if user.profile.profile_picture %}
             <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
             {% endif %}
-            Welcome, {{ user.get_full_name|default:user.username }}
-            {% if user.email %} ({{ user.email }}) {% endif %}
+            {% if user.email %} {{ user.email }} {% endif %}
         </li>
         <li class="nav-item">
             <a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a>

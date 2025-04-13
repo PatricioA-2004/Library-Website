@@ -23,6 +23,5 @@ urlpatterns = [
     path('search/', views.search_view, name='search'),
     path('my-requests/', views.my_book_requests, name='my_book_requests'),
     path('manage-requests/', views.manage_requests, name='manage_requests'),
-
-
+    path('librarian/add', views.add_librarian, name='add_librarian'),
 ]

@@ -5,7 +5,7 @@ from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
-from .forms import ProfileForm, CollectionForm, RequestForm
+from .forms import ProfileForm, CollectionForm, RequestForm, AddLibrarianForm
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
@@ -234,3 +234,25 @@ def manage_requests(request):
 
     requests = Request.objects.select_related('requested_book', 'requester').order_by('-requested_at')
     return render(request, 'lending/manage_requests.html', {'requests': requests})
+
+@user_passes_test(is_staff)
+def add_librarian(request):
+    message = ''
+    if request.method == "POST":
+        form = AddLibrarianForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                user.is_staff = True
+                user.save()
+                message = user.username + " has been granted librarian access."
+            except User.DoesNotExist:
+                message = "No user found with that email address."
+    else:
+        form = AddLibrarianForm()
+    
+    return render(request, 'lending/add_librarian.html', {
+        'form': form,
+        'message': message
+    })

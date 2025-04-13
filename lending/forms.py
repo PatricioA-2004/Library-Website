@@ -61,3 +61,6 @@ class RequestForm(forms.ModelForm):
         user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         self.fields['requested_book'].queryset = Book.objects.filter(in_stock=True)
+
+class AddLibrarianForm(forms.Form):
+    email = forms.EmailField(label='', help_text='Input Librarian Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
