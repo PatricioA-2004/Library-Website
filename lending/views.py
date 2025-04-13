@@ -136,6 +136,15 @@ def edit_collection(request, pk):
                 return HttpResponseForbidden("You do not have permission to create private collections.")
             collection.save()
             form.save_m2m()
+
+            if collection.private:
+                # we need to remove the books in this collection from all public collections
+                private_books = collection.books.all()
+                for other_collection in Collection.objects.all():
+                    if collection == other_collection:
+                        continue
+                    other_collection.books.remove(*private_books)
+                    other_collection.save() 
             return redirect('lending:collection_detail', pk=pk)
     else:
         form = CollectionForm(instance=collection, user_is_staff=request.user.is_staff)
@@ -164,6 +173,15 @@ def create_collection(request):
             collection.save()
             # Save the many-to-many relationships
             form.save_m2m()
+
+            if collection.private:
+                # we need to remove the books in this collection from all public collections
+                private_books = collection.books.all()
+                for other_collection in Collection.objects.all():
+                    if collection == other_collection:
+                        continue
+                    other_collection.books.remove(*private_books)
+                    other_collection.save()                    
             return redirect('lending:collections_list')
     else:
         form = CollectionForm(user_is_staff=request.user.is_staff)
