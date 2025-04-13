@@ -1,5 +1,5 @@
 from django import forms
-from .models import Book, Request
+from .models import Book, Request, User
 from .models import Profile
 from .models import Collection
 
@@ -32,10 +32,16 @@ class CollectionForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
+
+    allowed_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(is_staff=False),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
     
     class Meta:
         model = Collection
-        fields = ['collection_name', 'private', 'books']
+        fields = ['collection_name', 'private', 'books', 'allowed_users']
         
     def __init__(self, *args, user_is_staff=False, **kwargs):
         super().__init__(*args, **kwargs)

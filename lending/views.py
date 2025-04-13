@@ -27,7 +27,7 @@ class IndexView(ListView):
         if user.is_staff:
             return Book.objects.all()
         else:
-            return Book.objects.exclude(collection__private=True).distinct()
+            return Book.objects.filter(Q(collection__private=False) | Q(collection__allowed_users=user)).distinct()
 
     
 
@@ -37,9 +37,9 @@ def collection_list_view(request):
     if request.user.is_staff:
         collection_list = Collection.objects.all()
         context = {'collections' : collection_list}
-    elif request.user.is_authenticated:
-        collection_list = Collection.objects.filter(Q(private = False) | Q(owner = request.user))
-        private_titles = Collection.objects.filter(Q(private = True) & ~Q(owner = request.user)).values('collection_name')
+    elif request.user.is_authenticated:   
+        collection_list = Collection.objects.filter(Q(private = False) | Q(owner = request.user) | Q(allowed_users = request.user))
+        private_titles = Collection.objects.filter(Q(private = True) & ~Q(owner = request.user) & ~Q(allowed_users = request.user)).values('collection_name')
         context = {'collections' : collection_list, 'private_collections' : private_titles}
     elif request.user.is_anonymous:
         collection_list = Collection.objects.filter(private = False)
