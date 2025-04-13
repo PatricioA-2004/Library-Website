@@ -56,7 +56,10 @@ def add_book(request):
         if not request.user or not request.user.is_staff:
             return HttpResponseForbidden('Permission Denied')
         if form.is_valid():
-            form.save()
+            book = form.save(commit = False)
+            book.in_stock = True
+            book.total_available = book.total_copies
+            book.save()
             return redirect('lending:index')
     else:
         form = BookForm()
