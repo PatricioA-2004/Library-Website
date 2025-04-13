@@ -65,6 +65,7 @@ def add_book(request):
             book.in_stock = True
             book.total_available = book.total_copies
             book.save()
+            form.save_m2m()
             return redirect('lending:index')
     else:
         form = BookForm()
@@ -178,6 +179,7 @@ def request_book(request):
             book_request = form.save(commit=False)
             book_request.requester = request.user
             book_request.save()
+            form.save_m2m()
             return redirect('lending:my_book_requests')
     else:
         form = RequestForm(user=request.user, initial=initial_data)
