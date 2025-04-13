@@ -123,7 +123,7 @@ class CollectionDetailView(DetailView):
         context['books'] = self.object.books.all()
         return context
     
-@user_passes_test(is_staff)
+@login_required
 def edit_collection(request, pk):
     collection = get_object_or_404(Collection, pk=pk)
     if not request.user.is_staff and request.user != collection.owner:
@@ -131,7 +131,11 @@ def edit_collection(request, pk):
     if request.method == 'POST':
         form = CollectionForm(request.POST, instance=collection, user_is_staff=request.user.is_staff)
         if form.is_valid():
-            form.save()
+            collection = form.save(commit = False)
+            if collection.private and not request.user.is_staff:
+                return HttpResponseForbidden("You do not have permission to create private collections.")
+            collection.save()
+            form.save_m2m()
             return redirect('lending:collection_detail', pk=pk)
     else:
         form = CollectionForm(instance=collection, user_is_staff=request.user.is_staff)
