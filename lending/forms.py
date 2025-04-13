@@ -28,7 +28,7 @@ class ProfileForm(forms.ModelForm):
 
 class CollectionForm(forms.ModelForm):
     books = forms.ModelMultipleChoiceField(
-        queryset=Book.objects.all(),
+        queryset=Book.objects.none(),
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
@@ -43,6 +43,14 @@ class CollectionForm(forms.ModelForm):
             # Hide private field for non-staff users
             self.fields['private'].widget = forms.HiddenInput()
             self.fields['private'].initial = False
+
+        edit_collection = kwargs.get('instance', None)
+        public_books = Book.objects.exclude(collection__private=True)
+        if edit_collection:
+            my_books = edit_collection.books.all()
+            self.fields['books'].queryset = (public_books | my_books).distinct()
+        else:
+            self.fields['books'].queryset = public_books.distinct()
 
 class RequestForm(forms.ModelForm):
     class Meta:

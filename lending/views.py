@@ -23,7 +23,12 @@ class IndexView(ListView):
     template_name = "lending/index.html"
     context_object_name = "book_list"
     def get_queryset(self):
-        return Book.objects.all()
+        user = self.request.user
+        if user.is_staff:
+            return Book.objects.all()
+        else:
+            return Book.objects.exclude(collection__private=True).distinct()
+
     
 
 
