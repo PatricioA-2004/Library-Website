@@ -5,40 +5,52 @@
 {% block content %}
 <div class="container">
     <!--Heading-->
-    <div class="d-flex mt-4" style="padding-top: 30px; padding-left: 10px;">
+    <div class="d-flex mt-4" style=" padding-left: 10px;">
         <div class="flex-grow-1">
             <h2 class="mb-0" style="font-weight: bold; font-size: 60px;">Collections</h2>
         </div>
         <!--Create Collection Button-->
         <div class="ms-auto">
             {% if not request.user.is_anonymous %}
-            <a href="{% url 'lending:create_collection' %}" class="btn btn-success mt-4">
+            <a href="{% url 'lending:create_collection' %}" class="btn btn-primary mt-4">
                 Create New Collection
             </a>
             {% endif %}
         </div>
     </div>
 
-    <style>
-        .scrollable-box {
-            overflow-y: auto;
-            overflow-x: hidden;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-    </style>
-
     <div class="row">
         {% for collection in collections %}
-        <div class="col-3 mb-4">
+        <div class="col-3 mb-2">
             <!--Card Info-->
             <a href="{% url 'lending:collection_detail' collection.id %}" class="text-decoration-none">
-                <div class="card m-3 h-100 border-1  transition hover-shadow position-relative overflow-hidden"
-                style="width: 18rem; min-height: 400px; transition: transform 0.2s ease;">           
+                <div class="card m-3 border-1 position-relative" style="width: 18rem; max-height: 310px;">
+                    <!--Book Covers-->
+                    <div class="d-flex">
+                        {% for book in collection.books.all|slice:"3" %}
+                        <div class="text-center" style="width: 33%; object-fit: cover;">
+                            {% if book.book_cover %}
+                            <img src="{{ book.book_cover.url }}" class="img-fluid"
+                                style="height: 150px; width: auto; max-width: 100%;">
+                            {% else %}
+                            <div class="d-flex flex-column align-items-center justify-content-center mx-auto"
+                                style="height: 100px; width: 60px; background-color: #e9ecef;">
+                                <small>No cover</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="w-100 h-100 d-flex justify-content-center"
+                            style="padding-top: 22%; padding-bottom: 22%;">
+                            <small class="text-muted">No Books in Collection</small>
+                        </div>
+                        {% endfor %}
+                    </div>
                     <div class="card-body d-flex flex-column">
                         <!--Collection Info-->
-                        <h5 class="card-title text-center mb-1 d-flex justify-content-center align-items-center" style="font-size: 30px;
-                        min-height: 72px;">{{ collection.collection_name|truncatechars:25 }}</h5>
+                        <h6 class="card-title mb-1 d-flex text-dark" style="font-size: 20px;">
+                            {{ collection.collection_name|truncatechars:25 }}
+                        </h6>
                         <h6 class="card-subtitle mb-1 text-muted">
                             <strong>Owner:</strong> {{ collection.owner.username }}
                         </h6>
@@ -53,28 +65,7 @@
                         <h6 class="card-subtitle mb-2 text-muted">
                             <strong>Books:</strong> {{ collection.books.count }}
                         </h6>
-                        <!--Book Covers-->
-                        <div class="scrollable-box p-2" style="height: 100%; background-color: #f8f9fa;">
-                            <div class="d-flex flex-wrap">
-                                {% for book in collection.books.all %}
-                                <div class="text-center mb-2" style="width: 33%;">
-                                    {% if book.book_cover %}
-                                    <img src="{{ book.book_cover.url }}" class="img-fluid mx-auto d-block"
-                                        style="height: 100px; width: auto; max-width: 100%; object-fit: contain;">
-                                    {% else %}
-                                    <div class="d-flex flex-column align-items-center justify-content-center mx-auto"
-                                        style="height: 100px; width: 60px; background-color: #e9ecef;">
-                                        <small>No cover</small>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                {% empty %}
-                                <div class="w-100 h-100 d-flex justify-content-center" style="padding-top: 35%;">
-                                    <small class="text-muted">No Books in Collection</small>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </a>
