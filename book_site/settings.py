@@ -131,6 +131,7 @@ LOGIN_REDIRECT_URL = '/lending/'
 LOGOUT_REDIRECT_URL = '/'
 SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://cs3240-b-11-ae930d732989.herokuapp.com/auth/complete/google-oauth2/'
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SECURE_SSL_REDIRECT = True
 
 
 # Internationalization
