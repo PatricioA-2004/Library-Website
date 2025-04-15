@@ -163,7 +163,7 @@ MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 if os.getenv('DATABASE_URL'):
-    DEBUG = True
+    DEBUG = False
 
     DATABASES['default'] = dj_database_url.config(
     conn_max_age=600,
