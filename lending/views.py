@@ -1,3 +1,5 @@
+from datetime import timezone, timedelta
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import TemplateView
@@ -11,8 +13,9 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
-from .models import Request
-
+from datetime import timedelta
+from lending.models import Request
+from django.utils.timezone import now
 
 from .forms import BookForm
 from django.views.generic import DetailView, ListView
@@ -31,26 +34,23 @@ class IndexView(ListView):
         else:
             return Book.objects.exclude(collection__private=True)
 
-
-    
-
-
 def collection_list_view(request):
     context = {}
     if request.user.is_staff:
         collection_list = Collection.objects.all()
         context = {'collections' : collection_list}
-    elif request.user.is_authenticated:   
+    elif request.user.is_authenticated:
         collection_list = Collection.objects.filter(Q(private = False) | Q(owner = request.user) | Q(allowed_users = request.user))
         private_titles = Collection.objects.filter(Q(private = True) & ~Q(owner = request.user) & ~Q(allowed_users = request.user)).values('collection_name')
         context = {'collections' : collection_list, 'private_collections' : private_titles}
     elif request.user.is_anonymous:
         collection_list = Collection.objects.filter(private = False)
         context = {'collections' : collection_list}
-    
+
     return render(request, 'lending/collection_list.html', context)
 
 def login(request):
+    auto_return_overdue_books()
     return render(request, 'lending/login.html')
 
 def logout_view(request):
@@ -114,7 +114,7 @@ def edit_book(request, pk):
             return redirect('lending:book_detail', pk=pk)
     else:
         form = BookForm(instance=book)
-    
+
     return render(request, 'lending/edit_book.html', {'form': form, 'book': book})
 
 class CollectionDetailView(DetailView):
@@ -125,7 +125,7 @@ class CollectionDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = self.object.books.all()
         return context
-    
+
 @login_required
 def edit_collection(request, pk):
     collection = get_object_or_404(Collection, pk=pk)
@@ -147,14 +147,14 @@ def edit_collection(request, pk):
                     if collection == other_collection:
                         continue
                     other_collection.books.remove(*private_books)
-                    other_collection.save() 
+                    other_collection.save()
             return redirect('lending:collection_detail', pk=pk)
     else:
         form = CollectionForm(instance=collection, user_is_staff=request.user.is_staff)
-    
+
     return render(request, 'lending/edit_collection.html', {'form': form, 'collection': collection})
 
-    
+
 class CollectionDeleteView(UserPassesTestMixin, DeleteView):
     model = Collection
     template_name = "lending/collection_confirm_delete.html"
@@ -184,11 +184,11 @@ def create_collection(request):
                     if collection == other_collection:
                         continue
                     other_collection.books.remove(*private_books)
-                    other_collection.save()                    
+                    other_collection.save()
             return redirect('lending:collections_list')
     else:
         form = CollectionForm(user_is_staff=request.user.is_staff)
-    
+
     return render(request, 'lending/create_collection.html', {'form': form})
 
 @login_required
@@ -229,14 +229,24 @@ def manage_requests(request):
         action = request.POST.get("action")
         book_request = get_object_or_404(Request, id=req_id)
         if action == "approve":
+            book = book_request.requested_book
+            if book.total_available < 1:
+                return HttpResponseForbidden("No available copies to lend.")
             book_request.status = "APPROVED"
+            book_request.due_date = now() + timedelta(days=30)
+            book.total_available -= 1
+            book.save()
         elif action == "reject":
             book_request.status = "REJECTED"
         book_request.save()
         return redirect('lending:manage_requests')
 
-    requests = Request.objects.select_related('requested_book', 'requester').order_by('-requested_at')
-    return render(request, 'lending/manage_requests.html', {'requests': requests})
+    pending_requests = Request.objects.filter(status="PENDING").select_related('requested_book', 'requester')
+    replied_requests = Request.objects.exclude(status="PENDING").select_related('requested_book', 'requester')
+    return render(request, 'lending/manage_requests.html', {
+        'pending_requests': pending_requests,
+        'replied_requests': replied_requests,
+    })
 
 @user_passes_test(is_staff)
 def add_librarian(request):
@@ -254,8 +264,54 @@ def add_librarian(request):
                 message = "No user found with that email address."
     else:
         form = AddLibrarianForm()
-    
+
     return render(request, 'lending/add_librarian.html', {
         'form': form,
         'message': message
     })
+
+
+@login_required
+def return_book(request, pk):
+    book_request = get_object_or_404(Request, pk=pk, requester=request.user, returned=False)
+    book = book_request.requested_book
+    book.total_available += 1
+    book.save()
+
+    book_request.returned = True
+    book_request.returned_at = now() + timedelta(days=30)
+    book_request.save()
+
+    return redirect('lending:my_books')
+
+
+@login_required
+def my_books(request):
+    auto_return_overdue_books()
+    active_requests = Request.objects.filter(
+        requester=request.user,
+        status="APPROVED",
+        returned=False
+    ).select_related("requested_book").order_by("due_date")
+
+    for r in active_requests:
+        if r.due_date:
+            r.days_left = (r.due_date - now()).days
+        else:
+            r.days_left = None
+
+    return render(request, "lending/my_books.html", {"requests": active_requests})
+
+def auto_return_overdue_books():
+    overdue = Request.objects.filter(
+        returned=False,
+        status="APPROVED",
+        due_date__lt=now()
+    ).select_related("requested_book")
+
+    for r in overdue:
+        r.returned = True
+        r.returned_at = now()
+        r.requested_book.total_available += 1
+        r.requested_book.save()
+        r.save()

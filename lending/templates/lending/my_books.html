@@ -1,0 +1,51 @@
+{% extends 'lending/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>My Borrowed Books</h2>
+    {% if requests %}
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Due Date</th>
+                <th>Time Left</th>
+                <th>Return</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for r in requests %}
+            <tr>
+                <td>{{ r.requested_book.book_title }}</td>
+                <td>
+                    {% if r.due_date %}
+                        {{ r.due_date|date:"M d, Y" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.days_left != None %}
+                        {% if r.days_left > 0 %}
+                            {{ r.days_left }} day{{ r.days_left|pluralize }} left
+                        {% else %}
+                            <span class="text-danger">Overdue</span>
+                        {% endif %}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" action="{% url 'lending:return_book' r.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-primary">Return Early</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>You have no borrowed books right now.</p>
+    {% endif %}
+</div>
+{% endblock %}

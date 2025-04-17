@@ -46,6 +46,10 @@ urlpatterns = [
     path('request/', views.request_book, name='request_book'),
     path('my-requests/', views.my_book_requests, name='my_book_requests'),
     path('manage-requests/', views.manage_requests, name='manage_requests'),
+    path("return/<int:pk>/", views.return_book, name="return_book"),
+    path("my-books/", views.my_books, name="my_books"),
+
+
 
 
 

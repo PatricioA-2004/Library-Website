@@ -21,16 +21,19 @@
             <a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a>
         </li>
         {% if user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:request_book' %}">Request Book</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My Requests</a>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="booksDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                My Library
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="booksDropdown">
+                <li><a class="dropdown-item" href="{% url 'lending:my_books' %}">My Books</a></li>
+                <li><a class="dropdown-item" href="{% url 'lending:my_book_requests' %}">My Requests</a></li>
+                <li><a class="dropdown-item" href="{% url 'lending:request_book' %}">Request a Book</a></li>
+                <li><a class="dropdown-item" href="{% url 'lending:collections_list' %}">My Collections</a></li>
+            </ul>
         </li>
         {% endif %}
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a>
-        </li>
+        
     </ul>
 
     <form class="d-flex mx-3" action="{% url 'lending:search' %}" method="get">
