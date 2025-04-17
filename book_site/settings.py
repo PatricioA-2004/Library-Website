@@ -131,8 +131,7 @@ LOGIN_REDIRECT_URL = '/lending/'
 LOGOUT_REDIRECT_URL = '/'
 SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://cs3240-b-11-ae930d732989.herokuapp.com/auth/complete/google-oauth2/'
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
-SECURE_SSL_REDIRECT = True
-
+SECURE_SSL_REDIRECT = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -164,6 +163,9 @@ DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 if os.getenv('DATABASE_URL'):
     DEBUG = False
+
+    SECURE_SSL_REDIRECT = True
+
 
     DATABASES['default'] = dj_database_url.config(
     conn_max_age=600,
