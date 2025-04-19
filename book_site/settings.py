@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'social_django',
     'storages',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

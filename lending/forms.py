@@ -2,6 +2,7 @@ from django import forms
 from .models import Book, Request, User
 from .models import Profile
 from .models import Collection
+from .models import Review
 
 class BookForm(forms.ModelForm):
     class Meta:
@@ -70,3 +71,12 @@ class RequestForm(forms.ModelForm):
 
 class AddLibrarianForm(forms.Form):
     email = forms.EmailField(label='', help_text='Input Librarian Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect(attrs={'class': 'star-rating'}),
+            'comment': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Write your review here...'})
+        }

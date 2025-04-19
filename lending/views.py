@@ -17,9 +17,11 @@ from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
 
-from .forms import BookForm
+from .forms import BookForm, ReviewForm
 from django.views.generic import DetailView, ListView
-from .models import Book, Collection
+from .models import Book, Collection, Review
+from django.contrib import messages
+from django.db.utils import IntegrityError
 
 # Create your views here.
 class IndexView(ListView):
@@ -87,6 +89,10 @@ class BookDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['reviews'] = self.object.reviews.all().order_by('-created_at')
+        if self.request.user.is_authenticated:
+            context['review_form'] = ReviewForm()
+            context['user_review'] = self.object.reviews.filter(user=self.request.user).first()
         return context
 
 @login_required
@@ -315,3 +321,19 @@ def auto_return_overdue_books():
         r.requested_book.total_available += 1
         r.requested_book.save()
         r.save()
+
+@login_required
+def add_review(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.book = book
+            review.user = request.user
+            try:
+                review.save()
+                messages.success(request, 'Review added successfully!')
+            except IntegrityError:
+                messages.error(request, 'You have already reviewed this book.')
+    return redirect('lending:book_detail', pk=pk)

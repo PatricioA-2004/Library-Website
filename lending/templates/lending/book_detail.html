@@ -1,6 +1,8 @@
 {% extends 'lending/base.html' %}
 
 {% load static %}
+{% load widget_tweaks %}
+{% load book_extras %}
 
 {% block content %}
 <div class="container-fluid">
@@ -80,6 +82,60 @@
         </div>
     </div>
 
+    <!-- Add this section after your existing book details -->
+    <div class="row mt-5">
+        <div class="col-md-8 mx-auto">
+            <h3 class="mb-4">Reviews</h3>
+            
+            {% if user.is_authenticated and not user_review %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Write a Review</h5>
+                    <form method="post" action="{% url 'lending:add_review' book.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Rating:</label>
+                            <div class="star-rating">
+                                {% for radio in review_form.rating %}
+                                <div class="form-check form-check-inline">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comment:</label>
+                            {{ review_form.comment|add_class:"form-control" }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Display existing reviews -->
+            {% for review in reviews %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            {{ review.user.username }} - {{ review.created_at|date:"F d, Y" }}
+                        </h6>
+                        <div class="text-warning">
+                            {% for i in review.rating|get_range %}⭐{% endfor %}
+                        </div>
+                    </div>
+                    <p class="card-text">{{ review.comment }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">No reviews yet. Be the first to review this book!</p>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 

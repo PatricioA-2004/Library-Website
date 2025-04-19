@@ -46,3 +46,18 @@ class Request(models.Model):
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
+
+class Review(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, f"{i} stars") for i in range(1, 6)])
+    comment = models.TextField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Ensure one review per user per book
+        unique_together = ['book', 'user']
+
+    def __str__(self):
+        return f"Review by {self.user.username} for {self.book.book_title}"
+

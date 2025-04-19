@@ -26,6 +26,5 @@ urlpatterns = [
     path('librarian/add', views.add_librarian, name='add_librarian'),
     path("return/<int:pk>/", views.return_book, name="return_book"),
     path("my-books/", views.my_books, name="my_books"),
-
-
+    path('book/<int:pk>/review/', views.add_review, name='add_review'),
 ]
