@@ -231,6 +231,17 @@ def search_view(request):
         collections = collections.filter(private = False)
     return render(request, 'lending/search_view.html', {'book_list' : books, 'query' : query, 'collections' : collections, 'private_collections' : private_titles})
 
+def collection_search_view(request, pk):
+    collection = get_object_or_404(Collection, pk=pk)
+    books = None
+    query = request.GET.get('q', '')
+    if query != '':
+        books = collection.books.annotate(search=SearchVector("book_title", "book_author"),).filter(search=query)
+    else:
+        books = collection.books.all()
+    context = {'collection' : collection, 'books' : books, 'query': query}
+    return render(request, 'lending/collection_search.html', context)
+
 @login_required
 def my_book_requests(request):
     requests = Request.objects.filter(requester=request.user).select_related('requested_book').order_by('-requested_at')
