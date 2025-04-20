@@ -220,7 +220,6 @@ def request_book(request):
 def search_view(request):
     query = request.GET.get('q')
     books = Book.objects.annotate(search=SearchVector("book_title", "book_author"),).filter(search=query)
-    print(query)
     return render(request, 'lending/search_view.html', {'books' : books, 'query' : query})
 
 @login_required
