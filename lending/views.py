@@ -220,7 +220,14 @@ def request_book(request):
 def search_view(request):
     query = request.GET.get('q')
     books = Book.objects.annotate(search=SearchVector("book_title", "book_author"),).filter(search=query)
-    return render(request, 'lending/search_view.html', {'book_list' : books, 'query' : query})
+    collections = Collection.objects.annotate(search=SearchVector("collection_name")).filter(search=query)
+    private_titles = None
+    if request.user.is_authenticated and not request.user.is_staff:
+        private_titles = collections._clone().filter(Q(private = True) & ~Q(owner = request.user) & ~Q(allowed_users = request.user)).values('collection_name')
+        collections = collections.filter(Q(private = False) | Q(owner = request.user) | Q(allowed_users = request.user))
+    elif request.user.is_anonymous:
+        collections = Collection.objects.filter(private = False)
+    return render(request, 'lending/search_view.html', {'book_list' : books, 'query' : query, 'collections' : collections, 'private_collections' : private_titles})
 
 @login_required
 def my_book_requests(request):
