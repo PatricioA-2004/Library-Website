@@ -2,19 +2,76 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
-        <h2 class="text-center">User Profile</h2>
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Member Since:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+<style>
+    .profile-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    .profile-picture {
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-top: -90px;
+        border: 5px solid white;
+        box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    }
+    .bg-header {
+        background: linear-gradient(135deg, #1d3557, #457b9d);
+        height: 180px;
+        position: relative;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+</style>
+
+<div class="bg-header mb-5"></div>
+
+<div class="profile-card">
+    <form method="post" enctype="multipart/form-data" action="{% url 'lending:profile' %}">
+        {% csrf_token %}
 
         {% if profile.profile_picture %}
-            <h3>Profile Picture:</h3>
-            <img src="{{ profile.profile_picture.url }}" class="img-thumbnail" width="150px">
+            <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
         {% else %}
-            <p>No profile picture uploaded.</p>
+            <img src="https://via.placeholder.com/130" alt="No Picture" class="profile-picture">
         {% endif %}
 
-        <a href="{% url 'lending:profile_update' %}" class="btn btn-primary">Update Profile</a>
-    </div>
+        <div class="mt-3">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="togglePicUpload()">Change Profile Picture</button>
+            <div id="picUpload" class="mt-2" style="display: none;">
+                <input type="file" name="profile_picture" accept="image/*" class="form-control mt-2">
+                <button type="submit" class="btn btn-sm btn-primary mt-2">Save Picture</button>
+            </div>
+        </div>
+
+        <h3 class="mt-4">
+            {% if request.GET.edit_username %}
+                <div class="d-inline-flex align-items-center justify-content-center">
+                    <input type="text" name="username" value="{{ user.username }}" class="form-control form-control-sm me-2 w-auto">
+                    <button type="submit" class="btn btn-sm btn-success me-1">Save</button>
+                    <a href="{% url 'lending:profile' %}" class="btn btn-sm btn-secondary">Cancel</a>
+                </div>
+            {% else %}
+                {{ user.username }}
+                <a href="?edit_username=1" class="btn btn-sm btn-outline-primary ms-2">Change</a>
+            {% endif %}
+        </h3>
+
+        <p class="text-muted mb-2">{{ user.email }}</p>
+        <p class="text-muted">Member Since: {{ user.date_joined|date:"F j, Y" }}</p>
+    </form>
+</div>
+
+<script>
+    function togglePicUpload() {
+        const uploadDiv = document.getElementById('picUpload');
+        uploadDiv.style.display = uploadDiv.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
 {% endblock %}
