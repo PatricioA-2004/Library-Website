@@ -6,6 +6,7 @@
         <h2 class="text-center">User Profile</h2>
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Member Since:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
 
         {% if profile.profile_picture %}
             <h3>Profile Picture:</h3>
