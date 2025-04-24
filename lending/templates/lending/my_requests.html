@@ -9,6 +9,7 @@
                 <th>Book</th>
                 <th>Date Requested</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -23,6 +24,16 @@
                         <span class="badge bg-success">Approved</span>
                     {% else %}
                         <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.status == "PENDING" %}
+                    <form method="post" action="{% url 'lending:cancel_request' r.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                    </form>
+                    {% else %}
+                    —
                     {% endif %}
                 </td>
             </tr>

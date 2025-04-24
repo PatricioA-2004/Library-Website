@@ -48,6 +48,8 @@ urlpatterns = [
     path('manage-requests/', views.manage_requests, name='manage_requests'),
     path("return/<int:pk>/", views.return_book, name="return_book"),
     path("my-books/", views.my_books, name="my_books"),
+    path('requests/<int:pk>/cancel/', views.cancel_request, name='cancel_request'),
+
 
 
 

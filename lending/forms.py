@@ -72,8 +72,15 @@ class RequestForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         book = cleaned_data.get('requested_book')
-        if book and Request.objects.filter(requester=self.user, requested_book=book, returned=False).exists():
-            raise forms.ValidationError("You already have an active request for this book.")
+
+        if book and Request.objects.filter(
+            requester=self.user,
+            requested_book=book,
+            returned=False,
+            status__in=["PENDING", "APPROVED"]
+        ).exists():
+            raise forms.ValidationError("You already have this book requested or checked out.")
+
         return cleaned_data
 
 

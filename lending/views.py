@@ -16,7 +16,7 @@ from django.db.models import Q
 from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
-
+from django.views.decorators.http import require_POST
 from .forms import BookForm, ReviewForm
 from django.views.generic import DetailView, ListView
 from .models import Book, Collection, Review
@@ -356,3 +356,11 @@ def add_review(request, pk):
             except IntegrityError:
                 messages.error(request, 'You have already reviewed this book.')
     return redirect('lending:book_detail', pk=pk)
+
+@login_required
+@require_POST
+def cancel_request(request, pk):
+    book_request = get_object_or_404(Request, pk=pk, requester=request.user)
+    if book_request.status == "PENDING":
+        book_request.delete()
+    return redirect('lending:my_book_requests')
