@@ -65,9 +65,17 @@ class RequestForm(forms.ModelForm):
         fields = ['requested_book']
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         self.fields['requested_book'].queryset = Book.objects.filter(in_stock=True)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        book = cleaned_data.get('requested_book')
+        if book and Request.objects.filter(requester=self.user, requested_book=book, returned=False).exists():
+            raise forms.ValidationError("You already have an active request for this book.")
+        return cleaned_data
+
 
 class AddLibrarianForm(forms.Form):
     email = forms.EmailField(label='', help_text='Input Librarian Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
