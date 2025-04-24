@@ -4,91 +4,80 @@
 {% bootstrap_javascript %}
 
 <html>
-
 <head>
     <title>{% block title %}Library System{% endblock %}</title>
+    <style>
+        .navbar .input-group {
+            margin-top: 15px; 
+        }
+    </style>
 </head>
 
 <body>
-    <div class="d-flex flex-column vh-100 justify-content-spaced">
-        <nav class="navbar navbar-expand navbar-dark bg-dark">
-    <a class="navbar-brand px-3" href="{% url 'lending:index' %}">
-        <h2>Lending</h2>
-    </a>
-
-    <ul class="nav nav-pills nav-fill">
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a>
-        </li>
-        {% if user.is_authenticated %}
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="booksDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                My Library
+<div class="d-flex flex-column vh-100 justify-content-spaced">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+        <div class="container-fluid d-flex align-items-center w-100 gap-3">
+            <a class="navbar-brand me-4" href="{% url 'lending:index' %}">
+                <h2 class="mb-0">Lending</h2>
             </a>
-            <ul class="dropdown-menu" aria-labelledby="booksDropdown">
-                <li><a class="dropdown-item" href="{% url 'lending:my_books' %}">My Books</a></li>
-                <li><a class="dropdown-item" href="{% url 'lending:my_book_requests' %}">My Requests</a></li>
-                <li><a class="dropdown-item" href="{% url 'lending:request_book' %}">Request a Book</a></li>
-                <li><a class="dropdown-item" href="{% url 'lending:collections_list' %}">My Collections</a></li>
+
+            <ul class="navbar-nav flex-row gap-3 mb-0">
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_books' %}">My Books</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My Requests</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:request_book' %}">Request a Book</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:collections_list' %}">My Collections</a></li>
+                {% endif %}
             </ul>
-        </li>
-        {% endif %}
-        
-    </ul>
 
-    <form class="d-flex mx-3" action="{% url 'lending:search' %}" method="get">
-        <div class="input-group">
-            <input class="form-control" type="search" name="q" placeholder="Search">
-            <button class="btn btn-outline-light" type="submit">Search</button>
-        </div>
-    </form>
+            <form class="d-flex" action="{% url 'lending:search' %}" method="get">
+                <div class="input-group">
+                    <input class="form-control" type="search" name="q" placeholder="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </div>
+            </form>
 
-    {% if user.is_staff %}
-    <ul class="nav">
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:add_book' %}">Add Book</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:add_librarian' %}">Add Librarian</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:manage_requests' %}">Manage Requests</a>
-        </li>    
-    </ul>
-    {% endif %}
-
-    <ul class="navbar-nav ms-auto">
-        {% if user.is_authenticated %}
-        <li class="nav-item navbar-text text-light me-3 d-flex align-items-center">
-            {% if user.profile.profile_picture %}
-            <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
+            {% if user.is_staff %}
+            <ul class="navbar-nav ms-3">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="staffDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Staff Actions
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="staffDropdown">
+                        <li><a class="dropdown-item" href="{% url 'lending:add_book' %}">Add Book</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lending:add_librarian' %}">Add Librarian</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lending:manage_requests' %}">Manage Requests</a></li>
+                    </ul>
+                </li>
+            </ul>
             {% endif %}
-            {% if user.email %} {{ user.email }} {% endif %}
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'logout' %}">Logout</a>
-        </li>
-        {% else %}
-        <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'social:begin' 'google-oauth2' %}">Login</a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
 
-
-        <div class="d-flex flex-column justify-content-center align-items-center">
-            {% block content %}
-            {% endblock %}
+            <ul class="navbar-nav ms-3 align-items-center">
+                {% if user.is_authenticated %}
+                    <li class="nav-item d-flex align-items-center text-light me-3">
+                        {% if user.profile.profile_picture %}
+                        <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
+                        {% endif %}
+                        {{ user.email }}
+                    </li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'social:begin' 'google-oauth2' %}">Login</a></li>
+                {% endif %}
+            </ul>
         </div>
+    </nav>
 
-        <div class="mx-5 mt-auto d-flex p-3 border-top">
-            © 2025, Shahryar Kiani, Patricio Anduaga, Nick Moir, Eileen Kopp
-        </div>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        {% block content %}
+        {% endblock %}
     </div>
-</body>
 
+    <div class="mx-5 mt-auto d-flex p-3 border-top">
+        © 2025, Shahryar Kiani, Patricio Anduaga, Nick Moir, Eileen Kopp
+    </div>
+</div>
+</body>
 </html>
