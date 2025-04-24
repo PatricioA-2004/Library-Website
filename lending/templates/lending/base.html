@@ -59,7 +59,7 @@
                         {% if user.profile.profile_picture %}
                         <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
                         {% endif %}
-                        {{ user.email }}
+                        {{ user.username }}
                     </li>
                     <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a></li>
                     <li class="nav-item"><a class="nav-link text-light" href="{% url 'logout' %}">Logout</a></li>
