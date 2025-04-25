@@ -16,7 +16,7 @@ from django.db.models import Q
 from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
-from django.views.decorators.http import require_POST
+
 from .forms import BookForm, ReviewForm
 from django.views.generic import DetailView, ListView
 from .models import Book, Collection, Review
@@ -79,21 +79,8 @@ def add_book(request):
 
 @login_required
 def profile_view(request):
-    user_instance = request.user
+    user_instance = User.objects.get(username=request.user.username)
     profile, created = Profile.objects.get_or_create(user=user_instance)
-
-    if request.method == 'POST':
-        new_username = request.POST.get("username")
-        if new_username and new_username != user_instance.username:
-            user_instance.username = new_username
-            user_instance.save()
-
-        if 'profile_picture' in request.FILES:
-            profile.profile_picture = request.FILES['profile_picture']
-            profile.save()
-
-        return redirect('lending:profile')
-
     return render(request, 'lending/profile.html', {'profile': profile})
 
 class BookDetailView(DetailView):
@@ -273,6 +260,9 @@ def manage_requests(request):
             book_request.status = "APPROVED"
             book_request.due_date = now() + timedelta(days=30)
             book.total_available -= 1
+            # Update in_stock status based on available copies
+            if book.total_available == 0:
+                book.in_stock = False
             book.save()
         elif action == "reject":
             book_request.status = "REJECTED"
@@ -314,10 +304,13 @@ def return_book(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user, returned=False)
     book = book_request.requested_book
     book.total_available += 1
+    # Update in_stock status when a book is returned
+    if book.total_available > 0:
+        book.in_stock = True
     book.save()
 
     book_request.returned = True
-    book_request.returned_at = now() + timedelta(days=30)
+    book_request.returned_at = now()
     book_request.save()
 
     return redirect('lending:my_books')
@@ -350,8 +343,12 @@ def auto_return_overdue_books():
     for r in overdue:
         r.returned = True
         r.returned_at = now()
-        r.requested_book.total_available += 1
-        r.requested_book.save()
+        book = r.requested_book
+        book.total_available += 1
+        # Update in_stock status when books are auto-returned
+        if book.total_available > 0:
+            book.in_stock = True
+        book.save()
         r.save()
 
 @login_required
@@ -368,12 +365,6 @@ def add_review(request, pk):
                 messages.success(request, 'Review added successfully!')
             except IntegrityError:
                 messages.error(request, 'You have already reviewed this book.')
+        else:
+            messages.error(request, 'Please fill in both rating and comment.')
     return redirect('lending:book_detail', pk=pk)
-
-@login_required
-@require_POST
-def cancel_request(request, pk):
-    book_request = get_object_or_404(Request, pk=pk, requester=request.user)
-    if book_request.status == "PENDING":
-        book_request.delete()
-    return redirect('lending:my_book_requests')
