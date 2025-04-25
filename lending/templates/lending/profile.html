@@ -54,7 +54,7 @@
             {% if request.GET.edit_username %}
                 <div class="d-inline-flex align-items-center justify-content-center">
                     <input type="text" name="username" value="{{ user.username }}" class="form-control form-control-sm me-2 w-auto">
-                    <button type="submit" class="btn btn-sm btn-success me-1">Save</button>
+                    <button type="submit" class="btn btn-sm btn-primary me-1">Save</button>
                     <a href="{% url 'lending:profile' %}" class="btn btn-sm btn-secondary">Cancel</a>
                 </div>
             {% else %}
