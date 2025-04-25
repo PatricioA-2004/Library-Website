@@ -50,7 +50,14 @@ class Request(models.Model):
 class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.IntegerField(choices=[(i, f"{i} stars") for i in range(1, 6)], null=False)
+    RATING_CHOICES = [
+        (1, '1 star'),
+        (2, '2 stars'),
+        (3, '3 stars'),
+        (4, '4 stars'),
+        (5, '5 stars'),
+    ]
+    rating = models.IntegerField(choices=RATING_CHOICES, null=False)
     comment = models.TextField(max_length=500, blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

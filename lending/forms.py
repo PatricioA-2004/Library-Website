@@ -73,11 +73,16 @@ class AddLibrarianForm(forms.Form):
     email = forms.EmailField(label='', help_text='Input Librarian Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
 class ReviewForm(forms.ModelForm):
+    rating = forms.ChoiceField(
+        choices=Review.RATING_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'star-rating'}),
+        required=True
+    )
+
     class Meta:
         model = Review
         fields = ['rating', 'comment']
         widgets = {
-            'rating': forms.RadioSelect(attrs={'class': 'star-rating'}),
             'comment': forms.Textarea(attrs={
                 'rows': 4, 
                 'placeholder': 'Write your review here...',
