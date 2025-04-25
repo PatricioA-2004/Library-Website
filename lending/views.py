@@ -260,6 +260,9 @@ def manage_requests(request):
             book_request.status = "APPROVED"
             book_request.due_date = now() + timedelta(days=30)
             book.total_available -= 1
+            # Update in_stock status based on available copies
+            if book.total_available == 0:
+                book.in_stock = False
             book.save()
         elif action == "reject":
             book_request.status = "REJECTED"
@@ -301,10 +304,13 @@ def return_book(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user, returned=False)
     book = book_request.requested_book
     book.total_available += 1
+    # Update in_stock status when a book is returned
+    if book.total_available > 0:
+        book.in_stock = True
     book.save()
 
     book_request.returned = True
-    book_request.returned_at = now() + timedelta(days=30)
+    book_request.returned_at = now()
     book_request.save()
 
     return redirect('lending:my_books')
@@ -337,8 +343,12 @@ def auto_return_overdue_books():
     for r in overdue:
         r.returned = True
         r.returned_at = now()
-        r.requested_book.total_available += 1
-        r.requested_book.save()
+        book = r.requested_book
+        book.total_available += 1
+        # Update in_stock status when books are auto-returned
+        if book.total_available > 0:
+            book.in_stock = True
+        book.save()
         r.save()
 
 @login_required
