@@ -2,6 +2,7 @@ from datetime import timezone, timedelta
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
 from django.views.generic import DeleteView
 from django.shortcuts import redirect
@@ -368,3 +369,11 @@ def add_review(request, pk):
         else:
             messages.error(request, 'Please fill in both rating and comment.')
     return redirect('lending:book_detail', pk=pk)
+
+@login_required
+@require_POST
+def cancel_request(request, pk):
+    book_request = get_object_or_404(Request, pk=pk, requester=request.user)
+    if book_request.status == "PENDING":
+        book_request.delete()
+    return redirect('lending:my_book_requests')
