@@ -78,5 +78,17 @@ class ReviewForm(forms.ModelForm):
         fields = ['rating', 'comment']
         widgets = {
             'rating': forms.RadioSelect(attrs={'class': 'star-rating'}),
-            'comment': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Write your review here...'})
+            'comment': forms.Textarea(attrs={
+                'rows': 4, 
+                'placeholder': 'Write your review here...',
+                'class': 'form-control'
+            })
+        }
+        error_messages = {
+            'rating': {
+                'required': "Please select a rating.",
+            },
+            'comment': {
+                'required': "Please write a comment.",
+            },
         }

@@ -355,4 +355,6 @@ def add_review(request, pk):
                 messages.success(request, 'Review added successfully!')
             except IntegrityError:
                 messages.error(request, 'You have already reviewed this book.')
+        else:
+            messages.error(request, 'Please fill in both rating and comment.')
     return redirect('lending:book_detail', pk=pk)

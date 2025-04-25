@@ -50,12 +50,11 @@ class Request(models.Model):
 class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.IntegerField(choices=[(i, f"{i} stars") for i in range(1, 6)])
-    comment = models.TextField(max_length=500)
+    rating = models.IntegerField(choices=[(i, f"{i} stars") for i in range(1, 6)], null=False)
+    comment = models.TextField(max_length=500, blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Ensure one review per user per book
         unique_together = ['book', 'user']
 
     def __str__(self):

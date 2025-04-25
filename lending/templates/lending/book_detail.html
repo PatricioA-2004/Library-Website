@@ -108,8 +108,15 @@
                         <h5 class="card-title">Write a Review</h5>
                         <form method="post" action="{% url 'lending:add_review' book.id %}">
                             {% csrf_token %}
+                            {% if messages %}
+                            <div class="alert alert-danger">
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                             <div class="mb-3">
-                                <label class="form-label">Rating:</label>
+                                <label class="form-label">Rating:{% if form.rating.errors %}<span class="text-danger">*</span>{% endif %}</label>
                                 <div class="star-rating">
                                     {% for radio in review_form.rating %}
                                     <div class="form-check form-check-inline">
@@ -120,10 +127,16 @@
                                     </div>
                                     {% endfor %}
                                 </div>
+                                {% if form.rating.errors %}
+                                <div class="text-danger">{{ form.rating.errors.0 }}</div>
+                                {% endif %}
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Comment:</label>
-                                {{ review_form.comment|add_class:"form-control" }}
+                                <label class="form-label">Comment:{% if form.comment.errors %}<span class="text-danger">*</span>{% endif %}</label>
+                                {{ review_form.comment }}
+                                {% if form.comment.errors %}
+                                <div class="text-danger">{{ form.comment.errors.0 }}</div>
+                                {% endif %}
                             </div>
                             <button type="submit" class="btn btn-primary">Submit Review</button>
                         </form>
