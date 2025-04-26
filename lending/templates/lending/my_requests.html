@@ -37,10 +37,7 @@
                         <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
                     </form>
                     {% elif r.returned  or r.status == "REJECTED" %}
-                    <form method="post" action="{% url 'lending:delete_request' r.pk %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                    </form>
+                    —
                     {% else %}
                     <a href="{% url 'lending:my_books' %}" class="btn btn-sm btn-outline-primary">My Books</a>
                     {% endif %}
