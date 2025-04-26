@@ -10,9 +10,9 @@
             <h2 class="mb-0" style="font-weight: bold; font-size: 60px;">Collections</h2>
         </div>
         <!--Create Collection Button-->
-        <div class="ms-auto">
+        <div>
             {% if not request.user.is_anonymous %}
-            <a href="{% url 'lending:create_collection' %}" class="btn btn-primary mt-4">
+            <a href="{% url 'lending:create_collection' %}" class="btn btn-primary mt-4" style="font-size: clamp(0.5rem, 3vw, 1rem);">
                 Create New Collection
             </a>
             {% endif %}
@@ -21,10 +21,10 @@
 
     <div class="row">
         {% for collection in collections %}
-        <div class="col-3 mb-2">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 mb-sm-4">
             <!--Card Info-->
             <a href="{% url 'lending:collection_detail' collection.id %}" class="text-decoration-none">
-                <div class="card m-3 border-1 position-relative" style="width: 18rem; max-height: 310px;">
+                <div class="card h-100 m-2 border-1 position-relative" style="max-width: 300px;">
                     <!--Book Covers-->
                     <div class="d-flex">
                         {% for book in collection.books.all|slice:"3" %}
