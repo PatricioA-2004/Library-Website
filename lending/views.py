@@ -373,6 +373,15 @@ def add_review(request, pk):
     return redirect('lending:book_detail', pk=pk)
 
 @login_required
+@user_passes_test(is_staff)
+def delete_request(request, pk):
+    book_request = get_object_or_404(Request, id=pk)
+    if request.method == "POST":
+        if request.user == book_request.requester or request.user.is_staff:
+            book_request.delete()  
+    return redirect(request.META.get('HTTP_REFERER', 'lending:manage_requests'))
+
+@login_required
 @require_POST
 def cancel_request(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user)

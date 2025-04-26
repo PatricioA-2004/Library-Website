@@ -53,6 +53,7 @@
                 <th>Status</th>
                 <th>Requested At</th>
                 <th>Due Date</th>
+                <th style="max-width: 30px;">Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -61,13 +62,33 @@
                 <td>{{ r.requester.username }}</td>
                 <td>{{ r.requested_book.book_title }}</td>
                 <td>{{ r.requested_book.total_available }}</td>
-                <td>{{ r.status }}</td>
+                <td>
+                    {% if r.status == "REJECTED" %}
+                        {{ r.status }}
+                    {% elif r.returned %}
+                        RETURNED
+                    {% else %}
+                        LOANED
+                    {% endif %}
+                </td>
                 <td>{{ r.requested_at|date:"M d, Y" }}</td>
                 <td>
                     {% if r.due_date %}
                         {{ r.due_date|date:"M d, Y" }}
                     {% else %}
                         —
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if r.status == "REJECTED" or r.returned %}
+                    <form method="post" action="{% url 'lending:delete_request' r.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Request">
+                            ✖
+                        </button>
+                    </form>
+                    {% else %}
+                        🔒
                     {% endif %}
                 </td>
             </tr>
