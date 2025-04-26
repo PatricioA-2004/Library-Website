@@ -218,7 +218,7 @@ def request_book(request):
     else:
         form = RequestForm(user=request.user, initial=initial_data)
 
-    return render(request, 'lending/request_book.html', {'form': form, 'book': book, "book_list": Book.objects.all()})
+    return render(request, 'lending/request_book.html', {'form': form, 'book': book})
 
 def search_view(request):
     query = request.GET.get('q')
