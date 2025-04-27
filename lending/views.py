@@ -363,7 +363,7 @@ def add_review(request, pk):
             review.user = request.user
             try:
                 review.save()
-                messages.success(request, 'Review added successfully!')
+                #messages.success(request, 'Review added successfully!')
             except IntegrityError:
                 messages.error(request, 'You have already reviewed this book.')
         else:
