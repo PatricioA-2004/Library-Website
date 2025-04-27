@@ -12,7 +12,8 @@
         <!--Create Collection Button-->
         <div>
             {% if not request.user.is_anonymous %}
-            <a href="{% url 'lending:create_collection' %}" class="btn btn-primary mt-4" style="font-size: clamp(0.5rem, 3vw, 1rem);">
+            <a href="{% url 'lending:create_collection' %}" class="btn btn-primary mt-4"
+                style="font-size: clamp(0.5rem, 3vw, 1rem);">
                 Create New Collection
             </a>
             {% endif %}
@@ -77,21 +78,31 @@
         {% endfor %}
     </div>
 
+
     {% if private_collections %}
-    <div class="mt-5">
-        <div class="card">
-            <div class="card-header bg-info text-dark">
-                <h5 class="mb-0">Private Collections</h5>
-            </div>
-            <ul class="list-group">
-                {% for collection in private_collections %}
-                <li class="list-group-item">
-                    {{ collection.collection_name }}
-                </li>
-                {% endfor %}
-            </ul>
+    <h4 class="mb-0" style="font-weight: bold;">Private Collections</h3>
+        {% endif %}
+
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
         </div>
-    </div>
-    {% endif %}
+        {% endif %}
+        {% for collection in private_collections %}
+        <li class="list-group-item d-flex justify-content-between align-items-center my-3">
+            {{ collection.collection_name }}
+            {% if collection.requested %}
+            <button class="btn btn-sm btn-secondary" disabled>Access Requested</button>
+            {% else %}
+            <form method="POST" action="{% url 'lending:request_collection_access' %}">
+                {% csrf_token %}
+                <input type="hidden" name="collection_id" value="{{ collection.id }}">
+                <button type="submit" class="btn btn-sm btn-outline-primary">Request Access</button>
+            </form>
+            {% endif %}
+        </li>
+        {% endfor %}
 </div>
 {% endblock content %}
