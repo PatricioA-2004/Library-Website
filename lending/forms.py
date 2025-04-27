@@ -59,39 +59,6 @@ class CollectionForm(forms.ModelForm):
         else:
             self.fields['books'].queryset = public_books.distinct()
 
-class RequestForm(forms.ModelForm):
-    class Meta:
-        model = Request
-        fields = ['requested_book']
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user", None)
-        super().__init__(*args, **kwargs)
-        user_requested_books = Request.objects.filter(
-            requester=self.user,
-            returned=False,
-            status__in=["PENDING", "APPROVED"]
-        ).values_list('requested_book_id', flat=True)
-
-        self.fields['requested_book'].queryset = Book.objects.filter(
-            in_stock=True
-        ).exclude(id__in=user_requested_books)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        book = cleaned_data.get('requested_book')
-
-        if book and Request.objects.filter(
-            requester=self.user,
-            requested_book=book,
-            returned=False,
-            status__in=["PENDING", "APPROVED"]
-        ).exists():
-            raise forms.ValidationError("You already have this book requested or checked out.")
-
-        return cleaned_data
-
-
 class AddLibrarianForm(forms.Form):
     email = forms.EmailField(label='', help_text='Input Librarian Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
 

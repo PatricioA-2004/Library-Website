@@ -43,18 +43,11 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='/lending/login/'), name='logout'),
     path('profile/', profile_view, name='profile'),
     path('profile/update/', profile_update, name='profile_update'),
-    path('request/', views.request_book, name='request_book'),
     path('my-requests/', views.my_book_requests, name='my_book_requests'),
     path('manage-requests/', views.manage_requests, name='manage_requests'),
     path("return/<int:pk>/", views.return_book, name="return_book"),
     path("my-books/", views.my_books, name="my_books"),
     path('requests/<int:pk>/cancel/', views.cancel_request, name='cancel_request'),
-
-
-
-
-
-
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

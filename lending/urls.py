@@ -20,7 +20,6 @@ urlpatterns = [
     path('collection/<int:pk>/delete/', views.CollectionDeleteView.as_view(), name='collection_delete'),
     path('collection/<int:pk>/edit/', views.edit_collection, name='edit_collection'),
     path('collection/<int:pk>/search', views.collection_search_view, name='collection_search'),
-    path('request/', views.request_book, name='request_book'),
     path('collection/', views.collection_list_view, name="collections_list"),
     path('search/', views.search_view, name='search'),
     path('my-requests/', views.my_book_requests, name='my_book_requests'),

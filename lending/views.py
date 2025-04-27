@@ -8,7 +8,7 @@ from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from .models import Profile
-from .forms import ProfileForm, CollectionForm, RequestForm, AddLibrarianForm
+from .forms import ProfileForm, CollectionForm, AddLibrarianForm
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
@@ -31,11 +31,11 @@ class IndexView(ListView):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Book.objects.all()
+            return Book.objects.all().order_by('book_title')
         elif user.is_authenticated:
-            return Book.objects.filter(Q(collection__private=False) | Q(collection__allowed_users=user)).distinct()
+            return Book.objects.filter(Q(collection__private=False) | Q(collection__allowed_users=user) | Q(collection__isnull=True)).distinct().order_by('book_title')
         else:
-            return Book.objects.exclude(collection__private=True)
+            return Book.objects.exclude(collection__private=True).order_by('book_title')
 
 def collection_list_view(request):
     context = {}
@@ -91,6 +91,18 @@ class BookDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         reviews = self.object.reviews.all().order_by('-created_at')
         context['reviews'] = reviews
+
+        if self.request.user.is_authenticated:
+            context['review_form'] = ReviewForm()
+            context['user_review'] = self.object.reviews.filter(user=self.request.user).first()
+            user_requests = Request.objects.filter(
+                requester=self.request.user,
+                returned=False,
+                status__in=["PENDING", "APPROVED"]
+            ).values_list('requested_book_id', flat=True)
+            context['can_request'] = self.object.id not in user_requests
+        else:
+            context['can_request'] = False
         
         # Calculate average rating
         if reviews:
@@ -98,11 +110,33 @@ class BookDetailView(DetailView):
             context['average_rating'] = total_rating / len(reviews)
         else:
             context['average_rating'] = 0
-            
-        if self.request.user.is_authenticated:
-            context['review_form'] = ReviewForm()
-            context['user_review'] = self.object.reviews.filter(user=self.request.user).first()
+
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        book = self.object
+
+        # Check if user already requested or has the book
+        already_requested = Request.objects.filter(
+            requester=request.user,
+            requested_book=book,
+            returned=False,
+            status__in=["PENDING", "APPROVED"]
+        ).exists()
+
+        if already_requested:
+            messages.error(request, "You already have this book requested or checked out.")
+            return self.get(request, *args, **kwargs)
+
+        # Create the new request directly
+        Request.objects.create(
+            requester=request.user,
+            requested_book=book,
+            status="PENDING"
+        )
+
+        return redirect('lending:book_detail', pk=book.id)
 
 @login_required
 def profile_update(request):
@@ -153,7 +187,7 @@ class CollectionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['books'] = self.object.books.all()
+        context['books'] = self.object.books.all().order_by()
         return context
 
 @login_required
@@ -221,28 +255,6 @@ def create_collection(request):
 
     return render(request, 'lending/create_collection.html', {'form': form})
 
-@login_required
-def request_book(request):
-    initial_data = {}
-    book_id = request.GET.get("book")
-    book = None
-    if book_id:
-        initial_data["requested_book"] = book_id
-        book = get_object_or_404(Book, id=book_id)
-
-    if request.method == 'POST':
-        form = RequestForm(request.POST, user=request.user)
-        if form.is_valid():
-            book_request = form.save(commit=False)
-            book_request.requester = request.user
-            book_request.save()
-            form.save_m2m()
-            return redirect('lending:my_book_requests')
-    else:
-        form = RequestForm(user=request.user, initial=initial_data)
-
-    return render(request, 'lending/request_book.html', {'form': form, 'book': book})
-
 def search_view(request):
     query = request.GET.get('q')
     books = Book.objects.annotate(search=SearchVector("book_title", "book_author"),).filter(search=query)
@@ -273,31 +285,40 @@ def my_book_requests(request):
     requests = Request.objects.filter(requester=request.user).select_related('requested_book').order_by('-requested_at')
     return render(request, 'lending/my_requests.html', {'requests': requests})
 
+
 @user_passes_test(is_staff)
 def manage_requests(request):
     if request.method == "POST":
         req_id = request.POST.get("request_id")
         action = request.POST.get("action")
         book_request = get_object_or_404(Request, id=req_id)
+
         if action == "approve":
             book = book_request.requested_book
             if book.total_available < 1:
-                return HttpResponseForbidden("No available copies to lend.")
+                messages.error(request, f"No available copies of '{book.book_title}' to lend.")
+                return redirect('lending:manage_requests')
             book_request.status = "APPROVED"
             book_request.due_date = now() + timedelta(days=30)
             book.total_available -= 1
             book.save()
+            messages.success(request, f"Request for '{book.book_title}' approved.")
+
         elif action == "reject":
             book_request.status = "REJECTED"
+            messages.error(request, f"Request for '{book_request.requested_book.book_title}' rejected.")
+
         book_request.save()
         return redirect('lending:manage_requests')
 
     pending_requests = Request.objects.filter(status="PENDING").select_related('requested_book', 'requester')
     replied_requests = Request.objects.exclude(status="PENDING").select_related('requested_book', 'requester')
+
     return render(request, 'lending/manage_requests.html', {
         'pending_requests': pending_requests,
         'replied_requests': replied_requests,
     })
+
 
 @user_passes_test(is_staff)
 def add_librarian(request):
