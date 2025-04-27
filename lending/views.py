@@ -31,11 +31,11 @@ class IndexView(ListView):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Book.objects.all()
+            return Book.objects.all().order_by('book_title')
         elif user.is_authenticated:
-            return Book.objects.filter(Q(collection__private=False) | Q(collection__allowed_users=user)).distinct()
+            return Book.objects.filter(Q(collection__private=False) | Q(collection__allowed_users=user)).distinct().order_by('book_title')
         else:
-            return Book.objects.exclude(collection__private=True)
+            return Book.objects.exclude(collection__private=True).order_by('book_title')
 
 def collection_list_view(request):
     context = {}
@@ -153,7 +153,7 @@ class CollectionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['books'] = self.object.books.all()
+        context['books'] = self.object.books.all().order_by('book_title')
         return context
 
 @login_required
