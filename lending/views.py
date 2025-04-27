@@ -13,14 +13,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Exists
 from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
 
 from .forms import BookForm, ReviewForm
 from django.views.generic import DetailView, ListView
-from .models import Book, Collection, Review
+from .models import Book, Collection, Review, CollectionRequest
 from django.contrib import messages
 from django.db.utils import IntegrityError
 
@@ -44,13 +44,31 @@ def collection_list_view(request):
         context = {'collections' : collection_list}
     elif request.user.is_authenticated:
         collection_list = Collection.objects.filter(Q(private = False) | Q(owner = request.user) | Q(allowed_users = request.user))
-        private_titles = Collection.objects.filter(Q(private = True) & ~Q(owner = request.user) & ~Q(allowed_users = request.user)).values('collection_name')
+        private_titles = Collection.objects.filter(Q(private = True) & ~Q(owner = request.user) & ~Q(allowed_users = request.user)).annotate(
+            requested = Exists(CollectionRequest.objects.filter(user=request.user, collection=OuterRef('pk'))))
         context = {'collections' : collection_list, 'private_collections' : private_titles}
     elif request.user.is_anonymous:
         collection_list = Collection.objects.filter(private = False)
         context = {'collections' : collection_list}
 
     return render(request, 'lending/collection_list.html', context)
+
+@require_POST
+@login_required
+def request_collection_access(request):
+    collection_id = request.POST.get('collection_id')
+    collection = get_object_or_404(Collection, id=collection_id)
+
+    # Check if a request already exists
+    existing_request = CollectionRequest.objects.filter(user=request.user, collection=collection).exists()
+
+    if not existing_request:
+        CollectionRequest.objects.create(user=request.user, collection=collection)
+        messages.success(request, f"Access request for '{collection.collection_name}' has been submitted.")
+    else:
+        messages.info(request, f"You've already requested access to '{collection.collection_name}'.")
+
+    return redirect('lending:collections_list')
 
 def login(request):
     auto_return_overdue_books()
