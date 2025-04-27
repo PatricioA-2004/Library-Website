@@ -42,7 +42,7 @@ class CollectionForm(forms.ModelForm):
     
     class Meta:
         model = Collection
-        fields = ['collection_name', 'private', 'books', 'allowed_users']
+        fields = ['collection_name', 'private', 'description', 'books', 'allowed_users']
         
     def __init__(self, *args, user_is_staff=False, **kwargs):
         super().__init__(*args, **kwargs)
