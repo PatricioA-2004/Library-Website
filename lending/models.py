@@ -44,6 +44,7 @@ class Request(models.Model):
         ('PENDING', 'Pending'),
         ('APPROVED', 'Approved'),
         ('REJECTED', 'Rejected'),
+        ('RETURNED', 'Returned')
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
