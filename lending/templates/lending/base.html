@@ -26,8 +26,7 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_books' %}">My Books</a></li>
                     <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My Requests</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:request_book' %}">Request a Book</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:collections_list' %}">My Collections</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a></li>
                 {% endif %}
             </ul>
 
