@@ -69,6 +69,29 @@
         </div>
     </nav>
 
+    <!-- Toasts for Django messages -->
+    <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="toast show" role="alert" style="min-width: 200px; margin-bottom: 0.5rem;">
+            <div class="toast-header">
+              <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+              {{ message }}
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <script>
+      const toasts = document.querySelectorAll('.toast');
+      toasts.forEach((toast) => {
+        new bootstrap.Toast(toast, { delay: 10000 }).show();
+      });
+    </script>
+
     <div class="d-flex flex-column justify-content-center align-items-center">
         {% block content %}
         {% endblock %}

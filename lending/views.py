@@ -303,31 +303,40 @@ def my_book_requests(request):
     requests = Request.objects.filter(requester=request.user).select_related('requested_book').order_by('-requested_at')
     return render(request, 'lending/my_requests.html', {'requests': requests})
 
+
 @user_passes_test(is_staff)
 def manage_requests(request):
     if request.method == "POST":
         req_id = request.POST.get("request_id")
         action = request.POST.get("action")
         book_request = get_object_or_404(Request, id=req_id)
+
         if action == "approve":
             book = book_request.requested_book
             if book.total_available < 1:
-                return HttpResponseForbidden("No available copies to lend.")
+                messages.error(request, f"No available copies of '{book.book_title}' to lend.")
+                return redirect('lending:manage_requests')
             book_request.status = "APPROVED"
             book_request.due_date = now() + timedelta(days=30)
             book.total_available -= 1
             book.save()
+            messages.success(request, f"Request for '{book.book_title}' approved.")
+
         elif action == "reject":
             book_request.status = "REJECTED"
+            messages.error(request, f"Request for '{book_request.requested_book.book_title}' rejected.")
+
         book_request.save()
         return redirect('lending:manage_requests')
 
     pending_requests = Request.objects.filter(status="PENDING").select_related('requested_book', 'requester')
     replied_requests = Request.objects.exclude(status="PENDING").select_related('requested_book', 'requester')
+
     return render(request, 'lending/manage_requests.html', {
         'pending_requests': pending_requests,
         'replied_requests': replied_requests,
     })
+
 
 @user_passes_test(is_staff)
 def add_librarian(request):
