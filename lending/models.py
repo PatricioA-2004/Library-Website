@@ -29,6 +29,7 @@ class Collection(models.Model):
     books = models.ManyToManyField(Book)
     private = models.BooleanField() # Only librarians can make private collections
     collection_name = models.CharField(max_length=100)
+    description = models.CharField(max_length=200, default="")
 
 
 class Request(models.Model):

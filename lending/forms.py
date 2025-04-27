@@ -42,7 +42,7 @@ class CollectionForm(forms.ModelForm):
     
     class Meta:
         model = Collection
-        fields = ['collection_name', 'private', 'books', 'allowed_users']
+        fields = ['collection_name', 'private', 'description', 'books', 'allowed_users']
         
     def __init__(self, *args, user_is_staff=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,7 +67,15 @@ class RequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
-        self.fields['requested_book'].queryset = Book.objects.filter(in_stock=True)
+        user_requested_books = Request.objects.filter(
+            requester=self.user,
+            returned=False,
+            status__in=["PENDING", "APPROVED"]
+        ).values_list('requested_book_id', flat=True)
+
+        self.fields['requested_book'].queryset = Book.objects.filter(
+            in_stock=True
+        ).exclude(id__in=user_requested_books)
 
     def clean(self):
         cleaned_data = super().clean()

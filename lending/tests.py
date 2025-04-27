@@ -190,6 +190,7 @@ class CollectionAddViewTest(LendingTestSetUp):
         self.client.login(username="testuser", password="password")
         form_data = {
             "collection_name": "Favorites",
+            "description": "My favorite books",
             "books": [self.book1.id],
         }
         response = self.client.post(reverse("lending:create_collection"), data=form_data, follow=True)

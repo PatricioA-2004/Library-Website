@@ -21,7 +21,11 @@
                     {% if r.status == "PENDING" %}
                         <span class="badge bg-warning text-dark">Pending</span>
                     {% elif r.status == "APPROVED" %}
-                        <span class="badge bg-success">Approved</span>
+                        {% if r.returned %}
+                            <span class="badge bg-info">Returned</span>
+                        {% else %}
+                            <span class="badge bg-success">Approved</span>
+                        {% endif %}
                     {% else %}
                         <span class="badge bg-danger">Rejected</span>
                     {% endif %}
@@ -32,8 +36,10 @@
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
                     </form>
-                    {% else %}
+                    {% elif r.returned  or r.status == "REJECTED" %}
                     —
+                    {% else %}
+                    <a href="{% url 'lending:my_books' %}" class="btn btn-sm btn-outline-primary">My Books</a>
                     {% endif %}
                 </td>
             </tr>

@@ -202,8 +202,10 @@ def create_collection(request):
 def request_book(request):
     initial_data = {}
     book_id = request.GET.get("book")
+    book = None
     if book_id:
         initial_data["requested_book"] = book_id
+        book = get_object_or_404(Book, id=book_id)
 
     if request.method == 'POST':
         form = RequestForm(request.POST, user=request.user)
@@ -216,7 +218,7 @@ def request_book(request):
     else:
         form = RequestForm(user=request.user, initial=initial_data)
 
-    return render(request, 'lending/request_book.html', {'form': form})
+    return render(request, 'lending/request_book.html', {'form': form, 'book': book})
 
 def search_view(request):
     query = request.GET.get('q')
@@ -369,6 +371,15 @@ def add_review(request, pk):
         else:
             messages.error(request, 'Please fill in both rating and comment.')
     return redirect('lending:book_detail', pk=pk)
+
+@login_required
+@user_passes_test(is_staff)
+def delete_request(request, pk):
+    book_request = get_object_or_404(Request, id=pk)
+    if request.method == "POST":
+        if request.user == book_request.requester or request.user.is_staff:
+            book_request.delete()  
+    return redirect(request.META.get('HTTP_REFERER', 'lending:manage_requests'))
 
 @login_required
 @require_POST

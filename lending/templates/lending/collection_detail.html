@@ -19,12 +19,17 @@
     </div>
 
     <!--Private/Public Tag-->
-    <div class="d-flex justify-content-center mb-4">
+    <div class="d-flex justify-content-center">
         {% if collection.private %}
         <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Private </h2>
         {% else %}
         <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Public </h2>
         {% endif %}
+    </div>
+
+    <!--Description-->
+    <div class="d-flex justify-content-center mb-4" style="font-size: clamp(0.5rem, 2vw, 1rem);">
+        {{ collection.description }}
     </div>
 
     <form class="d-flex mx-3" action="{% url 'lending:collection_search' collection.id %}" method="get">
