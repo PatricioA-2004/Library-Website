@@ -96,11 +96,23 @@ def add_book(request):
     return render(request, 'lending/add_book.html', {'form': form})
 
 @login_required
-def profile_view(request):
-    user_instance = User.objects.get(username=request.user.username)
+def profile_view(request): #fixed
+    user_instance = request.user
     profile, created = Profile.objects.get_or_create(user=user_instance)
-    return render(request, 'lending/profile.html', {'profile': profile})
 
+    if request.method == 'POST':
+        new_username = request.POST.get("username")
+        if new_username and new_username != user_instance.username:
+            user_instance.username = new_username
+            user_instance.save()
+
+        if 'profile_picture' in request.FILES:
+            profile.profile_picture = request.FILES['profile_picture']
+            profile.save()
+
+        return redirect('lending:profile')
+
+    return render(request, 'lending/profile.html', {'profile': profile})
 class BookDetailView(DetailView):
     model = Book
     template_name = "lending/book_detail.html"
