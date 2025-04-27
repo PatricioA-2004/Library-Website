@@ -47,6 +47,23 @@ class Request(models.Model):
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
+class CollectionRequest(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_requests')
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, related_name='access_requests')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+
+    class Meta:
+        unique_together = ['user', 'collection']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.collection.collection_name} ({self.status})"
+
 
 class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
