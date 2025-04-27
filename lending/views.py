@@ -96,7 +96,7 @@ def add_book(request):
     return render(request, 'lending/add_book.html', {'form': form})
 
 @login_required
-def profile_view(request):
+def profile_view(request): #fixed
     user_instance = request.user
     profile, created = Profile.objects.get_or_create(user=user_instance)
 
