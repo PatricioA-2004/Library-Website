@@ -402,3 +402,21 @@ def cancel_request(request, pk):
     if book_request.status == "PENDING":
         book_request.delete()
     return redirect('lending:my_book_requests')
+
+@user_passes_test(is_staff)
+@require_POST
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    
+    # Delete all associated reviews
+    book.reviews.all().delete()
+    
+    # Remove book from all collections
+    for collection in book.collection_set.all():
+        collection.books.remove(book)
+    
+    # Delete the book
+    book.delete()
+    
+    messages.success(request, f'Book "{book.book_title}" has been successfully deleted.')
+    return redirect('lending:index')
