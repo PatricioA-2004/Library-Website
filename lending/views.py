@@ -89,7 +89,16 @@ class BookDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['reviews'] = self.object.reviews.all().order_by('-created_at')
+        reviews = self.object.reviews.all().order_by('-created_at')
+        context['reviews'] = reviews
+        
+        # Calculate average rating
+        if reviews:
+            total_rating = sum(review.rating for review in reviews)
+            context['average_rating'] = total_rating / len(reviews)
+        else:
+            context['average_rating'] = 0
+            
         if self.request.user.is_authenticated:
             context['review_form'] = ReviewForm()
             context['user_review'] = self.object.reviews.filter(user=self.request.user).first()

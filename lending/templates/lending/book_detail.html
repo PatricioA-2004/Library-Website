@@ -102,6 +102,27 @@
             <div class="mt-4">
                 <h3 class="fw-bold text-decoration-underline mb-4">Reviews</h3>
                 
+                <!-- Average Rating Display -->
+                {% if reviews %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Average Rating</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="rating-stars me-2">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= average_rating %}
+                                        ⭐
+                                    {% else %}
+                                        ☆
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="text-muted">({{ average_rating|floatformat:1 }} out of 5 from {{ reviews|length }} review{{ reviews|length|pluralize }})</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
                 {% if user.is_authenticated and not user_review %}
                 <div class="card mb-4">
                     <div class="card-body">
