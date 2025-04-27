@@ -68,7 +68,6 @@ def add_book(request):
             return HttpResponseForbidden('Permission Denied')
         if form.is_valid():
             book = form.save(commit = False)
-            book.in_stock = True
             book.total_available = book.total_copies
             book.save()
             form.save_m2m()
@@ -117,7 +116,22 @@ def edit_book(request, pk):
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
-            form.save()
+            book = form.save(commit=False)
+            # Calculate the difference in total copies
+            old_total_copies = Book.objects.get(pk=pk).total_copies
+            new_total_copies = book.total_copies
+            difference = new_total_copies - old_total_copies
+            
+            # Update total_available based on the difference
+            if difference > 0:
+                # If increasing total copies, add the difference to available copies
+                book.total_available += difference
+            else:
+                # If decreasing total copies, ensure we don't have negative available copies
+                book.total_available = max(0, book.total_available + difference)
+            
+            book.save()
+            form.save_m2m()
             return redirect('lending:book_detail', pk=pk)
     else:
         form = BookForm(instance=book)
@@ -263,9 +277,6 @@ def manage_requests(request):
             book_request.status = "APPROVED"
             book_request.due_date = now() + timedelta(days=30)
             book.total_available -= 1
-            # Update in_stock status based on available copies
-            if book.total_available == 0:
-                book.in_stock = False
             book.save()
         elif action == "reject":
             book_request.status = "REJECTED"
@@ -307,9 +318,6 @@ def return_book(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user, returned=False)
     book = book_request.requested_book
     book.total_available += 1
-    # Update in_stock status when a book is returned
-    if book.total_available > 0:
-        book.in_stock = True
     book.save()
 
     book_request.returned = True
@@ -348,9 +356,6 @@ def auto_return_overdue_books():
         r.returned_at = now()
         book = r.requested_book
         book.total_available += 1
-        # Update in_stock status when books are auto-returned
-        if book.total_available > 0:
-            book.in_stock = True
         book.save()
         r.save()
 
