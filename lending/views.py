@@ -381,6 +381,7 @@ def return_book(request, pk):
     book.save()
 
     book_request.returned = True
+    book_request.status = "RETURNED"; 
     book_request.returned_at = now()
     book_request.save()
 
