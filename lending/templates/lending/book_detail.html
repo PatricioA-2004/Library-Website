@@ -117,7 +117,7 @@
                                     {% endif %}
                                 {% endfor %}
                             </div>
-                            <span class="text-muted">({{ average_rating|floatformat:1 }} out of 5 from {{ reviews|length }} review{{ reviews|length|pluralize }})</span>
+                            <span class="text-muted">({{ average_rating|floatformat:1 }} out of 5 from {{ reviews.count }} review{{ reviews.count|pluralize }})</span>
                         </div>
                     </div>
                 </div>
