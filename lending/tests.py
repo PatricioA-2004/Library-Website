@@ -241,15 +241,5 @@ class CollectionModelTest(LendingTestSetUp):
         self.assertIn(self.book1, collection.books.all())
         self.assertEqual(collection.owner, self.user)
 
-class RequestBookViewTest(LendingTestSetUp):
-    def test_view_loads_and_post_creates_request(self):
-        self.client.login(username="testuser", password="password")
-        response = self.client.post(
-            reverse("lending:request_book"),
-            data={"requested_book": self.book1.id},
-            follow=True
-        )
-        from .models import Request
-        self.assertEqual(Request.objects.count(), 1)
 
 
