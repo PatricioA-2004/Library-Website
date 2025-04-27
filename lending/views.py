@@ -136,7 +136,6 @@ class BookDetailView(DetailView):
             status="PENDING"
         )
 
-        messages.success(request, "Book request submitted successfully.")
         return redirect('lending:book_detail', pk=book.id)
 
 @login_required
