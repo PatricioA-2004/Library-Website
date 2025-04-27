@@ -7,15 +7,20 @@
 {% block content %}
 <style>
     .star-rating {
-        font-size: 24px; /* Make stars bigger */
+        font-size: 24px;
+        /* Make stars bigger */
     }
+
     .rating-stars {
         font-size: 24px;
-        color: #ffc107; /* Bootstrap warning color - matches the star color */
+        color: #ffc107;
+        /* Bootstrap warning color - matches the star color */
     }
+
     .form-check-inline {
         margin-right: 1rem;
     }
+
     /* Style for the radio buttons in star rating */
     .star-rating .form-check-input {
         width: 1.5em;
@@ -29,48 +34,65 @@
         <!--Book Cover-->
         <div class="col-md-3 mt-3">
             {% if book.book_cover %}
-                <img src="{{ book.book_cover.url }}" class="rounded mx-auto d-block img-fluid"
+            <img src="{{ book.book_cover.url }}" class="rounded mx-auto d-block img-fluid"
                 style="min-width: 100px; min-height: 200px; max-height: 500px;">
             {% else %}
-                <div class="rounded mx-auto d-block d-flex justify-content-center align-items-center"
+            <div class="rounded mx-auto d-block d-flex justify-content-center align-items-center"
                 style="width: 200px; height: 300px; background-color: #ccc; color: #555; font-size: 1.2rem; font-weight: bold; text-align: center;">
-                    No Cover Available
-                </div>
+                No Cover Available
+            </div>
             {% endif %}
 
             <!--Status-->
-            <div class="d-flex justify-content-center align-items-center mt-4" style="font-size: clamp(1rem, 2vw, 1.5rem);">
+            <div class="d-flex justify-content-center align-items-center mt-4"
+                style="font-size: clamp(1rem, 2vw, 1.5rem);">
                 <Strong>Status:</Strong>
                 {% if book.total_available > 0 %}
-                    <span class="text-success mx-2">Available ({{ book.total_available }}/{{ book.total_copies }})</span>
+                <span class="text-success mx-2">Available ({{ book.total_available }}/{{ book.total_copies }})</span>
                 {% else %}
-                    <span class="text-danger mx-2">Unavailable ({{ book.total_available }}/{{ book.total_copies }})</span>
+                <span class="text-danger mx-2">Unavailable ({{ book.total_available }}/{{ book.total_copies }})</span>
                 {% endif %}
             </div>
 
-            <!--Rent Button-->
-            {% if book.total_available > 0 %}
-                <div class="text-center mt-3">
-                    <a href="{% url 'lending:request_book' %}?book={{ book.id }}" class="btn btn-primary w-50">
+            <!-- Request Button -->
+            {% if user.is_authenticated %}
+            <div class="text-center mt-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary w-50" {% if not can_request or book.total_available == 0 %}disabled{% endif %} >
                         Request
-                    </a>
-                </div>
+                    </button>
+                </form>
+                {% if not can_request %}
+                <small class="text-danger">You’ve already requested or borrowed this book.</small>
+                {% endif %}
+            </div>
             {% else %}
-                <div class="text-center mt-3">
-                    <button class="btn btn-secondary w-50" disabled>Request</button>
-                </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'social:begin' 'google-oauth2'  %}?next={{ request.path }}" class="btn btn-outline-primary w-50">
+                    Log in to Request
+                </a>
+            </div>
             {% endif %}
+
 
             <!--Edit Button (Staff Only)-->
             {% if user.is_staff %}
-                <div class="text-center mt-3">
-                    <a href="{% url 'lending:edit_book' book.id %}" class="btn btn-warning w-50">Edit Book</a>
-                </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'lending:edit_book' book.id %}" class="btn btn-warning w-50">Edit Book</a>
+            </div>
             {% endif %}
         </div>
 
         <!--Info Column-->
         <div class="col-md-8">
+            {% if messages %}
+            <div class="alert alert-danger">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
             <!--Title-->
             <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} </h1>
             <hr>
@@ -101,7 +123,7 @@
             <!--Reviews Section-->
             <div class="mt-4">
                 <h3 class="fw-bold text-decoration-underline mb-4">Reviews</h3>
-                
+
                 <!-- Average Rating Display -->
                 {% if reviews %}
                 <div class="card mb-4">
@@ -110,81 +132,73 @@
                         <div class="d-flex align-items-center">
                             <div class="rating-stars me-2">
                                 {% for i in "12345"|make_list %}
-                                    {% if forloop.counter <= average_rating %}
-                                        ⭐
-                                    {% else %}
-                                        ☆
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            <span class="text-muted">({{ average_rating|floatformat:1 }} out of 5 from {{ reviews|length }} review{{ reviews|length|pluralize }})</span>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if user.is_authenticated and not user_review %}
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Write a Review</h5>
-                        <form method="post" action="{% url 'lending:add_review' book.id %}">
-                            {% csrf_token %}
-                            {% if messages %}
-                            <div class="alert alert-danger">
-                                {% for message in messages %}
-                                    {{ message }}
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                            <div class="mb-3">
-                                <label class="form-label">Rating:{% if form.rating.errors %}<span class="text-danger">*</span>{% endif %}</label>
-                                <div class="star-rating">
-                                    {% for radio in review_form.rating %}
-                                    <div class="form-check form-check-inline">
-                                        {{ radio.tag }}
-                                        <label class="form-check-label" for="{{ radio.id_for_label }}">
-                                            {{ radio.choice_label }}
-                                        </label>
+                                {% if forloop.counter <= average_rating %} ⭐ {% else %} ☆ {% endif %} {% endfor %}
                                     </div>
-                                    {% endfor %}
-                                </div>
-                                {% if form.rating.errors %}
-                                <div class="text-danger">{{ form.rating.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Comment:{% if form.comment.errors %}<span class="text-danger">*</span>{% endif %}</label>
-                                {{ review_form.comment }}
-                                {% if form.comment.errors %}
-                                <div class="text-danger">{{ form.comment.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <button type="submit" class="btn btn-primary">Submit Review</button>
-                        </form>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Display existing reviews -->
-                {% for review in reviews %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="card-subtitle mb-2 text-muted">
-                                {{ review.user.username }} - {{ review.created_at|date:"F d, Y" }}
-                            </h6>
-                            <div class="rating-stars">
-                                {% for i in review.rating|get_range %}⭐{% endfor %}
+                                    <span class="text-muted">({{ average_rating|floatformat:1 }} out of 5 from {{
+                                        reviews|length }} review{{ reviews|length|pluralize }})</span>
                             </div>
                         </div>
-                        <p class="card-text">{{ review.comment }}</p>
                     </div>
+                    {% endif %}
+
+                    {% if user.is_authenticated and not user_review %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Write a Review</h5>
+                            <form method="post" action="{% url 'lending:add_review' book.id %}">
+                                {% csrf_token %}
+
+                                <div class="mb-3">
+                                    <label class="form-label">Rating:{% if form.rating.errors %}<span
+                                            class="text-danger">*</span>{% endif %}</label>
+                                    <div class="star-rating">
+                                        {% for radio in review_form.rating %}
+                                        <div class="form-check form-check-inline">
+                                            {{ radio.tag }}
+                                            <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                                {{ radio.choice_label }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% if form.rating.errors %}
+                                    <div class="text-danger">{{ form.rating.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comment:{% if form.comment.errors %}<span
+                                            class="text-danger">*</span>{% endif %}</label>
+                                    {{ review_form.comment }}
+                                    {% if form.comment.errors %}
+                                    <div class="text-danger">{{ form.comment.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Display existing reviews -->
+                    {% for review in reviews %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    {{ review.user.username }} - {{ review.created_at|date:"F d, Y" }}
+                                </h6>
+                                <div class="rating-stars">
+                                    {% for i in review.rating|get_range %}⭐{% endfor %}
+                                </div>
+                            </div>
+                            <p class="card-text">{{ review.comment }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No reviews yet. Be the first to review this book!</p>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <p class="text-muted">No reviews yet. Be the first to review this book!</p>
-                {% endfor %}
             </div>
         </div>
     </div>
-</div>
-{% endblock content %}
+    {% endblock content %}
