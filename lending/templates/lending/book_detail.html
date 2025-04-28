@@ -54,6 +54,34 @@
                 {% endif %}
             </div>
 
+            <!-- Book Copies -->
+            <div class="mt-3">
+                <h5 class="text-center">Book Copies</h5>
+                <div class="list-group">
+                    {% for copy in book.copies.all %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold">Copy #{{ forloop.counter }}</span>
+                                <span class="ms-2">Location: {{ copy.location }}</span>
+                            </div>
+                            <div>
+                                {% if copy.is_available %}
+                                <span class="badge bg-success">Available</span>
+                                {% else %}
+                                <span class="badge bg-danger">On Loan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-muted mb-0">No copies available</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
             <!-- Request Button -->
             {% if user.is_authenticated %}
             <div class="text-center mt-3">
@@ -64,7 +92,7 @@
                     </button>
                 </form>
                 {% if not can_request %}
-                <small class="text-danger">You’ve already requested or borrowed this book.</small>
+                <small class="text-danger">You've already requested or borrowed this book.</small>
                 {% endif %}
             </div>
             {% else %}

@@ -18,9 +18,9 @@ from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
 
-from .forms import BookForm, ReviewForm
+from .forms import BookForm, ReviewForm, BookCopyFormSet
 from django.views.generic import DetailView, ListView
-from .models import Book, Collection, Review, CollectionRequest
+from .models import Book, Collection, Review, CollectionRequest, BookCopy, Location
 from django.contrib import messages
 from django.db.utils import IntegrityError
 
@@ -85,10 +85,16 @@ def add_book(request):
         if not request.user or not request.user.is_staff:
             return HttpResponseForbidden('Permission Denied')
         if form.is_valid():
-            book = form.save(commit = False)
+            book = form.save(commit=False)
             book.total_available = book.total_copies
             book.save()
             form.save_m2m()
+            
+            # Create book copies with default location (Shannon)
+            default_location = Location.objects.get(name='SHANNON')
+            for _ in range(book.total_copies):
+                BookCopy.objects.create(book=book, location=default_location)
+                
             return redirect('lending:index')
     else:
         form = BookForm()
@@ -113,9 +119,13 @@ def profile_view(request): #fixed
         return redirect('lending:profile')
 
     return render(request, 'lending/profile.html', {'profile': profile})
+
 class BookDetailView(DetailView):
     model = Book
     template_name = "lending/book_detail.html"
+
+    def get_queryset(self):
+        return Book.objects.prefetch_related('copies', 'copies__location')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -188,28 +198,62 @@ def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
-        if form.is_valid():
+        copy_formset = BookCopyFormSet(request.POST, instance=book)
+
+        if form.is_valid() and copy_formset.is_valid():
             book = form.save(commit=False)
-            # Calculate the difference in total copies
             old_total_copies = Book.objects.get(pk=pk).total_copies
             new_total_copies = book.total_copies
             difference = new_total_copies - old_total_copies
-            
-            # Update total_available based on the difference
+
             if difference > 0:
-                # If increasing total copies, add the difference to available copies
                 book.total_available += difference
             else:
-                # If decreasing total copies, ensure we don't have negative available copies
                 book.total_available = max(0, book.total_available + difference)
-            
+
             book.save()
             form.save_m2m()
+
+            # Save the formset
+            copies = copy_formset.save(commit=False)
+            for copy in copies:
+                copy.book = book
+                if not copy.location:
+                    copy.location = Location.objects.first()  # Get the first location as default
+                copy.save()
+
+            # Delete any copies marked for deletion
+            for form in copy_formset.deleted_forms:
+                if form.instance.pk:
+                    form.instance.delete()
+
+            # Update the number of copies if needed
+            current_copies = book.copies.count()
+            if book.total_copies > current_copies:
+                # Add new copies
+                default_location = Location.objects.first()
+                for _ in range(book.total_copies - current_copies):
+                    BookCopy.objects.create(book=book, location=default_location)
+            elif book.total_copies < current_copies:
+                # Remove excess copies
+                excess_copies = current_copies - book.total_copies
+                BookCopy.objects.filter(book=book).order_by('id')[:excess_copies].delete()
+
             return redirect('lending:book_detail', pk=pk)
     else:
         form = BookForm(instance=book)
+        copy_formset = BookCopyFormSet(instance=book, queryset=book.copies.all().order_by('id'))
 
-    return render(request, 'lending/edit_book.html', {'form': form, 'book': book})
+    empty_copy_form = BookCopyFormSet().empty_form
+
+    return render(request, 'lending/edit_book.html', {
+        'form': form,
+        'copy_formset': copy_formset,
+        'empty_copy_form': empty_copy_form,
+        'book': book,
+        'locations': Location.objects.all()
+    })
+
 
 class CollectionDetailView(DetailView):
     model = Collection
@@ -325,9 +369,17 @@ def manage_requests(request):
 
         if action == "approve":
             book = book_request.requested_book
-            if book.total_available < 1:
+            # Find an available copy
+            available_copy = book.copies.filter(is_available=True).first()
+            if not available_copy:
                 messages.error(request, f"No available copies of '{book.book_title}' to lend.")
                 return redirect('lending:manage_requests')
+            
+            # Update the copy's status and location
+            available_copy.is_available = False
+            available_copy.location = Location.objects.get(name='ON_LOAN')
+            available_copy.save()
+            
             book_request.status = "APPROVED"
             book_request.due_date = now() + timedelta(days=30)
             book.total_available -= 1
@@ -377,11 +429,20 @@ def add_librarian(request):
 def return_book(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user, returned=False)
     book = book_request.requested_book
+    
+    # Find the copy that was loaned out
+    loaned_copy = book.copies.filter(is_available=False, location__name='ON_LOAN').first()
+    if loaned_copy:
+        # Update the copy's status and location
+        loaned_copy.is_available = True
+        loaned_copy.location = Location.objects.get(name='SHANNON')  # Default return location
+        loaned_copy.save()
+    
     book.total_available += 1
     book.save()
 
     book_request.returned = True
-    book_request.status = "RETURNED"; 
+    book_request.status = "RETURNED"
     book_request.returned_at = now()
     book_request.save()
 

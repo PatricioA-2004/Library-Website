@@ -1,54 +1,234 @@
 {% extends 'lending/base.html' %}
-{% load bootstrap5 %}
+
+{% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Edit Book - {{ book.book_title }}{% endblock %}
 
+{% block extra_head %}
+    <style>
+        .copy-form {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+        }
+        .copy-form:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .copy-form.deleted {
+            opacity: 0.5;
+            background-color: #ffe6e6;
+        }
+        .copy-number {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 1.1rem;
+        }
+        .delete-copy-btn {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .delete-copy-btn:hover {
+            background-color: #c82333;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+
+    <script>
+        function updateCopyForms() {
+            const totalCopies = parseInt(document.getElementById('id_total_copies').value) || 0;
+            const copyFormsContainer = document.getElementById('copy-forms-container');
+            const currentForms = copyFormsContainer.querySelectorAll('.copy-form');
+            const managementForm = document.getElementById('id_form-TOTAL_FORMS');
+            const initialForms = parseInt(document.getElementById('id_form-INITIAL_FORMS').value) || 0;
+
+            // Remove extra forms
+            if (currentForms.length > totalCopies) {
+                for (let i = currentForms.length - 1; i >= totalCopies; i--) {
+                    const form = currentForms[i];
+                    if (i < initialForms) {
+                        const deleteInput = form.querySelector('input[name$="-DELETE"]');
+                        if (deleteInput) {
+                            deleteInput.checked = true;
+                            form.classList.add('deleted');
+                        }
+                    } else {
+                        form.remove();
+                    }
+                }
+            }
+
+            // Add missing forms
+            while (currentForms.length < totalCopies) {
+                const newFormHtml = document.getElementById('empty-copy-form-template').innerHTML;
+                const formIdx = currentForms.length;
+                const newForm = document.createElement('div');
+                newForm.innerHTML = newFormHtml.replaceAll('__prefix__', formIdx);
+                
+                // Set default location to Shannon for new forms
+                const locationSelect = newForm.querySelector('select[name$="-location"]');
+                if (locationSelect) {
+                    const shannonOption = Array.from(locationSelect.options).find(option => 
+                        option.text.includes('Shannon')
+                    );
+                    if (shannonOption) {
+                        shannonOption.selected = true;
+                    }
+                }
+                
+                copyFormsContainer.appendChild(newForm.firstElementChild);
+            }
+
+            // Update management form
+            managementForm.value = Math.max(totalCopies, initialForms);
+
+            // Update copy numbers and handle visibility
+            document.querySelectorAll('.copy-form').forEach((form, idx) => {
+                const copyNumber = form.querySelector('.copy-number');
+                if (copyNumber) {
+                    if (idx < totalCopies) {
+                        form.classList.remove('deleted');
+                        form.style.display = '';
+                        copyNumber.textContent = `Copy #${idx + 1}`;
+                        const deleteInput = form.querySelector('input[name$="-DELETE"]');
+                        if (deleteInput) {
+                            deleteInput.checked = false;
+                        }
+                    } else {
+                        form.classList.add('deleted');
+                        form.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalCopiesInput = document.getElementById('id_total_copies');
+            if (totalCopiesInput) {
+                totalCopiesInput.addEventListener('change', updateCopyForms);
+                totalCopiesInput.addEventListener('input', updateCopyForms);
+                updateCopyForms(); // Initial load
+            }
+
+            // Hide book and id fields
+            document.querySelectorAll('input[name$="-book"], input[name$="-id"]').forEach(field => {
+                field.classList.add('hidden');
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
+    <div class="container mt-4">
+        <h2>Edit Book</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ copy_formset.management_form }}
+
+            <!-- Book Details -->
+            <div class="card mb-4">
                 <div class="card-header">
-                    <h2 class="text-center">Edit Book: {{ book.book_title }}</h2>
+                    <h4>Book Information</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {% bootstrap_form form %}
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                            <a href="{% url 'lending:book_detail' book.pk %}" class="btn btn-secondary">Cancel</a>
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                Delete Book
-                            </button>
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {% if field.errors %}
+                                {{ field|add_class:"form-control is-invalid" }}
+                                <div class="invalid-feedback">{{ field.errors.0 }}</div>
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
                         </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Book Copies -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Book Copies</h4>
+                </div>
+                <div class="card-body">
+                    <div id="copy-forms-container">
+                        {% for form in copy_formset %}
+                            <div class="copy-form">
+                                <div class="copy-number">Copy #{{ forloop.counter }}</div>
+                                {% for field in form %}
+                                    {% if field.name == 'location' %}
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ field.label }}</label>
+                                            {{ field|add_class:"form-control" }}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback">{{ field.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% elif field.name == 'DELETE' and form.instance.pk %}
+                                        <div class="form-check">
+                                            {{ field|add_class:"form-check-input" }}
+                                            <label class="form-check-label text-danger">Delete this copy</label>
+                                        </div>
+                                    {% else %}
+                                        {{ field|add_class:"hidden" }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty Form Template -->
+            <div id="empty-copy-form-template" style="display: none;">
+                <div class="copy-form">
+                    <div class="copy-number">Copy #__prefix__</div>
+                    {{ empty_copy_form.location|add_class:"form-control" }}
+                    {{ empty_copy_form.book|add_class:"hidden" }}
+                    {{ empty_copy_form.id|add_class:"hidden" }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'lending:book_detail' pk=book.pk %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Book Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete "{{ book.book_title }}"?</p>
+                    <p class="text-danger">This action cannot be undone. The book will be removed from all collections and book lists.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="post" action="{% url 'lending:delete_book' book.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete Book</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Book Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete "{{ book.book_title }}"?</p>
-                <p class="text-danger">This action cannot be undone. The book will be removed from all collections and book lists.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="post" action="{% url 'lending:delete_book' book.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete Book</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %} 
+{% endblock %}

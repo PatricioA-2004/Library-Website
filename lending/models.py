@@ -86,3 +86,31 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.user.username} for {self.book.book_title}"
 
+class Location(models.Model):
+    LOCATION_CHOICES = [
+        ('SHANNON', 'Shannon Library'),
+        ('BROWN', 'Brown Science and Engineering Library'),
+        ('CLEMONS', 'Clemons Library'),
+        ('ON_LOAN', 'On Loan')
+    ]
+    
+    name = models.CharField(max_length=100, choices=LOCATION_CHOICES, unique=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.get_name_display()
+
+    class Meta:
+        ordering = ['name']
+
+class BookCopy(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='copies')
+    location = models.ForeignKey(Location, on_delete=models.PROTECT)
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Copy of {self.book.book_title} at {self.location.name}"
+
+    class Meta:
+        verbose_name_plural = "Book copies"
+
