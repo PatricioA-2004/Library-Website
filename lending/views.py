@@ -20,7 +20,7 @@ from django.utils.timezone import now
 
 from .forms import BookForm, ReviewForm, BookCopyFormSet
 from django.views.generic import DetailView, ListView
-from .models import Book, Collection, Review, CollectionRequest, BookCopy, Location
+from .models import Book, Collection, Review, CollectionRequest, BookCopy
 from django.contrib import messages
 from django.db.utils import IntegrityError
 
@@ -90,10 +90,8 @@ def add_book(request):
             book.save()
             form.save_m2m()
             
-            # Create book copies with default location (Shannon)
-            default_location = Location.objects.get(name='SHANNON')
             for _ in range(book.total_copies):
-                BookCopy.objects.create(book=book, location=default_location)
+                BookCopy.objects.create(book=book)
                 
             return redirect('lending:index')
     else:
@@ -124,14 +122,11 @@ class BookDetailView(DetailView):
     model = Book
     template_name = "lending/book_detail.html"
 
-    def get_queryset(self):
-        return Book.objects.prefetch_related('copies', 'copies__location')
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         reviews = self.object.reviews.all().order_by('-created_at')
         context['reviews'] = reviews
-
+        context['copies'] = self.object.copies.all().values()
         if self.request.user.is_authenticated:
             context['review_form'] = ReviewForm()
             context['user_review'] = self.object.reviews.filter(user=self.request.user).first()

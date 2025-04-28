@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Book, Request, User, Location, BookCopy
+from .models import Book, Request, User, BookCopy
 from .models import Profile
 from .models import Collection
 from .models import Review
