@@ -1,4 +1,5 @@
 {% extends 'lending/base.html' %}
+{% load static %}
 {% block title %}Profile{% endblock %}
 
 {% block content %}
@@ -38,8 +39,8 @@
 
         {% if profile.profile_picture %}
             <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
-        {% else %}
-            <img src="https://via.placeholder.com/130" alt="No Picture" class="profile-picture">
+        {% else %}  
+            <img src="{% static 'lending/Default-Pic.png' %}" alt="Default Profile Picture" class="profile-picture">
         {% endif %}
 
         <div class="mt-3">
