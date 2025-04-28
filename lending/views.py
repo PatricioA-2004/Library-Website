@@ -93,7 +93,7 @@ def add_book(request):
             
             for _ in range(book.total_copies):
                 BookCopy.objects.create(book=book)
-                
+            messages.success(request, 'Book created successfully!')
             return redirect('lending:index')
     else:
         form = BookForm()
@@ -110,10 +110,12 @@ def profile_view(request): #fixed
         if new_username and new_username != user_instance.username:
             user_instance.username = new_username
             user_instance.save()
+            messages.success(request, 'Username saved successfully!')
 
         if 'profile_picture' in request.FILES:
             profile.profile_picture = request.FILES['profile_picture']
             profile.save()
+            messages.success(request, 'Profile picture changed successfully!')
 
         return redirect('lending:profile')
 
@@ -187,7 +189,7 @@ class BookDetailView(DetailView):
             requested_book=book,
             status="PENDING"
         )
-
+        messages.success(request, 'Book requested successfully!')
         return redirect('lending:book_detail', pk=book.id)
 
 @login_required
@@ -199,7 +201,7 @@ def profile_update(request):
             return redirect('lending:profile')
     else:
         form = ProfileForm(instance=request.user.profile)
-
+    messages.success(request, 'Profile updated successfully!')
     return render(request, 'lending/profile_update.html', {'form': form})
 
 def is_staff(user):
@@ -238,7 +240,7 @@ def edit_book(request, pk):
             book.total_copies = book.copies.count()
             book.total_available = book.copies.filter(is_available=True).count()
             book.save()
-
+            messages.success(request, 'Book edited successfully!')
             return redirect('lending:book_detail', pk=book.pk)
     else:
         form = BookForm(instance=book)
@@ -371,7 +373,6 @@ def manage_requests(request):
                 return redirect('lending:manage_requests')
             
             available_copy.is_available = False
-            available_copy.location = 'ON_LOAN'
             available_copy.save()
             
             book_request.status = "APPROVED"
@@ -485,7 +486,7 @@ def add_review(request, pk):
             review.user = request.user
             try:
                 review.save()
-                #messages.success(request, 'Review added successfully!')
+                messages.success(request, 'Review added successfully!')
             except IntegrityError:
                 messages.error(request, 'You have already reviewed this book.')
         else:
@@ -498,7 +499,9 @@ def delete_request(request, pk):
     book_request = get_object_or_404(Request, id=pk)
     if request.method == "POST":
         if request.user == book_request.requester or request.user.is_staff:
-            book_request.delete()  
+            book_request.delete()
+            messages.success(request, 'Book deleted successfully!')
+
     return redirect(request.META.get('HTTP_REFERER', 'lending:manage_requests'))
 
 @login_required
@@ -507,6 +510,8 @@ def cancel_request(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user)
     if book_request.status == "PENDING":
         book_request.delete()
+        messages.success(request, 'Request cancelled successfully!')
+
     return redirect('lending:my_book_requests')
 
 @user_passes_test(is_staff)
