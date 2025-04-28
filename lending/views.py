@@ -202,15 +202,25 @@ def edit_book(request, pk):
 
         if form.is_valid() and copy_formset.is_valid():
             book = form.save(commit=False)
+            
+            # Count how many copies are being deleted
+            deleted_copies = sum(1 for form in copy_formset.deleted_forms if form.instance.pk)
+            
+            # Get the old and new total copies
             old_total_copies = Book.objects.get(pk=pk).total_copies
             new_total_copies = book.total_copies
             difference = new_total_copies - old_total_copies
-
+            
+            # Update total_copies and total_available
             if difference > 0:
+                # Adding new copies
                 book.total_available += difference
             else:
-                book.total_available = max(0, book.total_available + difference)
-
+                # Removing copies (either through deletion or total_copies reduction)
+                book.total_available = max(0, book.total_available + difference - deleted_copies)
+                # Update total_copies to reflect deleted copies
+                book.total_copies = old_total_copies - deleted_copies
+            
             book.save()
             form.save_m2m()
 
@@ -227,17 +237,11 @@ def edit_book(request, pk):
                 if form.instance.pk:
                     form.instance.delete()
 
-            # Update the number of copies if needed
-            current_copies = book.copies.count()
-            if book.total_copies > current_copies:
-                # Add new copies
+            # Create new copies if needed
+            if difference > 0:
                 default_location = Location.objects.first()
-                for _ in range(book.total_copies - current_copies):
+                for _ in range(difference):
                     BookCopy.objects.create(book=book, location=default_location)
-            elif book.total_copies < current_copies:
-                # Remove excess copies
-                excess_copies = current_copies - book.total_copies
-                BookCopy.objects.filter(book=book).order_by('id')[:excess_copies].delete()
 
             return redirect('lending:book_detail', pk=pk)
     else:
