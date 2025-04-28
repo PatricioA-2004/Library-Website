@@ -103,13 +103,6 @@
         </div>
 
         <div class="col-md-8">
-            {% if messages %}
-            <div class="alert alert-danger">
-                {% for message in messages %}
-                {{ message }}
-                {% endfor %}
-            </div>
-            {% endif %}
             <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} </h1>
             <hr>
             <div class="row mb-4" style="font-size: clamp(1rem, 2vw, 2rem);">
