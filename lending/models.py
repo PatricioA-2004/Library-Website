@@ -54,11 +54,10 @@ class CollectionRequest(models.Model):
         ('PENDING', 'Pending'),
         ('APPROVED', 'Approved'),
         ('REJECTED', 'Rejected'),
-        ('RETURNED', 'Returned')
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_requests')
-    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, related_name='access_requests')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collection_requests')
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
     class Meta:

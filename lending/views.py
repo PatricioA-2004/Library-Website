@@ -363,9 +363,9 @@ def manage_requests(request):
     if request.method == "POST":
         req_id = request.POST.get("request_id")
         action = request.POST.get("action")
-        book_request = get_object_or_404(Request, id=req_id)
 
         if action == "approve":
+            book_request = get_object_or_404(Request, id=req_id)
             book = book_request.requested_book
             available_copy = book.copies.filter(is_available=True).first()
             if not available_copy:
@@ -382,17 +382,35 @@ def manage_requests(request):
             messages.success(request, f"Request for '{book.book_title}' approved.")
 
         elif action == "reject":
+            book_request = get_object_or_404(Request, id=req_id)
             book_request.status = "REJECTED"
+            book_request.save()
             messages.error(request, f"Request for '{book_request.requested_book.book_title}' rejected.")
 
-        book_request.save()
+        elif action == "approve_collection":
+            collection_request = get_object_or_404(CollectionRequest, id=req_id)
+            collection_request.status = "APPROVED"
+            collection_request.collection.allowed_users.add(collection_request.user)
+            collection_request.save()
+            collection_request.collection.save()
+            messages.success(request, f"Access Request for Collection '{collection_request.collection.collection_name}' approved.")
+
+        elif action == "reject_collection":
+            collection_request = get_object_or_404(CollectionRequest, id=req_id)
+            collection_request.status = "REJECTED" 
+            collection_request.save()   
+            messages.error(request, f"Access Request for Collection '{collection_request.collection.collection_name}' denied.")
+
+
         return redirect('lending:manage_requests')
 
-    pending_requests = Request.objects.filter(status="PENDING").select_related('requested_book', 'requester')
+    pending_book_requests = Request.objects.filter(status="PENDING").select_related('requested_book', 'requester')
+    pending_collection_requests = CollectionRequest.objects.filter(status="PENDING").select_related('user', 'collection')
     replied_requests = Request.objects.exclude(status="PENDING").select_related('requested_book', 'requester')
 
     return render(request, 'lending/manage_requests.html', {
-        'pending_requests': pending_requests,
+        'pending_requests': pending_book_requests,
+        'pending_collection_requests': pending_collection_requests,
         'replied_requests': replied_requests,
     })
 
