@@ -113,6 +113,8 @@ def profile_view(request): #fixed
         return redirect('lending:profile')
 
     return render(request, 'lending/profile.html', {'profile': profile})
+
+
 class BookDetailView(DetailView):
     model = Book
     template_name = "lending/book_detail.html"
@@ -133,13 +135,28 @@ class BookDetailView(DetailView):
             context['can_request'] = self.object.id not in user_requests
         else:
             context['can_request'] = False
-        
-        # Calculate average rating
+
         if reviews:
             total_rating = sum(review.rating for review in reviews)
             context['average_rating'] = total_rating / len(reviews)
         else:
             context['average_rating'] = 0
+
+        borrowed_count = Request.objects.filter(
+            requested_book=self.object,
+            status="APPROVED"
+        ).count()
+
+        pending_count = Request.objects.filter(
+            requested_book=self.object,
+            status="PENDING"
+        ).count()
+
+        in_library_count = max(self.object.total_copies - borrowed_count - pending_count, 0)
+
+        context['borrowed_count'] = borrowed_count
+        context['pending_count'] = pending_count
+        context['in_library_count'] = in_library_count
 
         return context
 
@@ -147,7 +164,6 @@ class BookDetailView(DetailView):
         self.object = self.get_object()
         book = self.object
 
-        # Check if user already requested or has the book
         already_requested = Request.objects.filter(
             requester=request.user,
             requested_book=book,
@@ -159,7 +175,6 @@ class BookDetailView(DetailView):
             messages.error(request, "You already have this book requested or checked out.")
             return self.get(request, *args, **kwargs)
 
-        # Create the new request directly
         Request.objects.create(
             requester=request.user,
             requested_book=book,
@@ -167,6 +182,7 @@ class BookDetailView(DetailView):
         )
 
         return redirect('lending:book_detail', pk=book.id)
+
 
 @login_required
 def profile_update(request):
@@ -384,7 +400,7 @@ def return_book(request, pk):
     book_request.status = "RETURNED"; 
     book_request.returned_at = now()
     book_request.save()
-
+    messages.success(request, f"You successfully returned '{book.book_title}'.")
     return redirect('lending:my_books')
 
 
