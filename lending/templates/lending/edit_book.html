@@ -34,10 +34,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>Book Copies</h4>
-                    <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
-                </div>
+
                 <div class="card-body">
                     {{ formset.management_form }}
                     <div id="copies">
@@ -63,6 +60,10 @@
                             </div>
                         {% endfor %}
                     </div>
+                </div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Book Copies</h4>
+                    <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
                 </div>
             </div>
 
@@ -102,6 +103,8 @@
     </div>
 
     <script>
+        let newCopyCounter = 1; 
+
         document.getElementById('add-copy-btn').addEventListener('click', function() {
             const totalForms = document.getElementById('id_form-TOTAL_FORMS');
             const currentFormCount = parseInt(totalForms.value);
@@ -111,6 +114,11 @@
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = emptyFormTemplate;
             const newForm = tempDiv.firstElementChild;
+
+            const labelContainer = newForm.querySelector('strong');
+            if (labelContainer) {
+                labelContainer.textContent = `New Copy #${newCopyCounter++}`;
+            }
 
             copyFormsContainer.appendChild(newForm);
             totalForms.value = currentFormCount + 1;
