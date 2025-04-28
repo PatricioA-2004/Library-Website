@@ -144,12 +144,28 @@ class BookDetailView(DetailView):
         else:
             context['can_request'] = False
         
-        # Calculate average rating
         if reviews:
             total_rating = sum(review.rating for review in reviews)
             context['average_rating'] = total_rating / len(reviews)
         else:
             context['average_rating'] = 0
+
+        borrowed_count = Request.objects.filter(
+            requested_book=self.object,
+            status="APPROVED"
+        ).count()
+
+        pending_count = Request.objects.filter(
+            requested_book=self.object,
+            status="PENDING"
+        ).count()
+
+        in_library_count = max(self.object.total_copies - borrowed_count - pending_count, 0)
+
+        context['borrowed_count'] = borrowed_count
+        context['pending_count'] = pending_count
+        context['in_library_count'] = in_library_count
+
 
         return context
 
@@ -203,41 +219,32 @@ def edit_book(request, pk):
         if form.is_valid() and copy_formset.is_valid():
             book = form.save(commit=False)
             
-            # Count how many copies are being deleted
             deleted_copies = sum(1 for form in copy_formset.deleted_forms if form.instance.pk)
             
-            # Get the old and new total copies
             old_total_copies = Book.objects.get(pk=pk).total_copies
             new_total_copies = book.total_copies
             difference = new_total_copies - old_total_copies
             
-            # Update total_copies and total_available
             if difference > 0:
-                # Adding new copies
                 book.total_available += difference
             else:
-                # Removing copies (either through deletion or total_copies reduction)
                 book.total_available = max(0, book.total_available + difference - deleted_copies)
-                # Update total_copies to reflect deleted copies
                 book.total_copies = old_total_copies - deleted_copies
             
             book.save()
             form.save_m2m()
 
-            # Save the formset
             copies = copy_formset.save(commit=False)
             for copy in copies:
                 copy.book = book
                 if not copy.location:
-                    copy.location = Location.objects.first()  # Get the first location as default
+                    copy.location = Location.objects.first()
                 copy.save()
 
-            # Delete any copies marked for deletion
             for form in copy_formset.deleted_forms:
                 if form.instance.pk:
                     form.instance.delete()
 
-            # Create new copies if needed
             if difference > 0:
                 default_location = Location.objects.first()
                 for _ in range(difference):
@@ -434,12 +441,11 @@ def return_book(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user, returned=False)
     book = book_request.requested_book
     
-    # Find the copy that was loaned out
     loaned_copy = book.copies.filter(is_available=False, location__name='ON_LOAN').first()
     if loaned_copy:
         # Update the copy's status and location
         loaned_copy.is_available = True
-        loaned_copy.location = Location.objects.get(name='SHANNON')  # Default return location
+        loaned_copy.location = Location.objects.get(name='SHANNON')
         loaned_copy.save()
     
     book.total_available += 1
@@ -450,6 +456,7 @@ def return_book(request, pk):
     book_request.returned_at = now()
     book_request.save()
 
+    messages.success(request, f"You successfully returned '{book.book_title}'.")
     return redirect('lending:my_books')
 
 
@@ -525,14 +532,11 @@ def cancel_request(request, pk):
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     
-    # Delete all associated reviews
     book.reviews.all().delete()
     
-    # Remove book from all collections
     for collection in book.collection_set.all():
         collection.books.remove(book)
     
-    # Delete the book
     book.delete()
     
     messages.success(request, f'Book "{book.book_title}" has been successfully deleted.')

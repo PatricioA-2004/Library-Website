@@ -8,20 +8,17 @@
 <style>
     .star-rating {
         font-size: 24px;
-        /* Make stars bigger */
     }
 
     .rating-stars {
         font-size: 24px;
         color: #ffc107;
-        /* Bootstrap warning color - matches the star color */
     }
 
     .form-check-inline {
         margin-right: 1rem;
     }
 
-    /* Style for the radio buttons in star rating */
     .star-rating .form-check-input {
         width: 1.5em;
         height: 1.5em;
@@ -31,7 +28,6 @@
 
 <div class="container-fluid">
     <div class="row mt-2">
-        <!--Book Cover-->
         <div class="col-md-3 mt-3">
             {% if book.book_cover %}
             <img src="{{ book.book_cover.url }}" class="rounded mx-auto d-block img-fluid"
@@ -43,7 +39,6 @@
             </div>
             {% endif %}
 
-            <!--Status-->
             <div class="d-flex justify-content-center align-items-center mt-4"
                 style="font-size: clamp(1rem, 2vw, 1.5rem);">
                 <Strong>Status:</Strong>
@@ -54,7 +49,6 @@
                 {% endif %}
             </div>
 
-            <!-- Book Copies -->
             <div class="mt-3">
                 <h5 class="text-center">Book Copies</h5>
                 <div class="list-group">
@@ -82,7 +76,6 @@
                 </div>
             </div>
 
-            <!-- Request Button -->
             {% if user.is_authenticated %}
             <div class="text-center mt-3">
                 <form method="post">
@@ -102,9 +95,14 @@
                 </a>
             </div>
             {% endif %}
-
-
-            <!--Edit Button (Staff Only)-->
+            <div class="text-center mt-4">
+                <h5>Availability Status:</h5>
+                <ul class="list-unstyled">
+                    <li> <strong>In Library:</strong> {{ in_library_count }}</li>
+                    <li> <strong>Preparing for Shipping:</strong> {{ pending_count }}</li>
+                    <li> <strong>On Loan:</strong> {{ borrowed_count }}</li>
+                </ul>
+            </div>
             {% if user.is_staff %}
             <div class="text-center mt-3">
                 <a href="{% url 'lending:edit_book' book.id %}" class="btn btn-warning w-50">Edit Book</a>
@@ -112,7 +110,6 @@
             {% endif %}
         </div>
 
-        <!--Info Column-->
         <div class="col-md-8">
             {% if messages %}
             <div class="alert alert-danger">
@@ -121,10 +118,8 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <!--Title-->
             <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} </h1>
             <hr>
-            <!--Author, Pub Year, Genre-->
             <div class="row mb-4" style="font-size: clamp(1rem, 2vw, 2rem);">
                 <div class="col">
                     <div class="fw-bold text-decoration-underline"> Author </div>
@@ -142,17 +137,14 @@
                 </div>
             </div>
             <hr>
-            <!--Summary-->
             <div style="font-size: clamp(1rem, 2vw, 2rem)" class="mb-4">
                 <div class="fw-bold text-decoration-underline"> Summary </div>
                 <div> {{ book.summary }} </div>
             </div>
             <hr>
-            <!--Reviews Section-->
             <div class="mt-4">
                 <h3 class="fw-bold text-decoration-underline mb-4">Reviews</h3>
 
-                <!-- Average Rating Display -->
                 {% if reviews %}
                 <div class="card mb-4">
                     <div class="card-body">
@@ -211,7 +203,6 @@
                 </div>
                 {% endif %}
 
-                <!-- Display existing reviews -->
                 {% for review in reviews %}
                 <div class="card mb-3">
                     <div class="card-body">
