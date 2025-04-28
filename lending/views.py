@@ -378,6 +378,7 @@ def manage_requests(request):
             book_request.status = "APPROVED"
             book_request.due_date = now() + timedelta(days=30)
             book.total_available -= 1
+            book_request.save()
             book.save()
             messages.success(request, f"Request for '{book.book_title}' approved.")
 
