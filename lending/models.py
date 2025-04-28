@@ -53,6 +53,7 @@ class CollectionRequest(models.Model):
         ('PENDING', 'Pending'),
         ('APPROVED', 'Approved'),
         ('REJECTED', 'Rejected'),
+        ('RETURNED', 'Returned')
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_requests')
