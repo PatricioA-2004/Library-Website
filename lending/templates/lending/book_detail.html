@@ -95,14 +95,6 @@
                 </a>
             </div>
             {% endif %}
-            <div class="text-center mt-4">
-                <h5>Availability Status:</h5>
-                <ul class="list-unstyled">
-                    <li> <strong>In Library:</strong> {{ in_library_count }}</li>
-                    <li> <strong>Preparing for Shipping:</strong> {{ pending_count }}</li>
-                    <li> <strong>On Loan:</strong> {{ borrowed_count }}</li>
-                </ul>
-            </div>
             {% if user.is_staff %}
             <div class="text-center mt-3">
                 <a href="{% url 'lending:edit_book' book.id %}" class="btn btn-warning w-50">Edit Book</a>
