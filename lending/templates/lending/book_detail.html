@@ -103,32 +103,32 @@
         </div>
 
         <div class="col-md-8">
-            <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} </h1>
+            <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} <h2> By: {{book.book_author}}</h2></h1>
             <hr>
             <div class="row mb-4" style="font-size: clamp(1rem, 2vw, 2rem);">
                 <div class="col">
-                    <div class="fw-bold text-decoration-underline"> Author </div>
-                    <div class="mb-4"> {{ book.book_author }} </div>
-                </div>
-
-                <div class="col">
-                    <div class="fw-bold text-decoration-underline"> Publication year </div>
+                    <div class="fw-bold"> Publication year </div>
                     <div class="mb-4"> {{ book.pub_year }} </div>
                 </div>
 
                 <div class="col">
-                    <div class="fw-bold text-decoration-underline"> Genre </div>
+                    <div class="fw-bold"> Genre </div>
                     <div class="mb-4"> {{ book.book_genre }} </div>
+                </div>
+
+                <div class="col">
+                    <div class="fw-bold"> ISBN </div>
+                    <div class="mb-4"> {{ book.isbn }} </div>
                 </div>
             </div>
             <hr>
             <div style="font-size: clamp(1rem, 2vw, 2rem)" class="mb-4">
-                <div class="fw-bold text-decoration-underline"> Summary </div>
+                <div class="fw-bold"> Summary </div>
                 <div> {{ book.summary }} </div>
             </div>
             <hr>
             <div class="mt-4">
-                <h3 class="fw-bold text-decoration-underline mb-4">Reviews</h3>
+                <h3 class="fw-bold">Reviews</h3>
 
                 {% if reviews %}
                 <div class="card mb-4">

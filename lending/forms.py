@@ -22,6 +22,7 @@ class BookForm(forms.ModelForm):
             'book_title',
             'book_author',
             'book_genre',
+            'isbn',
             'pub_year',
             'summary',
             'book_cover',
