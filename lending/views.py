@@ -233,7 +233,7 @@ def edit_book(request, pk):
             for copy in copies:
                 copy.book = book
                 if not copy.location:
-                    copy.location = Location.objects.first()
+                    copy.location = 'SHANNON'  # Default location
                 copy.save()
 
             for form in copy_formset.deleted_forms:
@@ -241,9 +241,8 @@ def edit_book(request, pk):
                     form.instance.delete()
 
             if difference > 0:
-                default_location = Location.objects.first()
                 for _ in range(difference):
-                    BookCopy.objects.create(book=book, location=default_location)
+                    BookCopy.objects.create(book=book, location='SHANNON')  # Default location
 
             return redirect('lending:book_detail', pk=pk)
     else:
@@ -257,7 +256,7 @@ def edit_book(request, pk):
         'copy_formset': copy_formset,
         'empty_copy_form': empty_copy_form,
         'book': book,
-        'locations': Location.objects.all()
+        'locations': [{'id': choice[0], 'name': choice[1]} for choice in BookCopy.LOCATION_CHOICES]
     })
 
 
@@ -383,7 +382,7 @@ def manage_requests(request):
             
             # Update the copy's status and location
             available_copy.is_available = False
-            available_copy.location = Location.objects.get(name='ON_LOAN')
+            available_copy.location = 'ON_LOAN'
             available_copy.save()
             
             book_request.status = "APPROVED"
@@ -436,11 +435,11 @@ def return_book(request, pk):
     book_request = get_object_or_404(Request, pk=pk, requester=request.user, returned=False)
     book = book_request.requested_book
     
-    loaned_copy = book.copies.filter(is_available=False, location__name='ON_LOAN').first()
+    loaned_copy = book.copies.filter(is_available=False, location='ON_LOAN').first()
     if loaned_copy:
         # Update the copy's status and location
         loaned_copy.is_available = True
-        loaned_copy.location = Location.objects.get(name='SHANNON')
+        loaned_copy.location = 'SHANNON'
         loaned_copy.save()
     
     book.total_available += 1

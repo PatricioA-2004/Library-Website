@@ -88,7 +88,6 @@ class Review(models.Model):
         return f"Review by {self.user.username} for {self.book.book_title}"
 
 class BookCopy(models.Model):
-
     LOCATION_CHOICES = [
         ('SHANNON', 'Shannon Library'),
         ('BROWN', 'Brown Science and Engineering Library'),
@@ -100,7 +99,6 @@ class BookCopy(models.Model):
     location = models.CharField(max_length=50, choices=LOCATION_CHOICES, default='SHANNON')
     is_available = models.BooleanField(default=True)
 
-
     def __str__(self):
-        return f"Copy of {self.book.book_title} at {self.location.name}"
+        return f"Copy of {self.book.book_title} at {self.location}"
 
