@@ -98,12 +98,15 @@ class ReviewForm(forms.ModelForm):
         }
 
 class BookCopyForm(forms.ModelForm):
+    location = forms.ChoiceField(
+        choices=BookCopy.LOCATION_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+
     class Meta:
         model = BookCopy
         fields = ['location']
-        widgets = {
-            'location': forms.Select(attrs={'class': 'form-control'})
-        }
 
 BookCopyFormSet = inlineformset_factory(
     Book, 

@@ -1,6 +1,7 @@
 from datetime import timezone, timedelta
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
@@ -207,56 +208,46 @@ def is_staff(user):
 @user_passes_test(is_staff)
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
+
+    BookCopyFormSet = modelformset_factory(
+        BookCopy,
+        fields=('location',),
+        extra=1,  # always show 1 empty form to add a copy
+        can_delete=True,
+    )
+
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
-        copy_formset = BookCopyFormSet(request.POST, instance=book)
+        formset = BookCopyFormSet(request.POST, queryset=book.copies.all())
 
-        if form.is_valid() and copy_formset.is_valid():
+        if form.is_valid() and formset.is_valid():
             book = form.save(commit=False)
-            
-            deleted_copies = sum(1 for form in copy_formset.deleted_forms if form.instance.pk)
-            
-            old_total_copies = Book.objects.get(pk=pk).total_copies
-            new_total_copies = book.total_copies
-            difference = new_total_copies - old_total_copies
-            
-            if difference > 0:
-                book.total_available += difference
-            else:
-                book.total_available = max(0, book.total_available + difference - deleted_copies)
-                book.total_copies = old_total_copies - deleted_copies
-            
-            book.save()
             form.save_m2m()
 
-            copies = copy_formset.save(commit=False)
-            for copy in copies:
-                copy.book = book
-                if not copy.location:
-                    copy.location = 'SHANNON'  # Default location
-                copy.save()
+            instances = formset.save(commit=False)
 
-            for form in copy_formset.deleted_forms:
-                if form.instance.pk:
-                    form.instance.delete()
+            # Handle deletions
+            for obj in formset.deleted_objects:
+                obj.delete()
 
-            if difference > 0:
-                for _ in range(difference):
-                    BookCopy.objects.create(book=book, location='SHANNON')  # Default location
+            for instance in instances:
+                instance.book = book
+                instance.save()
 
-            return redirect('lending:book_detail', pk=pk)
+            # Force total_copies to match the real count
+            book.total_copies = book.copies.count()
+            book.total_available = book.copies.filter(is_available=True).count()
+            book.save()
+
+            return redirect('lending:book_detail', pk=book.pk)
     else:
         form = BookForm(instance=book)
-        copy_formset = BookCopyFormSet(instance=book, queryset=book.copies.all().order_by('id'))
-
-    empty_copy_form = BookCopyFormSet().empty_form
+        formset = BookCopyFormSet(queryset=book.copies.all())
 
     return render(request, 'lending/edit_book.html', {
         'form': form,
-        'copy_formset': copy_formset,
-        'empty_copy_form': empty_copy_form,
+        'formset': formset,
         'book': book,
-        'locations': [{'id': choice[0], 'name': choice[1]} for choice in BookCopy.LOCATION_CHOICES]
     })
 
 
@@ -374,13 +365,11 @@ def manage_requests(request):
 
         if action == "approve":
             book = book_request.requested_book
-            # Find an available copy
             available_copy = book.copies.filter(is_available=True).first()
             if not available_copy:
                 messages.error(request, f"No available copies of '{book.book_title}' to lend.")
                 return redirect('lending:manage_requests')
             
-            # Update the copy's status and location
             available_copy.is_available = False
             available_copy.location = 'ON_LOAN'
             available_copy.save()
@@ -437,7 +426,6 @@ def return_book(request, pk):
     
     loaned_copy = book.copies.filter(is_available=False, location='ON_LOAN').first()
     if loaned_copy:
-        # Update the copy's status and location
         loaned_copy.is_available = True
         loaned_copy.location = 'SHANNON'
         loaned_copy.save()
