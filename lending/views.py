@@ -500,7 +500,7 @@ def delete_request(request, pk):
     if request.method == "POST":
         if request.user == book_request.requester or request.user.is_staff:
             book_request.delete()
-            messages.success(request, 'Book deleted successfully!')
+            messages.success(request, 'Book request deleted successfully!')
 
     return redirect(request.META.get('HTTP_REFERER', 'lending:manage_requests'))
 
