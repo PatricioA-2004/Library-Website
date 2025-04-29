@@ -3,12 +3,12 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Book(models.Model):
-    book_title = models.CharField(max_length=100)
-    book_author = models.CharField(max_length=50)
-    book_genre = models.CharField(max_length=50)
-    pub_year = models.PositiveIntegerField("Year Published")
-    isbn = models.CharField('ISBN', max_length=13, default='0000000000000', blank = False)
-    summary = models.TextField(max_length=500, default="")
+    book_title = models.CharField(max_length=100, verbose_name="Name of Book *")
+    book_author = models.CharField(max_length=50, verbose_name="Author of Book *")
+    book_genre = models.CharField(max_length=50, verbose_name="Genre of Book *")
+    pub_year = models.PositiveIntegerField("Year Published *")
+    isbn = models.CharField('ISBN *', max_length=13, default='0000000000000', blank = False)
+    summary = models.TextField(max_length=500, default="", verbose_name="Summary of Book *")
     in_stock = models.BooleanField(default=False)
     book_cover = models.ImageField(upload_to='media/book_covers', blank=True, null=True)
     total_copies = models.PositiveIntegerField("Total Copies", default=1)
@@ -29,8 +29,8 @@ class Collection(models.Model):
     allowed_users = models.ManyToManyField(User)
     books = models.ManyToManyField(Book)
     private = models.BooleanField(db_index = True) # Only librarians can make private collections
-    collection_name = models.CharField(max_length=100)
-    description = models.CharField(max_length=200, default="")
+    collection_name = models.CharField(max_length=100, verbose_name="Collection Name *")
+    description = models.CharField(max_length=200, default="", verbose_name="Description of Collection *")
 
 
 class Request(models.Model):
