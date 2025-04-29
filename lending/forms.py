@@ -15,8 +15,8 @@ class BookForm(forms.ModelForm):
             'isbn',
             'pub_year',
             'summary',
-            'book_cover',
             'total_copies',
+            'book_cover',
         ]
         widgets = {
             'pub_year': forms.NumberInput(attrs={'min': 1000, 'max': 9999}),
