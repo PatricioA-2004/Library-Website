@@ -101,4 +101,8 @@ class BookCopy(models.Model):
 
     def __str__(self):
         return f"Copy of {self.book.book_title} at {self.location}"
+    
+class AlternateCover(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="alternate_covers")
+    image = models.ImageField(upload_to="alternate_covers/", blank=True, null=True)
 

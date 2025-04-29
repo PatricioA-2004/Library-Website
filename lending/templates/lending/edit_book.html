@@ -29,12 +29,47 @@
                                 <small class="form-text text-muted">{{ field.help_text }}</small>
                             {% endif %}
                         </div>
-                    {% endfor %}
+                    {% endfor %}         
                 </div>
             </div>
 
             <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Alternate Covers</h4>
+                </div>
+                <div class="card-body">
+                    {{ alternate_cover_formset.management_form }}
+                    <div id="alternate_covers">
+                        {% for form in alternate_cover_formset %}
+                            <div class="copy-form mb-3 p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if form.instance.pk %}
+                                            <strong>Cover #{{ forloop.counter }}</strong>
+                                        {% else %}
+                                            <strong>New Cover</strong>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        {{ form.DELETE }} <label>Delete</label>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    {{ form.id }}
+                                    <label class="form-label">Image</label>
+                                    {{ form.image }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
 
+                    <div class="card-header d-flex justify-content-end align-items-center">
+                        <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add Another Alternate Cover</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
                 <div class="card-body">
                     {{ formset.management_form }}
                     <div id="copies">
@@ -103,7 +138,8 @@
     </div>
 
     <script>
-        let newCopyCounter = 1; 
+        let newCopyCounter = 1;
+        let newAlternateCoverCounter = 1; 
 
         document.getElementById('add-copy-btn').addEventListener('click', function() {
             const totalForms = document.getElementById('id_form-TOTAL_FORMS');
@@ -122,6 +158,27 @@
 
             copyFormsContainer.appendChild(newForm);
             totalForms.value = currentFormCount + 1;
+        });
+
+        document.getElementById('add-alternate-cover-btn').addEventListener('click', function() {
+            const totalForms = document.getElementById('id_alternatecover_set-TOTAL_FORMS');
+            const currentFormCount = parseInt(totalForms.value);
+            const alternateCoversContainer = document.getElementById('alternate_covers');
+            const emptyFormTemplate = alternateCoversContainer.children[0]
+                .outerHTML
+                .replace(/alternatecover_set-(\d)+/g, `alternatecover_set-${currentFormCount}`)
+                
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = emptyFormTemplate;
+            const newForm = tempDiv.firstElementChild;
+
+            const labelContainer = newForm.querySelector('strong')
+            if (labelContainer) {
+                labelContainer.textContent = `New Cover #${newAlternateCoverCounter++}`;
+            }
+
+            alternateCoversContainer.appendChild(newForm);
+            totalForms.value = currentFormCount + 1
         });
     </script>
 {% endblock %}
