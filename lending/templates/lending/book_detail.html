@@ -5,250 +5,255 @@
 {% load book_extras %}
 
 {% block content %}
-<style>
-    .star-rating {
-        font-size: 24px;
-    }
+    <style>
+        .star-rating {
+            font-size: 24px;
+        }
 
-    .rating-stars {
-        font-size: 24px;
-        color: #ffc107;
-    }
+        .rating-stars {
+            font-size: 24px;
+            color: #ffc107;
+        }
 
-    .form-check-inline {
-        margin-right: 1rem;
-    }
+        .form-check-inline {
+            margin-right: 1rem;
+        }
 
-    .star-rating .form-check-input {
-        width: 1.5em;
-        height: 1.5em;
-        margin-top: 0.25em;
-    }
-</style>
+        .star-rating .form-check-input {
+            width: 1.5em;
+            height: 1.5em;
+            margin-top: 0.25em;
+        }
+    </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const covers = [
-        {% if book.book_cover %}
-            "{{ book.book_cover.url }}",
-        {% else %}
-            "{% static 'lending/Default-Book.jpg' %}",
-        {% endif %}
-
-        {% for alt_cover in book.alternate_covers.all %}
-            {% if alt_cover.image %}
-                "{{ alt_cover.image.url }}"
-            {% endif %}
-        {% endfor %}
-    ];
-
-    let currentIndex = 0;
-
-    const bookCover = document.getElementById('book_cover')
-    const prevButton = document.getElementById('prev-button')
-    const nextButton = document.getElementById('next-button')
-
-    if (covers.length > 1) {
-        prevButton.disabled = false;
-        nextButton.disabled = false;
-
-        prevButton.addEventListener('click', () => {
-            currentIndex = (currentIndex - 1 + covers.length) % covers.length;
-            bookCover.src = covers[currentIndex];
-        });
-
-        nextButton.addEventListener('click', () => {
-            currentIndex = (currentIndex + 1) % covers.length;
-            bookCover.src = covers[currentIndex];
-        });
-    }
-});
-</script>
-
-<div class="container-fluid">
-    <div class="row mt-2">
-        <div class="col-md-3 mt-3">
-            <div id="cover-container" class="d-flex justify-content-center">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const covers = [
                 {% if book.book_cover %}
-                    <img id="book_cover" src="{{ book.book_cover.url }}" alt="Book Cover" style="width:auto; height:400px;">
+                    "{{ book.book_cover.url }}",
                 {% else %}
-                    <img id="book_cover" src="{% static 'lending/Default-Book.jpg' %}" style="width:auto; height:400px;">
+                    "{% static 'lending/Default-Book.jpg' %}",
                 {% endif %}
-            </div>
 
-            <div class="d-flex justify-content-center mt-4">
-                <button id="prev-button" disabled>&lArr;</button>
-                <button id="next-button" disabled>&rArr;</button>
-            </div>
+                {% for alt_cover in book.alternate_covers.all %}
+                    {% if alt_cover.image %}
+                        "{{ alt_cover.image.url }}"
+                    {% endif %}
+                {% endfor %}
+            ];
 
-            <div class="d-flex justify-content-center align-items-center mt-4"
-                style="font-size: clamp(1rem, 2vw, 1.5rem);">
-                <Strong>Status:</Strong>
-                {% if book.total_available > 0 %}
-                <span class="text-success mx-2">Available ({{ book.total_available }}/{{ book.total_copies }})</span>
-                {% else %}
-                <span class="text-danger mx-2">Unavailable ({{ book.total_available }}/{{ book.total_copies }})</span>
-                {% endif %}
-            </div>
+            let currentIndex = 0;
 
-            <div class="mt-3">
-                <h5 class="text-center">Book Copies</h5>
-                <div class="list-group">
-                    {% for copy in copies %}
-                    <div class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="fw-bold">Copy #{{ forloop.counter }}</span>
-                                <span class="ms-2">Location: {{ copy.location|format_location }}</span>
+            const bookCover = document.getElementById('book_cover')
+            const prevButton = document.getElementById('prev-button')
+            const nextButton = document.getElementById('next-button')
+
+            if (covers.length > 1) {
+                prevButton.disabled = false;
+                nextButton.disabled = false;
+
+                prevButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + covers.length) % covers.length;
+                    bookCover.src = covers[currentIndex];
+                });
+
+                nextButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % covers.length;
+                    bookCover.src = covers[currentIndex];
+                });
+            }
+        });
+    </script>
+
+    <div class="container-fluid">
+        <div class="row mt-2">
+            <div class="col-md-3 mt-3">
+                <div id="cover-container" class="d-flex justify-content-center">
+                    {% if book.book_cover %}
+                        <img id="book_cover" src="{{ book.book_cover.url }}" alt="Book Cover"
+                             style="width:auto; height:400px;">
+                    {% else %}
+                        <img id="book_cover" src="{% static 'lending/Default-Book.jpg' %}"
+                             style="width:auto; height:400px;">
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                    <button id="prev-button" disabled>&lArr;</button>
+                    <button id="next-button" disabled>&rArr;</button>
+                </div>
+
+                <div class="d-flex justify-content-center align-items-center mt-4"
+                     style="font-size: clamp(1rem, 2vw, 1.5rem);">
+                    <Strong>Status:</Strong>
+                    {% if book.total_available > 0 %}
+                        <span class="text-success mx-2">Available ({{ book.total_available }}/{{ book.total_copies }})</span>
+                    {% else %}
+                        <span class="text-danger mx-2">Unavailable ({{ book.total_available }}/{{ book.total_copies }})</span>
+                    {% endif %}
+                </div>
+
+                <div class="mt-3">
+                    <h5 class="text-center">Book Copies</h5>
+                    <div class="list-group">
+                        {% for copy in copies %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="fw-bold">Copy #{{ forloop.counter }}</span>
+                                        <span class="ms-2">Location: {{ copy.location|format_location }}</span>
+                                    </div>
+                                    <div>
+                                        {% if copy.is_available %}
+                                            <span class="badge bg-success">Available</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">On Loan</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                {% if copy.is_available %}
-                                <span class="badge bg-success">Available</span>
-                                {% else %}
-                                <span class="badge bg-danger">On Loan</span>
-                                {% endif %}
+                            {% empty %}
+                            <div class="list-group-item">
+                                <p class="text-muted mb-0">No copies available</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                    <div class="text-center mt-3">
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary w-50"
+                                    {% if not can_request or book.total_available == 0 %}disabled{% endif %}>
+                                Request
+                            </button>
+                        </form>
+                        {% if not can_request %}
+                            <small class="text-danger">You've already requested or borrowed this book.</small>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}"
+                           class="btn btn-outline-primary w-50">
+                            Log in to Request
+                        </a>
+                    </div>
+                {% endif %}
+                {% if user.is_staff %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'lending:edit_book' book.id %}" class="btn btn-warning w-50">Edit Book</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-8">
+                <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} <h2>
+                    By: {{ book.book_author }}</h2></h1>
+                <hr>
+                <div class="row mb-4" style="font-size: clamp(1rem, 2vw, 2rem);">
+                    <div class="col">
+                        <div class="fw-bold"> Publication year</div>
+                        <div class="mb-4"> {{ book.pub_year }} </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="fw-bold"> Genre</div>
+                        <div class="mb-4"> {{ book.book_genre }} </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="fw-bold"> ISBN</div>
+                        <div class="mb-4"> {{ book.isbn }} </div>
+                    </div>
+                </div>
+                <hr>
+                <div style="font-size: clamp(1rem, 2vw, 2rem)" class="mb-4">
+                    <div class="fw-bold"> Summary</div>
+                    <div> {{ book.summary }} </div>
+                </div>
+                <hr>
+                <div class="mt-4">
+                    <h3 class="fw-bold">Reviews</h3>
+
+                    {% if reviews %}
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Average Rating</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="rating-stars me-2">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= average_rating %}
+                                                ⭐
+                                            {% else %}
+                                                ☆
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="text-muted">({{ average_rating|floatformat:1 }} out of 5 from {{ reviews.count }} review{{ reviews.count|pluralize }})</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% empty %}
-                    <div class="list-group-item">
-                        <p class="text-muted mb-0">No copies available</p>
-                    </div>
+                    {% endif %}
+
+                    {% if user.is_authenticated and not user_review %}
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Write a Review</h5>
+                                <form method="post" action="{% url 'lending:add_review' book.id %}">
+                                    {% csrf_token %}
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating:{% if form.rating.errors %}<span
+                                                class="text-danger">*</span>{% endif %}</label>
+                                        <div class="star-rating">
+                                            {% for radio in review_form.rating %}
+                                                <div class="form-check form-check-inline">
+                                                    {{ radio.tag }}
+                                                    <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                                        {{ radio.choice_label }}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if form.rating.errors %}
+                                            <div class="text-danger">{{ form.rating.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Comment:{% if form.comment.errors %}<span
+                                                class="text-danger">*</span>{% endif %}</label>
+                                        {{ review_form.comment }}
+                                        {% if form.comment.errors %}
+                                            <div class="text-danger">{{ form.comment.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% for review in reviews %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        {{ review.user.username }} - {{ review.created_at|date:"F d, Y" }}
+                                    </h6>
+                                    <div class="rating-stars">
+                                        {% for i in review.rating|get_range %}⭐{% endfor %}
+                                    </div>
+                                </div>
+                                <p class="card-text">{{ review.comment }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No reviews yet. Be the first to review this book!</p>
                     {% endfor %}
                 </div>
             </div>
-
-            {% if user.is_authenticated %}
-            <div class="text-center mt-3">
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary w-50" {% if not can_request or book.total_available == 0 %}disabled{% endif %} >
-                        Request
-                    </button>
-                </form>
-                {% if not can_request %}
-                <small class="text-danger">You've already requested or borrowed this book.</small>
-                {% endif %}
-            </div>
-            {% else %}
-            <div class="text-center mt-3">
-                <a href="{% url 'social:begin' 'google-oauth2'  %}?next={{ request.path }}" class="btn btn-outline-primary w-50">
-                    Log in to Request
-                </a>
-            </div>
-            {% endif %}
-            {% if user.is_staff %}
-            <div class="text-center mt-3">
-                <a href="{% url 'lending:edit_book' book.id %}" class="btn btn-warning w-50">Edit Book</a>
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="col-md-8">
-            <h1 class="fw-bold mt-2" style="font-size: clamp(2rem, 5vw, 6rem);"> {{ book.book_title }} <h2> By: {{book.book_author}}</h2></h1>
-            <hr>
-            <div class="row mb-4" style="font-size: clamp(1rem, 2vw, 2rem);">
-                <div class="col">
-                    <div class="fw-bold"> Publication year </div>
-                    <div class="mb-4"> {{ book.pub_year }} </div>
-                </div>
-
-                <div class="col">
-                    <div class="fw-bold"> Genre </div>
-                    <div class="mb-4"> {{ book.book_genre }} </div>
-                </div>
-
-                <div class="col">
-                    <div class="fw-bold"> ISBN </div>
-                    <div class="mb-4"> {{ book.isbn }} </div>
-                </div>
-            </div>
-            <hr>
-            <div style="font-size: clamp(1rem, 2vw, 2rem)" class="mb-4">
-                <div class="fw-bold"> Summary </div>
-                <div> {{ book.summary }} </div>
-            </div>
-            <hr>
-            <div class="mt-4">
-                <h3 class="fw-bold">Reviews</h3>
-
-                {% if reviews %}
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Average Rating</h5>
-                        <div class="d-flex align-items-center">
-                            <div class="rating-stars me-2">
-                                {% for i in "12345"|make_list %}
-                                    {% if forloop.counter <= average_rating %}
-                                        ⭐
-                                    {% else %}
-                                        ☆
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            <span class="text-muted">({{ average_rating|floatformat:1 }} out of 5 from {{ reviews.count }} review{{ reviews.count|pluralize }})</span>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if user.is_authenticated and not user_review %}
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Write a Review</h5>
-                        <form method="post" action="{% url 'lending:add_review' book.id %}">
-                            {% csrf_token %}
-
-                            <div class="mb-3">
-                                <label class="form-label">Rating:{% if form.rating.errors %}<span
-                                        class="text-danger">*</span>{% endif %}</label>
-                                <div class="star-rating">
-                                    {% for radio in review_form.rating %}
-                                    <div class="form-check form-check-inline">
-                                        {{ radio.tag }}
-                                        <label class="form-check-label" for="{{ radio.id_for_label }}">
-                                            {{ radio.choice_label }}
-                                        </label>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                {% if form.rating.errors %}
-                                <div class="text-danger">{{ form.rating.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Comment:{% if form.comment.errors %}<span
-                                        class="text-danger">*</span>{% endif %}</label>
-                                {{ review_form.comment }}
-                                {% if form.comment.errors %}
-                                <div class="text-danger">{{ form.comment.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <button type="submit" class="btn btn-primary">Submit Review</button>
-                        </form>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% for review in reviews %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="card-subtitle mb-2 text-muted">
-                                {{ review.user.username }} - {{ review.created_at|date:"F d, Y" }}
-                            </h6>
-                            <div class="rating-stars">
-                                {% for i in review.rating|get_range %}⭐{% endfor %}
-                            </div>
-                        </div>
-                        <p class="card-text">{{ review.comment }}</p>
-                    </div>
-                </div>
-                {% empty %}
-                <p class="text-muted">No reviews yet. Be the first to review this book!</p>
-                {% endfor %}
-            </div>
         </div>
     </div>
-</div>
-    {% endblock content %}
+{% endblock content %}
