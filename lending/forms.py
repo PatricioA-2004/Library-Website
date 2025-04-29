@@ -23,6 +23,14 @@ class BookForm(forms.ModelForm):
             'total_copies': forms.NumberInput(attrs={'min': 1}),
         }
 
+
+    def clean_total_copies(self):
+        value = self.cleaned_data.get('total_copies')
+        if value is None or value < 1:
+            raise forms.ValidationError("Total copies must be at least 1.")
+        return value
+
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
