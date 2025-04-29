@@ -85,15 +85,26 @@ def logout_view(request):
     return redirect('https://accounts.google.com/logout?continue=http://127.0.0.1:8000/lending/login/')
 
 def add_book(request):
+    AlternateCoverFormset = inlineformset_factory(
+        Book, 
+        AlternateCover, 
+        form = AlternateCoverForm,
+        extra=1,
+        can_delete=True,
+    )
+
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
+        formset = AlternateCoverFormset(request.POST, request.FILES)
         if not request.user or not request.user.is_staff:
             return HttpResponseForbidden('Permission Denied')
-        if form.is_valid():
+        if form.is_valid() and formset.is_valid():
             book = form.save(commit=False)
             book.total_available = book.total_copies
             book.save()
             form.save_m2m()
+            formset.instance = book
+            formset.save()
             
             for _ in range(book.total_copies):
                 BookCopy.objects.create(book=book)
@@ -101,8 +112,9 @@ def add_book(request):
             return redirect('lending:index')
     else:
         form = BookForm()
+        formset = AlternateCoverFormset()
 
-    return render(request, 'lending/add_book.html', {'form': form})
+    return render(request, 'lending/add_book.html', {'form': form, 'formset': formset})
 
 @login_required
 def profile_view(request): #fixed
