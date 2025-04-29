@@ -71,10 +71,10 @@
                 <div id="cover-container" class="d-flex justify-content-center">
                     {% if book.book_cover %}
                         <img id="book_cover" src="{{ book.book_cover.url }}" alt="Book Cover"
-                             style="width:auto; height:400px;">
+                             style="width: 250px;; height:400px;">
                     {% else %}
                         <img id="book_cover" src="{% static 'lending/Default-Book.jpg' %}"
-                             style="width:auto; height:400px;">
+                             style="width: 250px; height:400px;">
                     {% endif %}
                 </div>
 
