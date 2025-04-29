@@ -2,47 +2,86 @@
 {% block content %}
 <div class="container mt-4">
 
-    <h2>Pending Requests</h2>
-    {% if pending_requests %}
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Book</th>
-                <th>Available Copies</th>
-                <th>Requested At</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in pending_requests %}
-            <tr>
-                <td>{{ r.requester.username }}</td>
-                <td>{{ r.requested_book.book_title }}</td>
-                <td>{{ r.requested_book.total_available }}</td>
-                <td>{{ r.requested_at|date:"M d, Y" }}</td>
-                <td>
-                    <form method="post" class="d-flex gap-2">
-                        {% csrf_token %}
-                        <input type="hidden" name="request_id" value="{{ r.id }}">
-                        <button name="action" value="approve" class="btn btn-success btn-sm"
-                            {% if r.requested_book.total_available < 1 %}disabled title="No copies available"{% endif %}>
-                            ✔
-                        </button>
-                        <button name="action" value="reject" class="btn btn-danger btn-sm">✖</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <p>No pending requests.</p>
-    {% endif %}
+    <div class="d-flex flex-row justify-content-between">
+        <div class="d-flex flex-column">
+            <h2>Pending Book Requests</h2>
+            {% if pending_requests %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Book</th>
+                        <th>Available Copies</th>
+                        <th>Requested At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in pending_requests %}
+                    <tr>
+                        <td>{{ r.requester.username }}</td>
+                        <td>{{ r.requested_book.book_title }}</td>
+                        <td>{{ r.requested_book.total_available }}</td>
+                        <td>{{ r.requested_at|date:"M d, Y" }}</td>
+                        <td>
+                            <form method="post" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="request_id" value="{{ r.id }}">
+                                <button name="action" value="approve" class="btn btn-success btn-sm" {% if
+                                    r.requested_book.total_available < 1 %}disabled title="No copies available" {% endif
+                                    %}>
+                                    ✔
+                                </button>
+                                <button name="action" value="reject" class="btn btn-danger btn-sm">✖</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div>No pending book requests.</div>
+            {% endif %}
+        </div>
 
+        <div class="d-flex flex-column">
+            <h2>Pending Collection Requests</h2>
+            {% if pending_collection_requests %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Collection</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in pending_collection_requests %}
+                    <tr>
+                        <td>{{ r.user.username }}</td>
+                        <td>{{ r.collection.collection_name }}</td>
+                        <td>
+                            <form method="post" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="request_id" value="{{ r.id }}">
+                                <button name="action" value="approve_collection" class="btn btn-success btn-sm">
+                                    ✔
+                                </button>
+                                <button name="action" value="reject_collection" class="btn btn-danger btn-sm">✖</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div>No pending collection requests.</div>
+            {% endif %}
+        </div>
+    </div>
     <hr class="my-5">
 
-    <h2>Processed Requests</h2>
+    <h2>Processed Book Requests</h2>
     {% if replied_requests %}
     <table class="table table-bordered">
         <thead>
@@ -64,19 +103,19 @@
                 <td>{{ r.requested_book.total_available }}</td>
                 <td>
                     {% if r.status == "REJECTED" %}
-                        {{ r.status }}
+                    {{ r.status }}
                     {% elif r.returned %}
-                        RETURNED
+                    RETURNED
                     {% else %}
-                        LOANED
+                    LOANED
                     {% endif %}
                 </td>
                 <td>{{ r.requested_at|date:"M d, Y" }}</td>
                 <td>
                     {% if r.due_date %}
-                        {{ r.due_date|date:"M d, Y" }}
+                    {{ r.due_date|date:"M d, Y" }}
                     {% else %}
-                        —
+                    —
                     {% endif %}
                 </td>
                 <td class="text-center">
@@ -88,7 +127,7 @@
                         </button>
                     </form>
                     {% else %}
-                        🔒
+                    🔒
                     {% endif %}
                 </td>
             </tr>
@@ -96,7 +135,7 @@
         </tbody>
     </table>
     {% else %}
-        <p>No processed requests.</p>
+    <p>No processed requests.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -7,9 +7,10 @@ class Book(models.Model):
     book_author = models.CharField(max_length=50)
     book_genre = models.CharField(max_length=50)
     pub_year = models.PositiveIntegerField("Year Published")
+    isbn = models.CharField('ISBN', max_length=13, default='0000000000000', blank = False)
     summary = models.TextField(max_length=500, default="")
-    in_stock = models.BooleanField(default=False) 
-    book_cover = models.ImageField(upload_to='media/book_covers')
+    in_stock = models.BooleanField(default=False)
+    book_cover = models.ImageField(upload_to='media/book_covers', blank=True, null=True)
     total_copies = models.PositiveIntegerField("Total Copies", default=1)
     total_available = models.PositiveIntegerField("Total Available", default=1)
     def __str__(self):
@@ -44,8 +45,26 @@ class Request(models.Model):
         ('PENDING', 'Pending'),
         ('APPROVED', 'Approved'),
         ('REJECTED', 'Rejected'),
+        ('RETURNED', 'Returned')
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+
+class CollectionRequest(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collection_requests')
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+
+    class Meta:
+        unique_together = ['user', 'collection']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.collection.collection_name} ({self.status})"
 
 
 class Review(models.Model):
@@ -67,4 +86,19 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user.username} for {self.book.book_title}"
+
+class BookCopy(models.Model):
+    LOCATION_CHOICES = [
+        ('SHANNON', 'Shannon Library'),
+        ('BROWN', 'Brown Science and Engineering Library'),
+        ('CLEMONS', 'Clemons Library'),
+        ('ON_LOAN', 'On Loan')
+    ]
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='copies')
+    location = models.CharField(max_length=50, choices=LOCATION_CHOICES, default='SHANNON')
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Copy of {self.book.book_title} at {self.location}"
 

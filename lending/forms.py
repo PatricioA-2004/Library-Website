@@ -1,25 +1,35 @@
 from django import forms
-from .models import Book, Request, User
+from django.forms import inlineformset_factory
+from .models import Book, Request, User, BookCopy
 from .models import Profile
 from .models import Collection
 from .models import Review
 
 class BookForm(forms.ModelForm):
+    total_copies = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'id': 'id_total_copies',
+            'onchange': 'updateCopyForms()',
+            'oninput': 'updateCopyForms()'
+        })
+    )
+    
     class Meta:
         model = Book
         fields = [
             'book_title',
             'book_author',
             'book_genre',
+            'isbn',
             'pub_year',
             'summary',
             'book_cover',
             'total_copies',
-            # 'total_available',
-            # 'in_stock'
         ]
         widgets = {
-            'publication_year': forms.NumberInput(attrs={'min': 1000, 'max': 9999}),
+            'pub_year': forms.NumberInput(attrs={'min': 1000, 'max': 9999}),
         }
 
 class ProfileForm(forms.ModelForm):
@@ -87,3 +97,24 @@ class ReviewForm(forms.ModelForm):
                 'required': "Please write a comment.",
             },
         }
+
+class BookCopyForm(forms.ModelForm):
+    location = forms.ChoiceField(
+        choices=BookCopy.LOCATION_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+
+    class Meta:
+        model = BookCopy
+        fields = ['location']
+
+BookCopyFormSet = inlineformset_factory(
+    Book, 
+    BookCopy, 
+    form=BookCopyForm,
+    extra=0,
+    can_delete=True,
+    min_num=1,
+    validate_min=True
+)

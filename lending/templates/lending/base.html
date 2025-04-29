@@ -8,13 +8,15 @@
     <title>{% block title %}Library System{% endblock %}</title>
     <style>
         .navbar .input-group {
-            margin-top: 15px; 
+            margin-top: 15px;
         }
     </style>
 </head>
 
 <body>
 <div class="d-flex flex-column vh-100 justify-content-spaced">
+
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
         <div class="container-fluid d-flex align-items-center w-100 gap-3">
             <a class="navbar-brand me-4" href="{% url 'lending:index' %}">
@@ -24,9 +26,9 @@
             <ul class="navbar-nav flex-row gap-3 mb-0">
                 <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a></li>
                 {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_books' %}">My Books</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My Requests</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a></li>
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_books' %}">My Books</a></li>
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My Requests</a></li>
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a></li>
                 {% endif %}
             </ul>
 
@@ -54,26 +56,83 @@
 
             <ul class="navbar-nav ms-3 align-items-center">
                 {% if user.is_authenticated %}
-                    <li class="nav-item d-flex align-items-center text-light me-3">
-                        {% if user.profile.profile_picture %}
-                        <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
-                        {% endif %}
-                        {{ user.username }}
-                    </li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'logout' %}">Logout</a></li>
+                <li class="nav-item d-flex align-items-center text-light me-3">
+                    {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
+                    {% endif %}
+                    {{ user.username }}
+                </li>
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a></li>
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'social:begin' 'google-oauth2' %}">Login</a></li>
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'social:begin' 'google-oauth2' %}">Login</a></li>
                 {% endif %}
             </ul>
         </div>
     </nav>
 
+    <!-- Toasts for Notifications and Django Messages -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100; margin-top: 5rem;">
+        <div class="toast-container">
+            {% if request.user.is_authenticated %}
+                {% for notification in request.user.notifications.unread %}
+                <div class="toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3500" data-notification-id="{{ notification.id }}">
+                    <div class="d-flex">
+                        <div class="toast-body text-light font-weight-bold">
+                            {{ notification.description|default:notification.verb }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body text-light font-weight-bold">
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Toast JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toastElements = document.querySelectorAll('.toast');
+            toastElements.forEach((toastElement) => {
+                const toast = new bootstrap.Toast(toastElement, { autohide: true });
+                toast.show();
+
+                const notifId = toastElement.getAttribute('data-notification-id');
+                if (notifId) {
+                    toastElement.addEventListener('hidden.bs.toast', function () {
+                        fetch(`/notifications/mark-as-read/${notifId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- Page Content -->
     <div class="d-flex flex-column justify-content-center align-items-center">
         {% block content %}
         {% endblock %}
     </div>
 
+    <!-- Footer -->
     <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
             <div class="row">
@@ -85,7 +144,8 @@
                         This system is not monitored and no real personal information should be submitted.
                     </p>
                     <p class="text-muted mb-1">
-                        For actual library services, please visit the <a href="https://www.library.virginia.edu/" target="_blank">UVA Library website</a>.
+                        For actual library services, please visit the 
+                        <a href="https://www.library.virginia.edu/" target="_blank">UVA Library website</a>.
                     </p>
                     <hr class="my-2">
                     <p class="text-muted small mb-0">
@@ -95,6 +155,7 @@
             </div>
         </div>
     </footer>
+
 </div>
 </body>
 </html>
