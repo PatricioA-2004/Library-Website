@@ -4,178 +4,187 @@
 {% bootstrap_javascript %}
 
 <html>
+
 <head>
     <title>{% block title %}Library System{% endblock %}</title>
     <style>
         .navbar .input-group {
-            margin-top: 15px; 
+            margin-top: 15px;
         }
     </style>
 </head>
 
 <body>
-<div class="d-flex flex-column vh-100 justify-content-spaced">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-        <div class="container-fluid d-flex align-items-center w-100 gap-3">
-            <a class="navbar-brand me-4" href="{% url 'lending:index' %}">
-                <h2 class="mb-0">The Little Library</h2>
-            </a>
+    <div class="d-flex flex-column vh-100 justify-content-spaced">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+            <div class="container-fluid d-flex align-items-center w-100 gap-3">
+                <a class="navbar-brand me-4" href="{% url 'lending:index' %}">
+                    <h2 class="mb-0">The Little Library</h2>
+                </a>
 
-            <ul class="navbar-nav flex-row gap-3 mb-0">
-                <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a></li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_books' %}">My Books</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My Requests</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:collections_list' %}">Collections</a></li>
+                <ul class="navbar-nav flex-row gap-3 mb-0">
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:index' %}">Home</a></li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_books' %}">My Books</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:my_book_requests' %}">My
+                            Requests</a></li>
+                    <li class="nav-item"><a class="nav-link text-light"
+                            href="{% url 'lending:collections_list' %}">Collections</a></li>
+                    {% endif %}
+                </ul>
+
+                <form class="d-flex" action="{% url 'lending:search' %}" method="get">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" placeholder="Search">
+                        <button class="btn btn-outline-light" type="submit">Search</button>
+                    </div>
+                </form>
+
+                {% if user.is_staff %}
+                <ul class="navbar-nav ms-3">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-light" href="#" id="staffDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Staff Actions
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="staffDropdown">
+                            <li><a class="dropdown-item" href="{% url 'lending:add_book' %}">Add Book</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lending:add_librarian' %}">Add Librarian</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lending:manage_requests' %}">Manage Requests</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
                 {% endif %}
-            </ul>
 
-            <form class="d-flex" action="{% url 'lending:search' %}" method="get">
-                <div class="input-group">
-                    <input class="form-control" type="search" name="q" placeholder="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </div>
-            </form>
-
-            {% if user.is_staff %}
-            <ul class="navbar-nav ms-3">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-light" href="#" id="staffDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Staff Actions
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="staffDropdown">
-                        <li><a class="dropdown-item" href="{% url 'lending:add_book' %}">Add Book</a></li>
-                        <li><a class="dropdown-item" href="{% url 'lending:add_librarian' %}">Add Librarian</a></li>
-                        <li><a class="dropdown-item" href="{% url 'lending:manage_requests' %}">Manage Requests</a></li>
-                    </ul>
-                </li>
-            </ul>
-            {% endif %}
-
-            <ul class="navbar-nav ms-3 align-items-center">
-                {% if user.is_authenticated %}
+                <ul class="navbar-nav ms-3 align-items-center">
+                    {% if user.is_authenticated %}
                     <li class="nav-item d-flex align-items-center text-light me-3">
                         {% if user.profile.profile_picture %}
-                        <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40">
+                        <img src="{{ user.profile.profile_picture.url }}" class="rounded-circle me-2" width="40"
+                            height="40">
                         {% endif %}
                         {{ user.username }}
                     </li>
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'lending:profile' %}">Profile</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link text-light" href="{% url 'logout' %}">Logout</a></li>
-                {% else %}
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'social:begin' 'google-oauth2' %}">Login</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link text-light"
+                            href="{% url 'social:begin' 'google-oauth2' %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3"
+            style="z-index: 1100; margin-top: 5rem;">
+            <div class="toast-container">
+                {% if request.user.is_authenticated %}
+                {% for notification in request.user.notifications.unread %}
+                <div class="toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive"
+                    aria-atomic="true" data-bs-delay="3500" data-notification-id="{{ notification.id }}">
+                    <div class="d-flex">
+                        <div class="toast-body text-light font-weight-bold">
+                            {{ notification.description|default:notification.verb }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+                {% endfor %}
                 {% endif %}
-            </ul>
+            </div>
         </div>
-    </nav>
 
-    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100; margin-top: 5rem;">
-        <div class="toast-container">
-          {% if request.user.is_authenticated %}
-            {% for notification in request.user.notifications.unread %}
-              <div class="toast align-items-center bg-dark border-0 mb-2"
-                   role="alert"
-                   aria-live="assertive"
-                   aria-atomic="true"
-                   data-bs-delay="3500"
-                   data-notification-id="{{ notification.id }}">
-                <div class="d-flex">
-                  <div class="toast-body text-light font-weight-bold">
-                    {{ notification.description|default:notification.verb }}
-                  </div>
-                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
-    </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const toastElements = document.querySelectorAll('.toast');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-          const toastElements = document.querySelectorAll('.toast');
+                toastElements.forEach(toastEl => {
+                    const toast = new bootstrap.Toast(toastEl);
+                    toast.show();
 
-          toastElements.forEach(toastEl => {
-            const toast = new bootstrap.Toast(toastEl);
-            toast.show();
-
-            toastEl.addEventListener('hidden.bs.toast', function () {
-              const notifId = toastEl.getAttribute('data-notification-id');
-              if (notifId) {
-                fetch(`/notifications/mark-as-read/${notifId}/`, {
-                  method: 'POST',
-                  headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                  }
+                    toastEl.addEventListener('hidden.bs.toast', function () {
+                        const notifId = toastEl.getAttribute('data-notification-id');
+                        if (notifId) {
+                            fetch(`/notifications/mark-as-read/${notifId}/`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                        }
+                    });
                 });
-              }
             });
-          });
-        });
-    </script>
+        </script>
 
 
-<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100; margin-top: 5rem;">
-    <div class="toast-container">
-      {% if messages %}
-        {% for message in messages %}
-          <div class="toaster toast align-items-center bg-dark border-0 mb-2"
-               role="alert"
-               aria-live="assertive"
-               aria-atomic="true"
-               data-bs-delay="3500">
-            <div class="d-flex">
-              <div class="toast-body text-light font-weight-bold">
-                {{ message }}
-              </div>
-              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-          </div>
-        {% endfor %}
-      {% endif %}
-    </div>
-</div>
-
-      
-      <script>
-        document.addEventListener('DOMContentLoaded', function () {
-          const toastElements = document.querySelectorAll('.toaster');
-          toastElements.forEach((toastElement) => {
-            const toast = new bootstrap.Toast(toastElement, { delay: 5000, autohide: true });
-            toast.show();
-          });
-        });
-      </script>
-
-
-
-    <div class="d-flex flex-column justify-content-center align-items-center">
-        {% block content %}
-        {% endblock %}
-    </div>
-
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="text-muted mb-1">
-                        <strong>Disclaimer:</strong> This is a class project for CS 3240 at the University of Virginia.
-                    </p>
-                    <p class="text-muted mb-1">
-                        This system is not monitored and no real personal information should be submitted.
-                    </p>
-                    <p class="text-muted mb-1">
-                        For actual library services, please visit the <a href="https://www.library.virginia.edu/" target="_blank">UVA Library website</a>.
-                    </p>
-                    <hr class="my-2">
-                    <p class="text-muted small mb-0">
-                        © 2025 Shahryar Kiani, Patricio Anduaga, Nick Moir, Eileen Kopp.
-                    </p>
+        <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3"
+            style="z-index: 1100; margin-top: 5rem;">
+            <div class="toast-container">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="toaster toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive"
+                    aria-atomic="true" data-bs-delay="3500">
+                    <div class="d-flex">
+                        <div class="toast-body text-light font-weight-bold">
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
                 </div>
+                {% endfor %}
+                {% endif %}
             </div>
         </div>
-    </footer>
-</div>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const toastElements = document.querySelectorAll('.toaster');
+                toastElements.forEach((toastElement) => {
+                    const toast = new bootstrap.Toast(toastElement, { delay: 5000, autohide: true });
+                    toast.show();
+                });
+            });
+        </script>
+
+
+
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <footer class="footer mt-auto py-3 bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <p class="text-muted mb-1">
+                            <strong>Disclaimer:</strong> This is a class project for CS 3240 at the University of
+                            Virginia.
+                        </p>
+                        <p class="text-muted mb-1">
+                            This system is not monitored and no real personal information should be submitted.
+                        </p>
+                        <p class="text-muted mb-1">
+                            For actual library services, please visit the <a href="https://www.library.virginia.edu/"
+                                target="_blank">UVA Library website</a>.
+                        </p>
+                        <hr class="my-2">
+                        <p class="text-muted small mb-0">
+                            © 2025 Shahryar Kiani, Patricio Anduaga, Nick Moir, Eileen Kopp.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
 </body>
+
 </html>
