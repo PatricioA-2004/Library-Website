@@ -9,8 +9,8 @@ class Book(models.Model):
     pub_year = models.PositiveIntegerField("Year Published")
     isbn = models.CharField('ISBN', max_length=13, default='0000000000000', blank = False)
     summary = models.TextField(max_length=500, default="")
-    in_stock = models.BooleanField(default=False) 
-    book_cover = models.ImageField(upload_to='media/book_covers')
+    in_stock = models.BooleanField(default=False)
+    book_cover = models.ImageField(upload_to='media/book_covers', blank=True, null=True)
     total_copies = models.PositiveIntegerField("Total Copies", default=1)
     total_available = models.PositiveIntegerField("Total Available", default=1)
     def __str__(self):

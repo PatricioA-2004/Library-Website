@@ -22,14 +22,15 @@
         <a href="{% url 'lending:book_detail' book.id %}" class="text-decoration-none text-dark">
             <div class="card" style="width: 11rem;">
                 {% if book.book_cover %}
-                    <img src="{{ book.book_cover.url }}" class="card-img-top" alt="{{ book.book_title }}"
-                         style="aspect-ratio: 3 / 4; object-fit: cover;" class="p-2">
+                    <img src="{{ book.book_cover.url }}" class="card-img-top" 
+                         style="aspect-ratio: 3 / 4; object-fit: cover;" 
+                         alt="{{ book.book_title }}">
                 {% else %}
-                    <div class="card-img-top d-flex justify-content-center align-items-center bg-light"
-                         style="aspect-ratio: 3 / 4;" class="p-2">
-                        <span class="text-muted">No Cover</span>
-                    </div>
+                    <img src="{% static 'lending/Default-Book.jpg' %}" class="card-img-top" 
+                         style="aspect-ratio: 3 / 4; object-fit: cover;" 
+                         alt="Default Book Cover">
                 {% endif %}
+
                 <div class="card-body">
                     <h6 class="card-title mb-1">{{ book.book_title }}</h6>
                     <p class="card-subtitle text-muted mb-1"><strong>Author:</strong> {{ book.book_author }}</p>
