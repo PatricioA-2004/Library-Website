@@ -89,7 +89,7 @@ class ReviewForm(forms.ModelForm):
 
 class BookCopyForm(forms.ModelForm):
     location = forms.ChoiceField(
-        choices=BookCopy.LOCATION_CHOICES,
+        choices=BookCopy.LIBRARY_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=True
     )
