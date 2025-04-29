@@ -191,7 +191,9 @@ class CollectionAddViewTest(LendingTestSetUp):
         form_data = {
             "collection_name": "Favorites",
             "description": "My favorite books",
+            "private": False,
             "books": [self.book1.id],
+            "allowed_users": [],
         }
         response = self.client.post(reverse("lending:create_collection"), data=form_data, follow=True)
         from .models import Collection
