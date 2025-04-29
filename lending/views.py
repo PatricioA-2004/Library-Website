@@ -15,12 +15,15 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
-from django.db.models import Q, OuterRef, Exists, Avg
+from django.db.models import Q, OuterRef, Exists, Avg, OrderBy
 from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
 from notifications.signals import notify
-from django import forms
+from django.db.models import Avg, F
+from django.db.models.expressions import OrderBy
+from django.db.models import Q
+
 
 
 from .forms import BookForm, ReviewForm, BookCopyFormSet, AlternateCoverForm
@@ -31,41 +34,47 @@ from django.contrib import messages
 from django.db.utils import IntegrityError
 
 # Create your views here.
+from django.db.models import Avg, Case, When, Value, IntegerField
+from django.db.models.functions import Coalesce
+
 class IndexView(ListView):
     template_name = "lending/index.html"
     context_object_name = "book_list"
-    
+
     def get_queryset(self):
         user = self.request.user
         sort_by = self.request.GET.get('sort', 'title')
-        
-        # Base queryset based on user permissions
+
         if user.is_staff:
             queryset = Book.objects.all()
         elif user.is_authenticated:
             queryset = Book.objects.filter(
-                Q(collection__private=False) | 
-                Q(collection__allowed_users=user) | 
+                Q(collection__private=False) |
+                Q(collection__allowed_users=user) |
                 Q(collection__isnull=True)
             ).distinct()
         else:
             queryset = Book.objects.exclude(collection__private=True)
-        
-        # Annotate with average rating
+
+        queryset = queryset.annotate(avg_rating=Avg('reviews__rating'))
+
         queryset = queryset.annotate(
-            avg_rating=Avg('reviews__rating')
+            has_rating=Case(
+                When(avg_rating__isnull=True, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField()
+            )
         )
-        
-        # Apply sorting
+
         if sort_by == 'rating_asc':
-            queryset = queryset.order_by('avg_rating')
+            queryset = queryset.order_by('has_rating', 'avg_rating')
         elif sort_by == 'rating_desc':
-            queryset = queryset.order_by('-avg_rating')
-        else:  # Default to title sorting
+            queryset = queryset.order_by('-has_rating', '-avg_rating')
+        else:
             queryset = queryset.order_by('book_title')
-            
+
         return queryset
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['current_sort'] = self.request.GET.get('sort', 'title')
