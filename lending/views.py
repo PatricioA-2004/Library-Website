@@ -325,7 +325,6 @@ class CollectionDeleteView(UserPassesTestMixin, DeleteView):
         return super().form_valid(form)
 
 @login_required
-@user_passes_test(is_staff)
 def create_collection(request):
     if request.method == 'POST':
         form = CollectionForm(request.POST, user_is_staff=request.user.is_staff)

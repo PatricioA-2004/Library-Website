@@ -34,16 +34,20 @@
         </div>
 
         <div id="hide">
-            <div class="card mb-4">
-                <div class="card-header">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h4>Alternate Covers</h4>
+                    <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add Another
+                        Alternate Cover</button>
                 </div>
-                <div class="card-body">
-                    {{ alternate_cover_formset.management_form }}
 
-                    <div id="alternate_covers">
+
+                {{ alternate_cover_formset.management_form }}
+                <div id="hide">
+                    <div id="alternate_covers" class="d-flex flex-row flex-wrap">
                         {% for form in alternate_cover_formset %}
-                        <div class="copy-form mb-3 p-3 border rounded">
+                        <div class="copy-form my-1 mx-3 p-3 border rounded">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     {% if form.instance.pk %}
@@ -65,10 +69,7 @@
                         {% endfor %}
                     </div>
 
-                    <div class="card-header d-flex justify-content-end align-items-center">
-                        <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add Another
-                            Alternate Cover</button>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -80,9 +81,9 @@
                     <h4>Book Copies</h4>
                     <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
                 </div>
-                <div id="copies">
+                <div class="d-flex flex-row flex-wrap" id="copies">
                     {% for form in formset %}
-                    <div class="copy-form mb-3 p-3 border rounded">
+                    <div class="my-1 p-3 mx-3 border rounded">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 {% if form.instance.pk %}
@@ -103,6 +104,7 @@
                     </div>
                     {% endfor %}
                 </div>
+
             </div>
         </div>
 
@@ -188,7 +190,7 @@
         const totalForms = document.getElementById('id_alt_cover-TOTAL_FORMS');
         const currentFormCount = parseInt(totalForms.value);
         const alternateCoversContainer = document.getElementById('alternate_covers');
-        const emptyFormTemplate = alternateCoversContainer.children[0]
+        const emptyFormTemplate = alternateCoversContainer.children[alternateCoversContainer.children.length - 1]
             .outerHTML
             .replace(/alt_cover_set-(\d)+/g, `alt_cover_set-${currentFormCount}`);
 

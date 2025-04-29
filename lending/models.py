@@ -94,9 +94,14 @@ class BookCopy(models.Model):
         ('CLEMONS', 'Clemons Library'),
         ('ON_LOAN', 'On Loan')
     ]
+    LIBRARY_CHOICES = [
+        ('SHANNON', 'Shannon Library'),
+        ('BROWN', 'Brown Science and Engineering Library'),
+        ('CLEMONS', 'Clemons Library')
+    ]
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='copies')
-    location = models.CharField(max_length=50, choices=LOCATION_CHOICES, default='SHANNON')
+    location = models.CharField(max_length=50, choices=LIBRARY_CHOICES, default='SHANNON')
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
