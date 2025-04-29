@@ -163,12 +163,12 @@
         });
 
         document.getElementById('add-alternate-cover-btn').addEventListener('click', function() {
-            const totalForms = document.getElementById('id_alternatecover_set-TOTAL_FORMS');
+            const totalForms = document.getElementById('id_alt_cover-TOTAL_FORMS');
             const currentFormCount = parseInt(totalForms.value);
             const alternateCoversContainer = document.getElementById('alternate_covers');
             const emptyFormTemplate = alternateCoversContainer.children[0]
                 .outerHTML
-                .replace(/alternatecover_set-(\d)+/g, `alternatecover_set-${currentFormCount}`);
+                .replace(/alt_cover_set-(\d)+/g, `alt_cover_set-${currentFormCount}`);
                 
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = emptyFormTemplate;
