@@ -33,7 +33,6 @@
                 </div>
             </div>
 
-            {% if book.book_cover %}
             <div class="card mb-4">
                 <div class="card-header">
                     <h4>Alternate Covers</h4>
@@ -48,7 +47,7 @@
                                         {% if form.instance.pk %}
                                             <strong>Cover #{{ forloop.counter }}</strong>
                                         {% else %}
-                                            <strong>New Cover</strong>
+                                            <strong>New Cover #1</strong>
                                         {% endif %}
                                     </div>
                                     <div>
@@ -69,7 +68,6 @@
                     </div>
                 </div>
             </div>
-            {% endif %}
 
             <div class="card mb-4">
                 <div class="card-body">
@@ -141,7 +139,7 @@
 
     <script>
         let newCopyCounter = 1;
-        let newAlternateCoverCounter = 1; 
+        let newAlternateCoverCounter = 2; 
 
         document.getElementById('add-copy-btn').addEventListener('click', function() {
             const totalForms = document.getElementById('id_form-TOTAL_FORMS');
@@ -176,7 +174,7 @@
 
             const labelContainer = newForm.querySelector('strong');
             if (labelContainer) {
-                labelContainer.textContent = `New Cover #${newAlternateCoverCounter++}`;
+                labelContainer.textContent = `Alternate Cover #${newAlternateCoverCounter++}`;
             }
 
             alternateCoversContainer.appendChild(newForm);
