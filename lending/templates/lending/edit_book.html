@@ -85,7 +85,7 @@
                                 {% if form.instance.pk %}
                                 <strong>Copy #{{ forloop.counter }}</strong>
                                 {% else %}
-                                <strong>New Copy</strong>
+                                <strong>New Copy #1</strong>
                                 {% endif %}
                             </div>
                             <div>
@@ -160,7 +160,7 @@
         }
     });
 
-    let newCopyCounter = 1;
+    let newCopyCounter = 2;
     let newAlternateCoverCounter = 2;
 
     document.getElementById('add-copy-btn').addEventListener('click', function () {
