@@ -78,9 +78,9 @@
                         <h4>Book Copies</h4>
                         <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
                     </div>
-                    <div id="copies">
+                    <div class="d-flex flex-row flex-wrap" id = "copies">
                         {% for form in formset %}
-                            <div class="copy-form mb-3 p-3 border rounded">
+                            <div class="mb-3 p-3 mx-3 border rounded">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         {% if form.instance.pk %}
@@ -100,7 +100,8 @@
                                 </div>
                             </div>
                         {% endfor %}
-                    </div>
+                </div>
+
                 </div>
             </div>
 
