@@ -115,6 +115,34 @@
         });
       </script>
 
+       <!-- Toasts for Django messages -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+        <div class="toast-container">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="toaster toast align-items-center text-bg-{{ message.tags|default:"primary" }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+                <div class="d-flex">
+                  <div class="toast-body">
+                    {{ message }}
+                  </div>
+                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const toastElements = document.querySelectorAll('.toaster');
+          toastElements.forEach((toastElement) => {
+            const toast = new bootstrap.Toast(toastElement, { delay: 5000, autohide: true });
+            toast.show();
+          });
+        });
+      </script>
+
 
 
     <div class="d-flex flex-column justify-content-center align-items-center">
