@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
 from django.views.generic import DeleteView
 from django.shortcuts import redirect
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from .models import Profile
 from .forms import ProfileForm, CollectionForm, AddLibrarianForm
 from django.contrib.auth.models import User
@@ -150,23 +150,6 @@ class BookDetailView(DetailView):
             context['average_rating'] = total_rating / len(reviews)
         else:
             context['average_rating'] = 0
-
-        borrowed_count = Request.objects.filter(
-            requested_book=self.object,
-            status="APPROVED"
-        ).count()
-
-        pending_count = Request.objects.filter(
-            requested_book=self.object,
-            status="PENDING"
-        ).count()
-
-        in_library_count = max(self.object.total_copies - borrowed_count - pending_count, 0)
-
-        context['borrowed_count'] = borrowed_count
-        context['pending_count'] = pending_count
-        context['in_library_count'] = in_library_count
-
 
         return context
 
@@ -366,8 +349,10 @@ def manage_requests(request):
     if request.method == "POST":
         req_id = request.POST.get("request_id")
         action = request.POST.get("action")
-
+        print(req_id)
+        print(action)
         if action == "approve":
+            print("here")
             book_request = get_object_or_404(Request, id=req_id)
             book = book_request.requested_book
             available_copy = book.copies.filter(is_available=True).first()
@@ -376,6 +361,7 @@ def manage_requests(request):
                 return redirect('lending:manage_requests')
             
             available_copy.is_available = False
+            available_copy.location = "ON_LOAN"
             available_copy.save()
             
             book_request.status = "APPROVED"
@@ -397,7 +383,7 @@ def manage_requests(request):
             book_request.status = "REJECTED"
             book_request.save()
             notify.send(
-                sender=request.requester,
+                sender=request.user,
                 recipient=book_request.user,
                 verb="was rejected",
                 target=book_request.requested_book,
@@ -475,9 +461,11 @@ def return_book(request, pk):
     book = book_request.requested_book
     
     loaned_copy = book.copies.filter(is_available=False, location='ON_LOAN').first()
+    print(loaned_copy)
     if loaned_copy:
         loaned_copy.is_available = True
         loaned_copy.location = 'SHANNON'
+        print(loaned_copy)
         loaned_copy.save()
     
     book.total_available += 1
