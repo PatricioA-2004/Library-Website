@@ -25,7 +25,7 @@ class Profile(models.Model):
         return str(self.user)
         
 class Collection(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="collections")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="collections", db_index = True)
     allowed_users = models.ManyToManyField(User)
     books = models.ManyToManyField(Book)
     private = models.BooleanField(db_index = True) # Only librarians can make private collections

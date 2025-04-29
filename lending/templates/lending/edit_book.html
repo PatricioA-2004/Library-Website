@@ -33,6 +33,7 @@
             </div>
         </div>
 
+        <div id="hide">
         <div class="card mb-4">
             <div class="card-body">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -143,6 +144,26 @@
 </div>
 
 <script>
+    let hasExistingCover = {% if book.book_cover %}true{% else %}false{% endif %};
+    
+    const coverInput = document.getElementById("id_book_cover");
+    const altCovers = document.getElementById("hide");
+    const addBtn = document.getElementById("add-alternate-cover-btn");
+    const currentCover = document.getElementById("current-cover-img");
+    
+    altCovers.style.display = "none";
+    if (hasExistingCover) {
+        altCovers.style.display = "block";
+    }
+
+    coverInput.addEventListener("change", () => {
+        if (coverInput.files.length) {
+            altCovers.style.display = "block";
+        } else {
+            altCovers.style.display = "none";
+        }
+    });
+
     let newCopyCounter = 1;
     let newAlternateCoverCounter = 2;
 
@@ -169,7 +190,7 @@
         const totalForms = document.getElementById('id_alt_cover-TOTAL_FORMS');
         const currentFormCount = parseInt(totalForms.value);
         const alternateCoversContainer = document.getElementById('alternate_covers');
-        const emptyFormTemplate = alternateCoversContainer.children[0]
+        const emptyFormTemplate = alternateCoversContainer.children[alternateCoversContainer.children.length - 1]
             .outerHTML
             .replace(/alt_cover_set-(\d)+/g, `alt_cover_set-${currentFormCount}`);
 
