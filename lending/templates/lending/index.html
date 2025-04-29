@@ -17,6 +17,20 @@
         {% endif %}
     </div>
     
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <a href="?sort=title" class="btn btn-outline-secondary {% if current_sort == 'title' %}active{% endif %}">
+                Sort by Title
+            </a>
+            <a href="?sort=rating_desc" class="btn btn-outline-secondary {% if current_sort == 'rating_desc' %}active{% endif %}">
+                Sort by Rating (High to Low)
+            </a>
+            <a href="?sort=rating_asc" class="btn btn-outline-secondary {% if current_sort == 'rating_asc' %}active{% endif %}">
+                Sort by Rating (Low to High)
+            </a>
+        </div>
+    </div>
+    
     <div class="d-flex flex-wrap gap-4 justify-content-start">
         {% for book in book_list %}
         <a href="{% url 'lending:book_detail' book.id %}" class="text-decoration-none text-dark">
@@ -34,7 +48,15 @@
                 <div class="card-body">
                     <h6 class="card-title mb-1">{{ book.book_title }}</h6>
                     <p class="card-subtitle text-muted mb-1"><strong>Author:</strong> {{ book.book_author }}</p>
-                    <p class="card-subtitle text-muted mb-0"><strong>Genre:</strong> {{ book.book_genre }}</p>
+                    <p class="card-subtitle text-muted mb-1"><strong>Genre:</strong> {{ book.book_genre }}</p>
+                    <p class="card-subtitle text-muted mb-0">
+                        <strong>Rating:</strong> 
+                        {% if book.avg_rating %}
+                            {{ book.avg_rating|floatformat:1 }} ★
+                        {% else %}
+                            No ratings yet
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </a>
