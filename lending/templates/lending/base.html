@@ -69,7 +69,7 @@
         </div>
     </nav>
 
-    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-50 p-3" style="z-index: 1100; margin-top: 5rem;">
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100; margin-top: 5rem;">
         <div class="toast-container">
           {% if request.user.is_authenticated %}
             {% for notification in request.user.notifications.unread %}
@@ -89,16 +89,38 @@
             {% endfor %}
           {% endif %}
         </div>
-      </div>
+    </div>
 
-      <script>
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100; margin-top: 5rem;">
+        <div class="toast-container">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="toast align-items-center bg-dark border-0 mb-2"
+                   role="alert"
+                   aria-live="assertive"
+                   aria-atomic="true"
+                   data-bs-delay="3500">
+                <div class="d-flex">
+                  <div class="toast-body text-light font-weight-bold">
+                    {{ message }}
+                  </div>
+                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+    </div>
+
+
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
           const toastElements = document.querySelectorAll('.toast');
-      
+
           toastElements.forEach(toastEl => {
             const toast = new bootstrap.Toast(toastEl);
             toast.show();
-      
+
             toastEl.addEventListener('hidden.bs.toast', function () {
               const notifId = toastEl.getAttribute('data-notification-id');
               if (notifId) {
@@ -113,9 +135,7 @@
             });
           });
         });
-      </script>
-
-
+    </script>
 
     <div class="d-flex flex-column justify-content-center align-items-center">
         {% block content %}
