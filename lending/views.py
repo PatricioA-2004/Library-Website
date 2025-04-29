@@ -391,7 +391,7 @@ def manage_requests(request):
             book_request.save()
             notify.send(
                 sender=request.user,
-                recipient=book_request.user,
+                recipient=book_request.requester,
                 verb="was rejected",
                 target=book_request.requested_book,
                 description=f"Your request for '{book_request.requested_book.book_title}' was rejected.",
@@ -416,7 +416,7 @@ def manage_requests(request):
         elif action == "reject_collection":
             collection_request = get_object_or_404(CollectionRequest, id=req_id)
             collection_request.status = "REJECTED" 
-            collection_request.save()   
+            collection_request.save()
             notify.send(
                 sender=request.user,
                 recipient=collection_request.user,
