@@ -257,10 +257,17 @@ def edit_book(request, pk):
 class CollectionDetailView(DetailView):
     model = Collection
     template_name = "lending/collection_detail.html"
-
+    
     def get_context_data(self, **kwargs):
+        can_view = (
+            (not self.object.private and self.request.user.is_authenticated)
+            or self.request.user.is_staff
+            or self.object.owner == self.request.user
+            or self.request.user in self.object.allowed_users.all()
+        )
         context = super().get_context_data(**kwargs)
         context['books'] = self.object.books.all().order_by()
+        context['can_view'] = can_view
         return context
 
 @login_required

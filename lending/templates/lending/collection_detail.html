@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-
+{% if can_view %}
 <div class="container">
     <div class="d-flex justify-content-center position-relative mt-5">
         <!--Collection Name-->
@@ -87,5 +87,8 @@
         </div>
     </div>
 </div>
+{% else %}
+    <h2>You do not have permission to access this page</h2>
+{% endif %}
 
 {% endblock content %}
