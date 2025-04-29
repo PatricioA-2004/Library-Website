@@ -5,182 +5,204 @@
 {% block title %}Edit Book - {{ book.book_title }}{% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
-        <h2>Edit Book: {{ book.book_title }}</h2>
+<div class="container mt-4">
+    <h2>Edit Book: {{ book.book_title }}</h2>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4>Book Information</h4>
-                </div>
-                <div class="card-body">
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            {% if field.errors %}
-                                {{ field|add_class:"form-control is-invalid" }}
-                                <div class="invalid-feedback">{{ field.errors.0 }}</div>
-                            {% else %}
-                                {{ field|add_class:"form-control" }}
-                            {% endif %}
-                            {% if field.help_text %}
-                                <small class="form-text text-muted">{{ field.help_text }}</small>
-                            {% endif %}
-                        </div>
-                    {% endfor %}         
-                </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Book Information</h4>
             </div>
+            <div class="card-body">
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {% if field.errors %}
+                    {{ field|add_class:"form-control is-invalid" }}
+                    <div class="invalid-feedback">{{ field.errors.0 }}</div>
+                    {% else %}
+                    {{ field|add_class:"form-control" }}
+                    {% endif %}
+                    {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
+        <div id="hide">
             <div class="card mb-4">
                 <div class="card-header">
                     <h4>Alternate Covers</h4>
                 </div>
                 <div class="card-body">
                     {{ alternate_cover_formset.management_form }}
-                    <div id="hide">
+
                     <div id="alternate_covers">
                         {% for form in alternate_cover_formset %}
-                            <div class="copy-form mb-3 p-3 border rounded">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        {% if form.instance.pk %}
-                                            <strong>Cover #{{ forloop.counter }}</strong>
-                                        {% else %}
-                                            <strong>New Cover #1</strong>
-                                        {% endif %}
-                                    </div>
-                                    <div>
-                                        {{ form.DELETE }} <label>Delete</label>
-                                    </div>
+                        <div class="copy-form mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if form.instance.pk %}
+                                    <strong>Cover #{{ forloop.counter }}</strong>
+                                    {% else %}
+                                    <strong>New Cover #1</strong>
+                                    {% endif %}
                                 </div>
-                                <div class="mt-2">
-                                    {{ form.id }}
-                                    <label class="form-label">Image</label>
-                                    {{ form.image }}
+                                <div>
+                                    {{ form.DELETE }} <label>Delete</label>
                                 </div>
                             </div>
+                            <div class="mt-2">
+                                {{ form.id }}
+                                <label class="form-label">Image</label>
+                                {{ form.image }}
+                            </div>
+                        </div>
                         {% endfor %}
                     </div>
 
                     <div class="card-header d-flex justify-content-end align-items-center">
-                        <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add Another Alternate Cover</button>
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-body">
-                    {{ formset.management_form }}
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4>Book Copies</h4>
-                        <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
-                    </div>
-                    <div id="copies">
-                        {% for form in formset %}
-                            <div class="copy-form mb-3 p-3 border rounded">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        {% if form.instance.pk %}
-                                            <strong>Copy #{{ forloop.counter }}</strong>
-                                        {% else %}
-                                            <strong>New Copy</strong>
-                                        {% endif %}
-                                    </div>
-                                    <div>
-                                        {{ form.DELETE }} <label>Delete</label>
-                                    </div>
-                                </div>
-                                <div class="mt-2">
-                                    {{ form.id }}
-                                    <label class="form-label">Location</label>
-                                    {{ form.location|add_class:"form-control" }}
-                                </div>
-                            </div>
-                        {% endfor %}
+                        <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add Another
+                            Alternate Cover</button>
                     </div>
                 </div>
             </div>
-
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{% url 'lending:book_detail' book.pk %}" class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
-
-        <div class="text-end mt-4">
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                Delete Book
-            </button>
         </div>
 
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Confirm Book Deletion</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="card mb-4">
+            <div class="card-body">
+                {{ formset.management_form }}
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Book Copies</h4>
+                    <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
+                </div>
+                <div id="copies">
+                    {% for form in formset %}
+                    <div class="copy-form mb-3 p-3 border rounded">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if form.instance.pk %}
+                                <strong>Copy #{{ forloop.counter }}</strong>
+                                {% else %}
+                                <strong>New Copy</strong>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.DELETE }} <label>Delete</label>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            {{ form.id }}
+                            <label class="form-label">Location</label>
+                            {{ form.location|add_class:"form-control" }}
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete "{{ book.book_title }}"?</p>
-                        <p class="text-danger">This action cannot be undone.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <form method="post" action="{% url 'lending:delete_book' book.pk %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Delete Book</button>
-                        </form>
-                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'lending:book_detail' book.pk %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+
+    <div class="text-end mt-4">
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Delete Book
+        </button>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Book Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete "{{ book.book_title }}"?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="post" action="{% url 'lending:delete_book' book.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete Book</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        let newCopyCounter = 1;
-        let newAlternateCoverCounter = 2; 
+<script>
+    let hasExistingCover = {% if book.book_cover %}true{% else %}false{% endif %};
+    
+    const coverInput = document.getElementById("id_book_cover");
+    const altCovers = document.getElementById("hide");
+    const addBtn = document.getElementById("add-alternate-cover-btn");
+    const currentCover = document.getElementById("current-cover-img");
+    
+    altCovers.style.display = "none";
+    if (hasExistingCover) {
+        altCovers.style.display = "block";
+    }
 
-        document.getElementById('add-copy-btn').addEventListener('click', function() {
-            const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-            const currentFormCount = parseInt(totalForms.value);
-            const copyFormsContainer = document.getElementById('copies');
-            const emptyFormTemplate = copyFormsContainer.children[0].outerHTML.replace(/form-(\d)+/g, `form-${currentFormCount}`);
+    coverInput.addEventListener("change", () => {
+        if (coverInput.files.length) {
+            altCovers.style.display = "block";
+        } else {
+            altCovers.style.display = "none";
+        }
+    });
 
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = emptyFormTemplate;
-            const newForm = tempDiv.firstElementChild;
+    let newCopyCounter = 1;
+    let newAlternateCoverCounter = 2;
 
-            const labelContainer = newForm.querySelector('strong');
-            if (labelContainer) {
-                labelContainer.textContent = `New Copy #${newCopyCounter++}`;
-            }
+    document.getElementById('add-copy-btn').addEventListener('click', function () {
+        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+        const currentFormCount = parseInt(totalForms.value);
+        const copyFormsContainer = document.getElementById('copies');
+        const emptyFormTemplate = copyFormsContainer.children[0].outerHTML.replace(/form-(\d)+/g, `form-${currentFormCount}`);
 
-            copyFormsContainer.appendChild(newForm);
-            totalForms.value = currentFormCount + 1;
-        });
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = emptyFormTemplate;
+        const newForm = tempDiv.firstElementChild;
 
-        document.getElementById('add-alternate-cover-btn').addEventListener('click', function() {
-            const totalForms = document.getElementById('id_alt_cover-TOTAL_FORMS');
-            const currentFormCount = parseInt(totalForms.value);
-            const alternateCoversContainer = document.getElementById('alternate_covers');
-            const emptyFormTemplate = alternateCoversContainer.children[0]
-                .outerHTML
-                .replace(/alt_cover_set-(\d)+/g, `alt_cover_set-${currentFormCount}`);
-                
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = emptyFormTemplate;
-            const newForm = tempDiv.firstElementChild;
+        const labelContainer = newForm.querySelector('strong');
+        if (labelContainer) {
+            labelContainer.textContent = `New Copy #${newCopyCounter++}`;
+        }
 
-            const labelContainer = newForm.querySelector('strong');
-            if (labelContainer) {
-                labelContainer.textContent = `New Cover #${newAlternateCoverCounter++}`;
-            }
+        copyFormsContainer.appendChild(newForm);
+        totalForms.value = currentFormCount + 1;
+    });
 
-            alternateCoversContainer.appendChild(newForm);
-            totalForms.value = currentFormCount + 1;
-        });
-    </script>
+    document.getElementById('add-alternate-cover-btn').addEventListener('click', function () {
+        const totalForms = document.getElementById('id_alt_cover-TOTAL_FORMS');
+        const currentFormCount = parseInt(totalForms.value);
+        const alternateCoversContainer = document.getElementById('alternate_covers');
+        const emptyFormTemplate = alternateCoversContainer.children[0]
+            .outerHTML
+            .replace(/alt_cover_set-(\d)+/g, `alt_cover_set-${currentFormCount}`);
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = emptyFormTemplate;
+        const newForm = tempDiv.firstElementChild;
+
+        const labelContainer = newForm.querySelector('strong');
+        if (labelContainer) {
+            labelContainer.textContent = `New Cover #${newAlternateCoverCounter++}`;
+        }
+
+        alternateCoversContainer.appendChild(newForm);
+        totalForms.value = currentFormCount + 1;
+    });
+</script>
 {% endblock %}
