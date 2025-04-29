@@ -48,14 +48,14 @@
 
                 <div class="card-body">
                     <h6 class="card-title mb-1">{{ book.book_title|truncatechars:20 }}</h6>
-                    <p class="card-subtitle text-muted mb-1"><strong>Author:</strong> {{ book.book_author|truncatechars:15 }}</p>
-                    <p class="card-subtitle text-muted mb-1"><strong>Genre:</strong> {{ book.book_genre|truncatechars:10 }}</p>
+                    <p class="card-subtitle text-muted mb-1"><strong>By:</strong> {{ book.book_author|truncatechars:16 }}</p>
+                    <p class="card-subtitle text-muted mb-1"><strong>Genre:</strong> {{ book.book_genre|truncatechars:12 }}</p>
                     <p class="card-subtitle text-muted mb-0">
                         <strong>Rating:</strong> 
                         {% if book.avg_rating %}
                             {{ book.avg_rating|floatformat:1 }} ★
                         {% else %}
-                            No ratings yet
+                            Unrated
                         {% endif %}
                     </p>
                 </div>
