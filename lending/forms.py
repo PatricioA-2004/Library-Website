@@ -16,9 +16,11 @@ class BookForm(forms.ModelForm):
             'pub_year',
             'summary',
             'book_cover',
+            'total_copies',
         ]
         widgets = {
             'pub_year': forms.NumberInput(attrs={'min': 1000, 'max': 9999}),
+            'total_copies': forms.NumberInput(attrs={'min': 1}),
         }
 
 class ProfileForm(forms.ModelForm):
