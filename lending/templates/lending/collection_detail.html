@@ -47,12 +47,10 @@
                 <div class="card h-100" style="width: 18rem;">
                     {% if book.book_cover %}
                         <img src="{{ book.book_cover.url }}" class="card-img-top" alt="{{ book.book_title }}"
-                             style="height: 400px; object-fit: contain; padding: 10px;">
+                            style="height: 400px; object-fit: contain; padding: 10px;">
                     {% else %}
-                        <div class="card-img-top d-flex justify-content-center align-items-center bg-light"
-                             style="height: 400px;">
-                            <span class="text-muted">No Cover Available</span>
-                        </div>
+                        <img src="{% static 'lending/Default-Book.jpg' %}" class="card-img-top" alt="{{ book.book_title }}"
+                            style="height: 400px; object-fit: contain; padding: 10px;">
                     {% endif %}
                     <div class="card-body">
                         <h5 class="card-title text-dark">{{ book.book_title }}</h5>

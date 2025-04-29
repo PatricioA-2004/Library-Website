@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
-from django.db.models import Q, OuterRef, Exists
+from django.db.models import Q, OuterRef, Exists, Avg
 from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
@@ -34,14 +34,42 @@ from django.db.utils import IntegrityError
 class IndexView(ListView):
     template_name = "lending/index.html"
     context_object_name = "book_list"
+    
     def get_queryset(self):
         user = self.request.user
+        sort_by = self.request.GET.get('sort', 'title')
+        
+        # Base queryset based on user permissions
         if user.is_staff:
-            return Book.objects.all().order_by('book_title')
+            queryset = Book.objects.all()
         elif user.is_authenticated:
-            return Book.objects.filter(Q(collection__private=False) | Q(collection__allowed_users=user) | Q(collection__isnull=True)).distinct().order_by('book_title')
+            queryset = Book.objects.filter(
+                Q(collection__private=False) | 
+                Q(collection__allowed_users=user) | 
+                Q(collection__isnull=True)
+            ).distinct()
         else:
-            return Book.objects.exclude(collection__private=True).order_by('book_title')
+            queryset = Book.objects.exclude(collection__private=True)
+        
+        # Annotate with average rating
+        queryset = queryset.annotate(
+            avg_rating=Avg('reviews__rating')
+        )
+        
+        # Apply sorting
+        if sort_by == 'rating_asc':
+            queryset = queryset.order_by('avg_rating')
+        elif sort_by == 'rating_desc':
+            queryset = queryset.order_by('-avg_rating')
+        else:  # Default to title sorting
+            queryset = queryset.order_by('book_title')
+            
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_sort'] = self.request.GET.get('sort', 'title')
+        return context
 
 def collection_list_view(request):
     context = {}

@@ -42,9 +42,7 @@
                         Alternate Cover</button>
                 </div>
 
-
                 {{ alternate_cover_formset.management_form }}
-                <div id="hide">
                     <div id="alternate_covers" class="d-flex flex-row flex-wrap">
                         {% for form in alternate_cover_formset %}
                         <div class="copy-form my-1 mx-3 p-3 border rounded">
@@ -68,8 +66,6 @@
                         </div>
                         {% endfor %}
                     </div>
-
-
                 </div>
             </div>
         </div>

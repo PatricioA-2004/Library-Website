@@ -17,7 +17,7 @@
                         
                         <!-- Collection Name -->
                         <div class="mb-3">
-                            <label for="{{ form.collection_name.id_for_label }}" class="form-label">Collection Name</label>
+                            <label for="{{ form.collection_name.id_for_label }}" class="form-label">Collection Name *</label>
                             <input type="text" name="collection_name" class="form-control" id="{{ form.collection_name.id_for_label }}" 
                                    {% if form.collection_name.value %}value="{{ form.collection_name.value }}"{% endif %}>
                         </div>
@@ -36,14 +36,14 @@
 
                         <!--Description-->
                         <div class="mb-3">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description *</label>
                             <input type="text" name="description" class="form-control" id="{{ form.description.id_for_label }}" 
                                    {% if form.description.value %}value="{{ form.description.value }}"{% endif %}>
                         </div>
 
                         <!-- Books Selection -->
                         <div class="mb-3">
-                            <label class="form-label">Select Books</label>
+                            <label class="form-label">Select Books *</label>
                             <div class="card p-3" style="max-height: 400px; overflow-y: auto;">
                                 {% for book in form.books.field.queryset %}
                                 <div class="form-check">
