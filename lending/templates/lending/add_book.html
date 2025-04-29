@@ -16,10 +16,9 @@
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% bootstrap_form form %}
-
+                        
                         {{ formset.management_form }}
                         <div id="alternate_covers">
-                            <span>Alternate Covers</span>
                             {% for form in formset %}
                             <div class="copy-form mb-3 p-3 border rounded">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -27,7 +26,7 @@
                                         {% if form.instance.pk %}
                                         <strong>Cover #{{ forloop.counter }}</strong>
                                         {% else %}
-                                        <strong>New Cover</strong>
+                                        <strong>Alternate Cover #1</strong>
                                         {% endif %}
                                     </div>
                                     <div>
@@ -41,11 +40,12 @@
                                 </div>
                             </div>
                             {% endfor %}
-                            <div class="d-flex justify-content-end align-items-center">
+                        </div>
+                        
+                        <div class="d-flex justify-content-end align-items-center">
                                 <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add
                                     Another Alternate Cover</button>
                             </div>
-                        </div>
 
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Add Book</button>
@@ -75,15 +75,15 @@
         }
     });
 
-    let newAlternateCoverCounter = 1; 
+    let newAlternateCoverCounter = 2; 
 
     document.getElementById('add-alternate-cover-btn').addEventListener('click', function() {
-            const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+            const totalForms = document.getElementById('id_alt_cover-TOTAL_FORMS');
             const currentFormCount = parseInt(totalForms.value);
             const alternateCoversContainer = document.getElementById('alternate_covers');
             const emptyFormTemplate = alternateCoversContainer.children[0]
                 .outerHTML
-                .replace(/form-(\d)+/g, `form-${currentFormCount}`);
+                .replace(/alt_cover-(\d)+/g, `alt_cover-${currentFormCount}`);
                 
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = emptyFormTemplate;
@@ -91,7 +91,7 @@
 
             const labelContainer = newForm.querySelector('strong');
             if (labelContainer) {
-                labelContainer.textContent = `New Cover #${newAlternateCoverCounter++}`;
+                labelContainer.textContent = `Alternate Cover #${newAlternateCoverCounter++}`;
             }
 
             alternateCoversContainer.appendChild(newForm);

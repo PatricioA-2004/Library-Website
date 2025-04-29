@@ -95,7 +95,7 @@ def add_book(request):
 
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
-        formset = AlternateCoverFormset(request.POST, request.FILES)
+        formset = AlternateCoverFormset(request.POST, request.FILES, prefix="alt_cover")
         if not request.user or not request.user.is_staff:
             return HttpResponseForbidden('Permission Denied')
         if form.is_valid() and formset.is_valid():
@@ -112,7 +112,7 @@ def add_book(request):
             return redirect('lending:index')
     else:
         form = BookForm()
-        formset = AlternateCoverFormset()
+        formset = AlternateCoverFormset(prefix="alt_cover")
 
     return render(request, 'lending/add_book.html', {'form': form, 'formset': formset})
 
@@ -222,14 +222,14 @@ def edit_book(request, pk):
         Book, 
         AlternateCover, 
         form = AlternateCoverForm,
-        extra=0,
+        extra=1,
         can_delete=True,
     )
 
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
         formset = BookCopyFormSet(request.POST, queryset=book.copies.all())
-        alternate_cover_formset = AlternateCoverFormset(request.POST, request.FILES, instance=book)
+        alternate_cover_formset = AlternateCoverFormset(request.POST, request.FILES, instance=book, prefix="alt_cover")
 
         if form.is_valid() and formset.is_valid() and alternate_cover_formset.is_valid():
             book = form.save(commit=False)
@@ -256,7 +256,7 @@ def edit_book(request, pk):
     else:
         form = BookForm(instance=book)
         formset = BookCopyFormSet(queryset=book.copies.all())
-        alternate_cover_formset = AlternateCoverFormset(instance=book)
+        alternate_cover_formset = AlternateCoverFormset(instance=book, prefix="alt_cover")
 
     return render(request, 'lending/edit_book.html', {
         'form': form,
