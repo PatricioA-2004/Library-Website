@@ -317,7 +317,7 @@ class CollectionDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         can_view = (
-            (not self.object.private and self.request.user.is_authenticated)
+            (not self.object.private)
             or self.request.user.is_staff
             or self.object.owner == self.request.user
             or self.request.user in self.object.allowed_users.all()
