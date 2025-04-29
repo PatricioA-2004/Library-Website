@@ -435,10 +435,7 @@ def manage_requests(request):
     if request.method == "POST":
         req_id = request.POST.get("request_id")
         action = request.POST.get("action")
-        print(req_id)
-        print(action)
         if action == "approve":
-            print("here")
             book_request = get_object_or_404(Request, id=req_id)
             book = book_request.requested_book
             available_copy = book.copies.filter(is_available=True).first()
