@@ -21,11 +21,9 @@
                     {% if r.status == "PENDING" %}
                         <span class="badge bg-warning text-dark">Pending</span>
                     {% elif r.status == "APPROVED" %}
-                        {% if r.returned %}
-                            <span class="badge bg-info">Returned</span>
-                        {% else %}
-                            <span class="badge bg-success">Approved</span>
-                        {% endif %}
+                        <span class="badge bg-success">Approved</span>
+                    {% elif r.status == "RETURNED" %}
+                        <span class="badge bg-info">Returned</span>
                     {% else %}
                         <span class="badge bg-danger">Rejected</span>
                     {% endif %}
