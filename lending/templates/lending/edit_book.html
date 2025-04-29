@@ -39,6 +39,7 @@
                 </div>
                 <div class="card-body">
                     {{ alternate_cover_formset.management_form }}
+                    <div id="hide">
                     <div id="alternate_covers">
                         {% for form in alternate_cover_formset %}
                             <div class="copy-form mb-3 p-3 border rounded">
@@ -65,6 +66,7 @@
 
                     <div class="card-header d-flex justify-content-end align-items-center">
                         <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add Another Alternate Cover</button>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -174,7 +176,7 @@
 
             const labelContainer = newForm.querySelector('strong');
             if (labelContainer) {
-                labelContainer.textContent = `Alternate Cover #${newAlternateCoverCounter++}`;
+                labelContainer.textContent = `New Cover #${newAlternateCoverCounter++}`;
             }
 
             alternateCoversContainer.appendChild(newForm);

@@ -18,6 +18,7 @@
                         {% bootstrap_form form %}
                         
                         {{ formset.management_form }}
+                        <div id="hide">
                         <div id="alternate_covers">
                             {% for form in formset %}
                             <div class="copy-form mb-3 p-3 border rounded">
@@ -45,8 +46,8 @@
                         <div class="d-flex justify-content-end align-items-center">
                                 <button type="button" class="btn btn-secondary btn-sm" id="add-alternate-cover-btn">Add
                                     Another Alternate Cover</button>
-                            </div>
-
+                            </div>                       
+                        </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Add Book</button>
                         </div>
@@ -62,7 +63,7 @@
 
 <script>
     const coverInput = document.getElementById("id_book_cover");
-    const altCovers = document.getElementById("alternate_covers");
+    const altCovers = document.getElementById("hide");
     const addBtn = document.getElementById("add-alternate-cover-btn");
 
     altCovers.style.display = "none";
