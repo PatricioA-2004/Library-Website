@@ -322,7 +322,7 @@ def create_collection(request):
 
 def search_view(request):
     query = request.GET.get('q')
-    books = Book.objects.annotate(search=SearchVector("book_title", "book_author", "genre"),).filter(search=query)
+    books = Book.objects.annotate(search=SearchVector("book_title", "book_author", "book_genre"),).filter(search=query)
     collections = Collection.objects.annotate(search=SearchVector("collection_name")).filter(search=query)
     private_titles = None
     if request.user.is_authenticated and not request.user.is_staff:
