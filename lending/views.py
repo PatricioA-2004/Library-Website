@@ -8,6 +8,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic import DeleteView
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden, JsonResponse
+from django.core.exceptions import PermissionDenied
 from .models import Profile
 from .forms import ProfileForm, CollectionForm, AddLibrarianForm
 from django.contrib.auth.models import User
@@ -143,6 +144,14 @@ class BookDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        private_collections = Collection.objects.filter(books=self.object, private=True)
+
+        if private_collections.exists():
+            user = self.request.user
+            is_allowed = private_collections.filter(allowed_users=user).exists()
+            
+            if not (user.is_staff or is_allowed):
+                raise PermissionDenied("You do not have permission to access this book.")
         reviews = self.object.reviews.all().order_by('-created_at')
         context['reviews'] = reviews
         context['copies'] = self.object.copies.all().values()

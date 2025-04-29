@@ -28,7 +28,7 @@ class Collection(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="collections")
     allowed_users = models.ManyToManyField(User)
     books = models.ManyToManyField(Book)
-    private = models.BooleanField() # Only librarians can make private collections
+    private = models.BooleanField(db_index = True) # Only librarians can make private collections
     collection_name = models.CharField(max_length=100)
     description = models.CharField(max_length=200, default="")
 
