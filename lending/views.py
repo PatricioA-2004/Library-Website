@@ -274,6 +274,7 @@ def edit_book(request, pk):
 
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
+        form.fields.pop('total_copies', None)
         formset = BookCopyFormSet(request.POST, queryset=book.copies.all())
         alternate_cover_formset = AlternateCoverFormset(request.POST, request.FILES, instance=book, prefix="alt_cover")
 
@@ -301,6 +302,7 @@ def edit_book(request, pk):
             return redirect('lending:book_detail', pk=book.pk)
     else:
         form = BookForm(instance=book)
+        form.fields.pop('total_copies', None)
         formset = BookCopyFormSet(queryset=book.copies.all())
         alternate_cover_formset = AlternateCoverFormset(instance=book, prefix="alt_cover")
 
