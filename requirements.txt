@@ -33,6 +33,7 @@ pytz==2025.2
 requests==2.32.3
 requests-oauthlib==2.0.0
 s3transfer==0.11.4
+setuptools==80.0.0
 six==1.17.0
 social-auth-app-django==5.4.3
 social-auth-core==4.5.6
@@ -45,4 +46,3 @@ tzdata==2025.1
 urllib3==2.3.0
 wcwidth==0.2.13
 whitenoise==6.9.0
-setuptools==59.6.0
