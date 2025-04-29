@@ -34,10 +34,8 @@
                             <img src="{{ book.book_cover.url }}" class="img-fluid"
                                 style="height: 150px; width: auto; max-width: 100%;">
                             {% else %}
-                            <div class="d-flex flex-column align-items-center justify-content-center mx-auto"
-                                style="height: 100px; width: 60px; background-color: #e9ecef;">
-                                <small>No cover</small>
-                            </div>
+                            <img src="{% static 'lending/Default-Book.jpg' %}" class="img-fluid"
+                                style="height: 150px; width:auto; max-width: 100%">
                             {% endif %}
                         </div>
                         {% empty %}
