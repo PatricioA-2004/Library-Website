@@ -18,10 +18,13 @@ from django.db.models import Q, OuterRef, Exists
 from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
+from notifications.signals import notify
+
 
 from .forms import BookForm, ReviewForm, BookCopyFormSet
 from django.views.generic import DetailView, ListView
 from .models import Book, Collection, Review, CollectionRequest, BookCopy
+from notifications.models import Notification
 from django.contrib import messages
 from django.db.utils import IntegrityError
 
@@ -380,13 +383,27 @@ def manage_requests(request):
             book.total_available -= 1
             book_request.save()
             book.save()
-            messages.success(request, f"Request for '{book.book_title}' approved.")
+            notify.send(
+                sender=request.user,
+                recipient=book_request.requester,
+                verb="was approved",
+                target=book,
+                description=f"Your request for '{book.book_title}' has been approved.",
+                level='success'
+            )
 
         elif action == "reject":
             book_request = get_object_or_404(Request, id=req_id)
             book_request.status = "REJECTED"
             book_request.save()
-            messages.error(request, f"Request for '{book_request.requested_book.book_title}' rejected.")
+            notify.send(
+                sender=request.requester,
+                recipient=book_request.user,
+                verb="was rejected",
+                target=book_request.requested_book,
+                description=f"Your request for '{book_request.requested_book.book_title}' was rejected.",
+                level='error'
+            )
 
         elif action == "approve_collection":
             collection_request = get_object_or_404(CollectionRequest, id=req_id)
@@ -394,14 +411,27 @@ def manage_requests(request):
             collection_request.collection.allowed_users.add(collection_request.user)
             collection_request.save()
             collection_request.collection.save()
-            messages.success(request, f"Access Request for Collection '{collection_request.collection.collection_name}' approved.")
+            notify.send(
+                sender=request.user,
+                recipient=collection_request.user,
+                verb="was approved",
+                target=collection_request.collection,
+                description=f"Access to Collection '{collection_request.collection.collection_name}' has been granted.",
+                level='success'
+            )
 
         elif action == "reject_collection":
             collection_request = get_object_or_404(CollectionRequest, id=req_id)
             collection_request.status = "REJECTED" 
             collection_request.save()   
-            messages.error(request, f"Access Request for Collection '{collection_request.collection.collection_name}' denied.")
-
+            notify.send(
+                sender=request.user,
+                recipient=collection_request.user,
+                verb="was rejected",
+                target=collection_request.collection,
+                description=f"Access to Collection '{collection_request.collection.collection_name}' has been denied.",
+                level='error'
+            )
 
         return redirect('lending:manage_requests')
 
@@ -547,3 +577,14 @@ def delete_book(request, pk):
     
     messages.success(request, f'Book "{book.book_title}" has been successfully deleted.')
     return redirect('lending:index')
+
+@require_POST
+def mark_notification_as_read(request, notification_id):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden("Authentication required")
+    try:
+        notification = Notification.objects.get(id=notification_id, recipient=request.user)
+        notification.mark_as_read()
+        return JsonResponse({'status': 'ok'})
+    except Notification.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Notification not found'}, status=404)

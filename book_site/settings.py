@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'social_django',
     'storages',
     'widget_tweaks',
+    'notifications'
 ]
 
 MIDDLEWARE = [
