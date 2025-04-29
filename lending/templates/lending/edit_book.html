@@ -37,6 +37,10 @@
 
                 <div class="card-body">
                     {{ formset.management_form }}
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>Book Copies</h4>
+                        <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
+                    </div>
                     <div id="copies">
                         {% for form in formset %}
                             <div class="copy-form mb-3 p-3 border rounded">
@@ -60,10 +64,6 @@
                             </div>
                         {% endfor %}
                     </div>
-                </div>
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>Book Copies</h4>
-                    <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
                 </div>
             </div>
 
