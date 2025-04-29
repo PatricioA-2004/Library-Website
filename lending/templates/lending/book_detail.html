@@ -26,16 +26,60 @@
     }
 </style>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const covers = [
+        {% if book.book_cover %}
+            "{{ book.book_cover.url }}",
+        {% else %}
+            "{% static 'lending/Default-Book.jpg' %}",
+        {% endif %}
+
+        {% for alt_cover in book.alternate_covers.all %}
+            {% if alt_cover.image %}
+                "{{ alt_cover.image.url }}"
+            {% endif %}
+        {% endfor %}
+    ];
+
+    let currentIndex = 0;
+
+    const bookCover = document.getElementById('book_cover')
+    const prevButton = document.getElementById('prev-button')
+    const nextButton = document.getElementById('next-button')
+
+    if (covers.length > 1) {
+        prevButton.disabled = false;
+        nextButton.disabled = false;
+
+        prevButton.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + covers.length) % covers.length;
+            bookCover.src = covers[currentIndex];
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % covers.length;
+            bookCover.src = covers[currentIndex];
+        });
+    }
+});
+</script>
+
 <div class="container-fluid">
     <div class="row mt-2">
         <div class="col-md-3 mt-3">
-            {% if book.book_cover and book.book_cover.url %}
-                <img src="{{ book.book_cover.url }}" class="rounded mx-auto d-block img-fluid" style="...">
-            {% else %}
-                <img src="{% static 'lending/Default-Book.jpg' %}" 
-                     class="rounded mx-auto d-block img-fluid" 
-                     style="min-width: 100px; min-height: 200px; max-height: 500px;">
-            {% endif %}
+            <div id="cover-container" class="d-flex justify-content-center">
+                {% if book.book_cover %}
+                    <img id="book_cover" src="{{ book.book_cover.url }}" alt="Book Cover" style="width:auto; height:400px;">
+                {% else %}
+                    <img id="book_cover" src="{% static 'lending/Default-Book.jpg' %}" style="width:auto; height:400px;">
+                {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-center mt-4">
+                <button id="prev-button" disabled>&lArr;</button>
+                <button id="next-button" disabled>&rArr;</button>
+            </div>
 
             <div class="d-flex justify-content-center align-items-center mt-4"
                 style="font-size: clamp(1rem, 2vw, 1.5rem);">

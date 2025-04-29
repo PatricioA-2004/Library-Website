@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Book, Request, User, BookCopy
+from .models import Book, Request, User, BookCopy, AlternateCover
 from .models import Profile
 from .models import Collection
 from .models import Review
@@ -102,6 +102,21 @@ BookCopyFormSet = inlineformset_factory(
     Book, 
     BookCopy, 
     form=BookCopyForm,
+    extra=0,
+    can_delete=True,
+    min_num=1,
+    validate_min=True
+)
+
+class AlternateCoverForm(forms.ModelForm):
+    class Meta:
+        model = AlternateCover
+        fields = ['image']
+
+AlternateCoverFormset = inlineformset_factory(
+    Book,
+    AlternateCover,
+    form=AlternateCoverForm,
     extra=0,
     can_delete=True,
     min_num=1,

@@ -1,7 +1,7 @@
 from datetime import timezone, timedelta
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, inlineformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
@@ -19,11 +19,12 @@ from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
 from notifications.signals import notify
+from django import forms
 
 
-from .forms import BookForm, ReviewForm, BookCopyFormSet
+from .forms import BookForm, ReviewForm, BookCopyFormSet, AlternateCoverForm
 from django.views.generic import DetailView, ListView
-from .models import Book, Collection, Review, CollectionRequest, BookCopy
+from .models import Book, Collection, Review, CollectionRequest, BookCopy, AlternateCover
 from notifications.models import Notification
 from django.contrib import messages
 from django.db.utils import IntegrityError
@@ -84,15 +85,26 @@ def logout_view(request):
     return redirect('https://accounts.google.com/logout?continue=http://127.0.0.1:8000/lending/login/')
 
 def add_book(request):
+    AlternateCoverFormset = inlineformset_factory(
+        Book, 
+        AlternateCover, 
+        form = AlternateCoverForm,
+        extra=1,
+        can_delete=True,
+    )
+
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
+        formset = AlternateCoverFormset(request.POST, request.FILES, prefix="alt_cover")
         if not request.user or not request.user.is_staff:
             return HttpResponseForbidden('Permission Denied')
-        if form.is_valid():
+        if form.is_valid() and formset.is_valid():
             book = form.save(commit=False)
             book.total_available = book.total_copies
             book.save()
             form.save_m2m()
+            formset.instance = book
+            formset.save()
             
             for _ in range(book.total_copies):
                 BookCopy.objects.create(book=book)
@@ -100,8 +112,9 @@ def add_book(request):
             return redirect('lending:index')
     else:
         form = BookForm()
+        formset = AlternateCoverFormset(prefix="alt_cover")
 
-    return render(request, 'lending/add_book.html', {'form': form})
+    return render(request, 'lending/add_book.html', {'form': form, 'formset': formset})
 
 @login_required
 def profile_view(request): #fixed
@@ -133,6 +146,7 @@ class BookDetailView(DetailView):
         reviews = self.object.reviews.all().order_by('-created_at')
         context['reviews'] = reviews
         context['copies'] = self.object.copies.all().values()
+        context['alternate_covers'] = self.object.alternate_covers.all()
         if self.request.user.is_authenticated:
             context['review_form'] = ReviewForm()
             context['user_review'] = self.object.reviews.filter(user=self.request.user).first()
@@ -204,11 +218,20 @@ def edit_book(request, pk):
         can_delete=True,
     )
 
+    AlternateCoverFormset = inlineformset_factory(
+        Book, 
+        AlternateCover, 
+        form = AlternateCoverForm,
+        extra=1,
+        can_delete=True,
+    )
+
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
         formset = BookCopyFormSet(request.POST, queryset=book.copies.all())
+        alternate_cover_formset = AlternateCoverFormset(request.POST, request.FILES, instance=book, prefix="alt_cover")
 
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid() and formset.is_valid() and alternate_cover_formset.is_valid():
             book = form.save(commit=False)
             form.save_m2m()
 
@@ -222,6 +245,8 @@ def edit_book(request, pk):
                 instance.book = book
                 instance.save()
 
+            alternate_cover_formset.save()
+
             # Force total_copies to match the real count
             book.total_copies = book.copies.count()
             book.total_available = book.copies.filter(is_available=True).count()
@@ -231,10 +256,12 @@ def edit_book(request, pk):
     else:
         form = BookForm(instance=book)
         formset = BookCopyFormSet(queryset=book.copies.all())
+        alternate_cover_formset = AlternateCoverFormset(instance=book, prefix="alt_cover")
 
     return render(request, 'lending/edit_book.html', {
         'form': form,
         'formset': formset,
+        'alternate_cover_formset': alternate_cover_formset,
         'book': book,
     })
 
@@ -242,17 +269,22 @@ def edit_book(request, pk):
 class CollectionDetailView(DetailView):
     model = Collection
     template_name = "lending/collection_detail.html"
-
+    
     def get_context_data(self, **kwargs):
+        can_view = (
+            (not self.object.private and self.request.user.is_authenticated)
+            or self.request.user.is_staff
+            or self.object.owner == self.request.user
+            or self.request.user in self.object.allowed_users.all()
+        )
         context = super().get_context_data(**kwargs)
         context['books'] = self.object.books.all().order_by()
+        context['can_view'] = can_view
         return context
 
 @login_required
 def edit_collection(request, pk):
     collection = get_object_or_404(Collection, pk=pk)
-    if not request.user.is_staff and request.user != collection.owner:
-        return HttpResponseForbidden("You do not have permission to edit this collection.")
     if request.method == 'POST':
         form = CollectionForm(request.POST, instance=collection, user_is_staff=request.user.is_staff)
         if form.is_valid():
@@ -293,6 +325,7 @@ class CollectionDeleteView(UserPassesTestMixin, DeleteView):
         return super().form_valid(form)
 
 @login_required
+@user_passes_test(is_staff)
 def create_collection(request):
     if request.method == 'POST':
         form = CollectionForm(request.POST, user_is_staff=request.user.is_staff)
