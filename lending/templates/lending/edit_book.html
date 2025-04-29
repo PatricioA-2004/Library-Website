@@ -76,13 +76,13 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                {{ formset.management_form }}
+                {{ book_formset.management_form }}
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4>Book Copies</h4>
                     <button type="button" class="btn btn-secondary btn-sm" id="add-copy-btn">Add Another Copy</button>
                 </div>
                 <div class="d-flex flex-row flex-wrap" id="copies">
-                    {% for form in formset %}
+                    {% for form in book_formset %}
                     <div class="my-1 p-3 mx-3 border rounded">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>

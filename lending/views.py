@@ -269,7 +269,7 @@ def edit_book(request, pk):
 
     return render(request, 'lending/edit_book.html', {
         'form': form,
-        'formset': formset,
+        'book_formset': formset,
         'alternate_cover_formset': alternate_cover_formset,
         'book': book,
     })
