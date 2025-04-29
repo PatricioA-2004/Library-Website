@@ -36,7 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
         {% endif %}
 
         {% for alt_cover in book.alternate_covers.all %}
-            "{{ alt_cover.image.url }}"{% if not forloop.last %}, {% endif %}
+            {% if alt_cover.image %}
+                "{{ alt_cover.image.url }}"
+            {% endif %}
         {% endfor %}
     ];
 

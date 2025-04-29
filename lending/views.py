@@ -19,6 +19,7 @@ from datetime import timedelta
 from lending.models import Request
 from django.utils.timezone import now
 from notifications.signals import notify
+from django import forms
 
 
 from .forms import BookForm, ReviewForm, BookCopyFormSet, AlternateCoverForm
