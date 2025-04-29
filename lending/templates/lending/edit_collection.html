@@ -7,10 +7,8 @@
 {% if user.is_staff or collection.owner == user %}
 <div class="container">
     <div class="d-flex justify-content-center position-relative mt-5">
-        <!--Collection Name-->
         <h1 style="font-size: clamp(1rem, 5vw, 2.5rem)"> Edit Collection </h1>
 
-        <!--Edit and Delete Buttons-->
         {% if user.is_staff or collection.owner == user %}
         <div class="position-absolute top-0 end-0">
             <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete
@@ -19,7 +17,6 @@
         {% endif %}
     </div>
 
-    <!--Private/Public Tag-->
     <div class="d-flex justify-content-center">
         {% if collection.private %}
         <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Private </h2>
@@ -47,7 +44,6 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Popup -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

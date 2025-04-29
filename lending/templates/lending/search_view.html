@@ -49,10 +49,8 @@
 <div class="row">
     {% for collection in collections %}
     <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 mb-sm-4">
-        <!--Card Info-->
         <a href="{% url 'lending:collection_detail' collection.id %}" class="text-decoration-none">
             <div class="card h-100 m-2 border-1 position-relative" style="max-width: 300px;">
-                <!--Book Covers-->
                 <div class="d-flex">
                     {% for book in collection.books.all|slice:"3" %}
                     <div class="text-center" style="width: 33%; object-fit: cover;">
@@ -74,7 +72,6 @@
                     {% endfor %}
                 </div>
                 <div class="card-body d-flex flex-column">
-                    <!--Collection Info-->
                     <h6 class="card-title mb-1 d-flex text-dark" style="font-size: 20px;">
                         {{ collection.collection_name|truncatechars:25 }}
                     </h6>
