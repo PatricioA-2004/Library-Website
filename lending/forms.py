@@ -6,16 +6,6 @@ from .models import Collection
 from .models import Review
 
 class BookForm(forms.ModelForm):
-    total_copies = forms.IntegerField(
-        min_value=1,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'id': 'id_total_copies',
-            'onchange': 'updateCopyForms()',
-            'oninput': 'updateCopyForms()'
-        })
-    )
-    
     class Meta:
         model = Book
         fields = [
@@ -26,7 +16,6 @@ class BookForm(forms.ModelForm):
             'pub_year',
             'summary',
             'book_cover',
-            'total_copies',
         ]
         widgets = {
             'pub_year': forms.NumberInput(attrs={'min': 1000, 'max': 9999}),

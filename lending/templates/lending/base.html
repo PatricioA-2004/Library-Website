@@ -76,7 +76,7 @@
         <div class="toast-container">
             {% if request.user.is_authenticated %}
                 {% for notification in request.user.notifications.unread %}
-                <div class="toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3500" data-notification-id="{{ notification.id }}">
+                <div class="toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2800" data-notification-id="{{ notification.id }}">
                     <div class="d-flex">
                         <div class="toast-body text-light font-weight-bold">
                             {{ notification.description|default:notification.verb }}
@@ -89,7 +89,7 @@
 
             {% if messages %}
                 {% for message in messages %}
-                <div class="toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                <div class="toast align-items-center bg-dark border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2800">
                     <div class="d-flex">
                         <div class="toast-body text-light font-weight-bold">
                             {{ message }}
