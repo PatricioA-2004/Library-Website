@@ -273,8 +273,6 @@ class CollectionDetailView(DetailView):
 @login_required
 def edit_collection(request, pk):
     collection = get_object_or_404(Collection, pk=pk)
-    if not request.user.is_staff and request.user != collection.owner:
-        return HttpResponseForbidden("You do not have permission to edit this collection.")
     if request.method == 'POST':
         form = CollectionForm(request.POST, instance=collection, user_is_staff=request.user.is_staff)
         if form.is_valid():
