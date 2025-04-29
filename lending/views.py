@@ -260,8 +260,10 @@ def edit_book(request, pk):
     BookCopyFormSet = modelformset_factory(
         BookCopy,
         fields=('location',),
-        extra=1,  # always show 1 empty form to add a copy
+        extra=0,  # always show 1 empty form to add a copy
         can_delete=True,
+        min_num = 1,
+        validate_min = True
     )
 
     AlternateCoverFormset = inlineformset_factory(
