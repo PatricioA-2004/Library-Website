@@ -16,7 +16,11 @@
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% bootstrap_form form %}
-                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
                         {{ formset.management_form }}
                         <div id="hide">
                         <div id="alternate_covers">
