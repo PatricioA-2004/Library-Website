@@ -270,6 +270,7 @@ def edit_collection(request, pk):
                         continue
                     other_collection.books.remove(*private_books)
                     other_collection.save()
+            messages.success(request, f"Collection '{collection.collection_name}' updated successfully!")
             return redirect('lending:collection_detail', pk=pk)
     else:
         form = CollectionForm(instance=collection, user_is_staff=request.user.is_staff)
@@ -285,6 +286,11 @@ class CollectionDeleteView(UserPassesTestMixin, DeleteView):
     def test_func(self):
         collection = self.get_object()
         return self.request.user.is_staff or collection.owner == self.request.user
+
+    def form_valid(self, form):
+        collection = self.get_object()
+        messages.success(self.request, f"Collection '{collection.collection_name}' deleted successfully!")
+        return super().form_valid(form)
 
 @login_required
 def create_collection(request):
@@ -307,6 +313,7 @@ def create_collection(request):
                         continue
                     other_collection.books.remove(*private_books)
                     other_collection.save()
+            messages.success(request, f"Collection '{collection.collection_name}' has been created successfully!")
             return redirect('lending:collections_list')
     else:
         form = CollectionForm(user_is_staff=request.user.is_staff)
@@ -434,7 +441,6 @@ def manage_requests(request):
 
 @user_passes_test(is_staff)
 def add_librarian(request):
-    message = ''
     if request.method == "POST":
         form = AddLibrarianForm(request.POST)
         if form.is_valid():
@@ -443,16 +449,16 @@ def add_librarian(request):
                 user = User.objects.get(email=email)
                 user.is_staff = True
                 user.save()
-                message = user.username + " has been granted librarian access."
+                messages.success(request, f"{email} has been successfully added as a librarian.")
             except User.DoesNotExist:
-                message = "No user found with that email address."
+                messages.error(request, "No user found with that email address.")
     else:
         form = AddLibrarianForm()
 
     return render(request, 'lending/add_librarian.html', {
         'form': form,
-        'message': message
     })
+
 
 
 @login_required
@@ -476,7 +482,7 @@ def return_book(request, pk):
     book_request.returned_at = now()
     book_request.save()
 
-    messages.success(request, f"You successfully returned '{book.book_title}'.")
+    messages.success(request, f"'{book.book_title}' has been returned successfully!")
     return redirect('lending:my_books')
 
 

@@ -82,14 +82,6 @@
     {% if private_collections %}
     <h4 class="mb-0" style="font-weight: bold;">Private Collections</h3>
         {% endif %}
-
-        {% if messages %}
-        <div class="container mt-3">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
         {% for collection in private_collections %}
         <li class="list-group-item d-flex justify-content-between align-items-center my-3">
             {{ collection.collection_name }}
