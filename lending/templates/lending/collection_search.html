@@ -6,11 +6,9 @@
 
 <div class="container">
     <div class="d-flex justify-content-between position-relative mt-5">
-        <!--Collection Name-->
         <h1 class="fw-bold" style="font-size: clamp(1rem, 5vw, 2.5rem)"> Collection: {{ collection.collection_name }}
         </h1>
 
-        <!--Edit and Delete Buttons-->
         {% if user.is_staff or collection.owner == user %}
         <div class="">
             <a href="{% url 'lending:edit_collection' collection.id %}" class="btn btn-primary me-2">Edit Collection</a>
@@ -20,7 +18,6 @@
         {% endif %}
     </div>
 
-    <!--Private/Public Tag-->
     <div class="d-flex justify-content-center mb-4">
         {% if collection.private %}
         <h2 style="font-size: clamp(1rem, 5vw, 1.5rem)"> Private </h2>
@@ -29,12 +26,10 @@
         {% endif %}
     </div>
 
-    <!--Description-->
     <div class="d-flex justify-content-center mb-4" style="font-size: clamp(0.5rem, 2vw, 1rem);">
         {{ collection.description }}
     </div>
 
-    <!--Search-->
     <form class="d-flex ml-0" action="{% url 'lending:collection_search' collection.id %}" method="get">
         <div class="input-group">
             <input class="form-control" type="search" name="q" placeholder="Search" value="{{query}}">
@@ -42,7 +37,6 @@
         </div>
     </form>
 
-    <!--Book List-->
     <div class="row">
         {% for book in books %}
         <div class="col-md-4 mb-4">
@@ -69,7 +63,6 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Popup -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

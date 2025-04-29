@@ -32,10 +32,7 @@ from .models import Book, Collection, Review, CollectionRequest, BookCopy, Alter
 from notifications.models import Notification
 from django.contrib import messages
 from django.db.utils import IntegrityError
-
-# Create your views here.
 from django.db.models import Avg, Case, When, Value, IntegerField
-from django.db.models.functions import Coalesce
 
 class IndexView(ListView):
     template_name = "lending/index.html"
@@ -284,7 +281,6 @@ def edit_book(request, pk):
 
             instances = formset.save(commit=False)
 
-            # Handle deletions
             for obj in formset.deleted_objects:
                 obj.delete()
 
@@ -294,7 +290,6 @@ def edit_book(request, pk):
 
             alternate_cover_formset.save()
 
-            # Force total_copies to match the real count
             book.total_copies = book.copies.count()
             book.total_available = book.copies.filter(is_available=True).count()
             book.save()

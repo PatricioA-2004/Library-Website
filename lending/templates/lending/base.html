@@ -16,7 +16,6 @@
 <body>
 <div class="d-flex flex-column vh-100 justify-content-spaced">
 
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
         <div class="container-fluid d-flex align-items-center w-100 gap-3">
             <a class="navbar-brand me-4" href="{% url 'lending:index' %}">
@@ -71,7 +70,6 @@
         </div>
     </nav>
 
-    <!-- Toasts for Notifications and Django Messages -->
     <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100; margin-top: 5rem;">
         <div class="toast-container">
             {% if request.user.is_authenticated %}
@@ -102,7 +100,6 @@
         </div>
     </div>
 
-    <!-- Toast JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toastElements = document.querySelectorAll('.toast');
@@ -126,13 +123,11 @@
         });
     </script>
 
-    <!-- Page Content -->
     <div class="d-flex flex-column justify-content-center align-items-center">
         {% block content %}
         {% endblock %}
     </div>
 
-    <!-- Footer -->
     <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
             <div class="row">
